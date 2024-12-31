@@ -119,7 +119,7 @@ If you want to contribute, just check out [this git project](https://github.com/
 # install dependencies
 npm install
 
-# hot-reloading development server
+# build everything
 npm run build
 
 # prettify
@@ -136,4 +136,7 @@ npm run clean
 
 # publish the npm package
 npm run publish
+
+# run example cli
+npx example-cli
 ```
