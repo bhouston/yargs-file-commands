@@ -1,0 +1,13 @@
+{
+  "name": "example-cli",
+  "type": "module",
+  "src": "src/index.ts",
+  "bin": "./bin/cli.js",
+  "dependencies": {
+    "yargs": "^17",
+    "yargs-file-commands": "*"
+  },
+  "devDependencies": {
+    "source-map-support": "^0.5.21"
+  }
+}

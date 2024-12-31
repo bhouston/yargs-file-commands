@@ -1,0 +1,50 @@
+{
+  "name": "yargs-file-commands",
+  "description": "A yargs helper function that lets you define your commands structure via directory and file naming conventions.",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "./src/index.ts",
+  "license": "MIT",
+  "author": "Ben Houston <neuralsoft@gmail.com> (https://benhouston3d.com)",
+  "keywords": [
+    "yargs",
+    "file-router",
+    "files",
+    "directory",
+    "automatic",
+    "commandDir",
+    "helper",
+    "nodejs",
+    "typescript"
+  ],
+  "homepage": "https://github.com/bhouston/yargs-file-commands#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhouston/yargs-file-commands"
+  },
+  "bugs": {
+    "url": "https://github.com/bhouston/yargs-file-commands/issues"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "yargs": "^17"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/yargs": "^17.0.33"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
