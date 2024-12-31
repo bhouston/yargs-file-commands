@@ -1,15 +1,16 @@
 import { readdir, stat } from 'fs/promises';
-import { join } from 'path';
+import path, { join } from 'path';
 
 export interface ScanDirectoryOptions {
   ignorePatterns?: RegExp[];
+  extensions?: string[];
 }
 
 export const scanDirectory = async (
   dirPath: string,
   options: ScanDirectoryOptions = {}
 ): Promise<string[]> => {
-  const { ignorePatterns = [] } = options;
+  const { ignorePatterns = [], extensions = [] } = options;
 
   // Check if path should be ignored
   const shouldIgnore = ignorePatterns.some((pattern) => pattern.test(dirPath));
@@ -35,6 +36,11 @@ export const scanDirectory = async (
       if (stats.isDirectory()) {
         return scanDirectory(fullPath, options);
       }
+      const extension = path.extname(fullPath);
+      if (!extensions.includes(extension)) {
+        return [];
+      }
+
       return [fullPath];
     });
 
