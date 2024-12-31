@@ -27,23 +27,31 @@ export const fileCommands = async (options: FileCommandsOptions) => {
 
   const commands: Command[] = [];
 
-  options.rootDirs.forEach(async (rootCommandDir) => {
-    const filePaths = await scanDirectory(rootCommandDir, fullOptions);
-    const rootDirCommands = await Promise.all(
-      filePaths.map(async (filePath) => {
-        const segments = segmentPath(filePath, rootCommandDir);
-        return {
-          fullPath: filePath,
-          segments: segmentPath(filePath, rootCommandDir),
-          commandModule: await importCommandFromFile(
-            filePath,
-            segments[segments.length - 1]!
-          )
-        };
-      })
-    );
-    commands.push(...rootDirCommands);
-  });
+  await Promise.all(
+    options.rootDirs.map(async (rootCommandDir) => {
+      const filePaths = await scanDirectory(rootCommandDir, fullOptions);
+
+      const rootDirCommands = await Promise.all(
+        filePaths.map(async (filePath) => {
+          const segments = segmentPath(filePath, rootCommandDir);
+
+          return {
+            fullPath: filePath,
+            segments: segmentPath(filePath, rootCommandDir),
+            commandModule: await importCommandFromFile(
+              filePath,
+              segments[segments.length - 1]!
+            )
+          };
+        })
+      );
+      commands.push(...rootDirCommands);
+    })
+  );
+
   const commandRootNodes = buildSegmentTree(commands);
-  return commandRootNodes.map((node) => createCommand(node));
+
+  const rootCommands = commandRootNodes.map((node) => createCommand(node));
+
+  return rootCommands;
 };

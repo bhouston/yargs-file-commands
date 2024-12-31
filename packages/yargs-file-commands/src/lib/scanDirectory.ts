@@ -11,9 +11,6 @@ export const scanDirectory = async (
 ): Promise<string[]> => {
   const { ignorePatterns = [] } = options;
 
-  // add built-in ignore patterns.
-  ignorePatterns.push(...[/\.d\.ts$/, /\.js\.map$/]);
-
   // Check if path should be ignored
   const shouldIgnore = ignorePatterns.some((pattern) => pattern.test(dirPath));
   if (shouldIgnore) {

@@ -16,6 +16,8 @@ export const main = async () => {
   return yargs(hideBin(process.argv))
     .scriptName(packageInfo.name)
     .version(packageInfo.version)
-    .command(await fileCommands({ rootDirs: [rootCommandDir] }))
+    .command(
+      await fileCommands({ rootDirs: [rootCommandDir], logLevel: 'debug' })
+    )
     .help().argv;
 };
