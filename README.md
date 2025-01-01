@@ -18,21 +18,15 @@ npm install yargs-file-commands
 ## Example
 
 ```ts
-import { createRequire } from 'module';
-import path from 'path';
-import yargs from 'yargs';
-import { fileCommands } from 'yargs-file-commands';
-
-const require = createRequire(import.meta.url);
-
 export const main = async () => {
-  const rootCommandDir = path.join(
-    import.meta.url.replace('file://', ''),
-    '../commands'
-  );
+  const commandsDir = path.join(distDir, 'commands');
 
-  return yargs(process.argv)
-    .command(await fileCommands({ rootDirs: [rootCommandDir] }))
+  return yargs(hideBin(process.argv))
+    .scriptName(packageInfo.name!)
+    .version(packageInfo.version!)
+    .command(
+      await fileCommands({ commandDirs: [commandsDir], logLevel: 'debug' })
+    )
     .help().argv;
 };
 ```
@@ -89,7 +83,7 @@ studio start
 
 The "fileCommands" method takes the following options:
 
-**routesDirs**
+**commandDirs**
 
 - An array of directories where the routes are located relative to the build root folder.
 - Required
@@ -99,11 +93,10 @@ The "fileCommands" method takes the following options:
 - An array of file extensions for the route files. Files without matching extensions are ignored
 - Default: `[".js", ".ts"]`
 
-** ignorePatterns?: RegExp[];
-**
+**ignorePatterns**
 
 - An array of regexs which if matched against a filename or directory, lead it to being ignored/skipped over.
-- Default: `[ /^[\.|_].*/, /\.(test|spec)\.[jt]s$/, /__(test|spec)__/, /\.d\.ts$/ ]`
+- Default: `[ /^[.|_].*/, /\.(?:test|spec)\.[jt]s$/, /__(?:test|spec)__/, /\.d\.ts$/ ]`
 
 **logLevel**
 
