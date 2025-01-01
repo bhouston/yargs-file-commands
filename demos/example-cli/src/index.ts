@@ -19,5 +19,10 @@ export const main = async () => {
     .command(
       await fileCommands({ commandDirs: [commandsDir], logLevel: 'debug' })
     )
+    .demandCommand(
+      1,
+      'No command specified - use --help for available commands'
+    )
+    .showHelpOnFail(true)
     .help().argv;
 };
