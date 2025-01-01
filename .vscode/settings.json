@@ -2,7 +2,7 @@
   "eslint.probe": ["javascript", "javascriptreact", "typescript", "json"],
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
-  "cSpell.words": ["Fastify", "typecheck"],
+  "cSpell.words": ["benhouston", "Fastify", "typecheck"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
   "[glsl]": {
