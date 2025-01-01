@@ -140,3 +140,12 @@ npm run publish
 # run example cli
 npx example-cli
 ```
+
+Underneath the hood, we are using [NX](https://nx.dev) to manage the monorepo and shared scripts.
+
+[npm]: https://img.shields.io/npm/v/yargs-file-commands
+[npm-url]: https://www.npmjs.com/package/yargs-file-commands
+[build-size]: https://badgen.net/bundlephobia/minzip/yargs-file-commands
+[build-size-url]: https://bundlephobia.com/result?p=yargs-file-commands
+[npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
+[npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
