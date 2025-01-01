@@ -1,7 +1,6 @@
 # Yargs File Commands
 
 [![NPM Package][npm]][npm-url]
-[![Build Size][build-size]][build-size-url]
 [![NPM Downloads][npm-downloads]][npmtrends-url]
 
 This Yargs helper function lets you define all your commands as individual files and their file names and directory structure defines via implication your nested command structure.
@@ -145,7 +144,5 @@ Underneath the hood, we are using [NX](https://nx.dev) to manage the monorepo an
 
 [npm]: https://img.shields.io/npm/v/yargs-file-commands
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
-[build-size]: https://badgen.net/bundlephobia/minzip/yargs-file-commands
-[build-size-url]: https://bundlephobia.com/result?p=yargs-file-commands
 [npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
 [npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
