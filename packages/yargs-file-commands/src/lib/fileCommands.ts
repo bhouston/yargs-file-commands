@@ -5,7 +5,7 @@ import { scanDirectory } from './scanDirectory.js';
 import { segmentPath } from './segmentPath.js';
 
 export type FileCommandsOptions = {
-  rootDirs: string[];
+  commandDirs: string[];
   extensions?: string[];
   ignorePatterns?: RegExp[];
   logLevel?: 'info' | 'debug';
@@ -14,9 +14,9 @@ export type FileCommandsOptions = {
 export const DefaultFileCommandsOptions: Partial<FileCommandsOptions> = {
   extensions: ['.js', '.ts'],
   ignorePatterns: [
-    /^[\.|_].*/,
-    /\.(test|spec)\.[jt]s$/,
-    /__(test|spec)__/,
+    /^[.|_].*/,
+    /\.(?:test|spec)\.[jt]s$/,
+    /__(?:test|spec)__/,
     /\.d\.ts$/
   ],
   logLevel: 'info'
@@ -28,16 +28,16 @@ export const fileCommands = async (options: FileCommandsOptions) => {
   const commands: Command[] = [];
 
   await Promise.all(
-    options.rootDirs.map(async (rootCommandDir) => {
-      const filePaths = await scanDirectory(rootCommandDir, fullOptions);
+    options.commandDirs.map(async (commandDir) => {
+      const filePaths = await scanDirectory(commandDir, fullOptions);
 
       const rootDirCommands = await Promise.all(
         filePaths.map(async (filePath) => {
-          const segments = segmentPath(filePath, rootCommandDir);
+          const segments = segmentPath(filePath, commandDir);
 
           return {
             fullPath: filePath,
-            segments: segmentPath(filePath, rootCommandDir),
+            segments: segmentPath(filePath, commandDir),
             commandModule: await importCommandFromFile(
               filePath,
               segments[segments.length - 1]!

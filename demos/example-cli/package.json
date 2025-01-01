@@ -4,10 +4,12 @@
   "src": "src/index.ts",
   "bin": "./bin/cli.js",
   "dependencies": {
+    "type-fest": "^4.31.0",
     "yargs": "^17",
     "yargs-file-commands": "*"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "source-map-support": "^0.5.21"
   }
 }

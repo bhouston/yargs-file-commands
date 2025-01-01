@@ -1,23 +1,23 @@
 import { createRequire } from 'module';
 import path from 'path';
+import type { PackageJson } from 'type-fest';
+import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { fileCommands } from 'yargs-file-commands';
 
 const require = createRequire(import.meta.url);
-const packageInfo = require('../package.json');
+const packageInfo = require('../package.json') as PackageJson;
+const distDir = path.dirname(fileURLToPath(import.meta.url));
 
 export const main = async () => {
-  const rootCommandDir = path.join(
-    import.meta.url.replace('file://', ''),
-    '../commands'
-  );
+  const commandsDir = path.join(distDir, 'commands');
 
   return yargs(hideBin(process.argv))
-    .scriptName(packageInfo.name)
-    .version(packageInfo.version)
+    .scriptName(packageInfo.name!)
+    .version(packageInfo.version!)
     .command(
-      await fileCommands({ rootDirs: [rootCommandDir], logLevel: 'debug' })
+      await fileCommands({ commandDirs: [commandsDir], logLevel: 'debug' })
     )
     .help().argv;
 };
