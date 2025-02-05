@@ -2,9 +2,6 @@
   "name": "yargs-file-commands",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "targets": {
-    "build": {},
-    "dev": {},
-    "typecheck": {},
     "publish": {
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
@@ -23,8 +20,6 @@
         ],
         "parallel": false
       }
-    },
-    "format": {},
-    "lint": {}
+    }
   }
 }

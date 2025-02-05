@@ -2,19 +2,37 @@ import type { Argv, CommandModule } from 'yargs';
 
 import type { Command } from './Command';
 
+/**
+ * Represents a node in the command tree structure
+ * @type {CommandTreeNode}
+ */
 type CommandTreeNode = {
+  /** Name of the command segment */
   segmentName: string;
 } & (
   | {
+      /** Internal node type with children */
       type: 'internal';
+      /** Child command nodes */
       children: CommandTreeNode[];
     }
   | {
+      /** Leaf node type with command implementation */
       type: 'leaf';
+      /** The command implementation */
       command: Command;
     }
 );
 
+/**
+ * Builds a tree structure from command definitions
+ * @param {Command[]} commands - Array of command definitions
+ * @returns {CommandTreeNode[]} Root nodes of the command tree
+ *
+ * @description
+ * Constructs a hierarchical tree structure from flat command definitions,
+ * preserving the command hierarchy defined by the file system structure.
+ */
 export const buildSegmentTree = (commands: Command[]): CommandTreeNode[] => {
   const rootTreeNodes: CommandTreeNode[] = [];
 
@@ -25,6 +43,13 @@ export const buildSegmentTree = (commands: Command[]): CommandTreeNode[] => {
   return rootTreeNodes;
 };
 
+/**
+ * Inserts a command into the tree structure at the specified depth
+ * @param {CommandTreeNode[]} treeNodes - Current level tree nodes
+ * @param {Command} command - Command to insert
+ * @param {number} depth - Current depth in the segment tree
+ * @throws {Error} When there's a conflict between directory and command names
+ */
 function insertIntoTree(
   treeNodes: CommandTreeNode[],
   command: Command,
@@ -74,6 +99,16 @@ function insertIntoTree(
   insertIntoTree(currentSegment.children, command, depth + 1);
 }
 
+/**
+ * Creates a Yargs command module from a tree node
+ * @param {CommandTreeNode} treeNode - The tree node to convert
+ * @returns {CommandModule} Yargs command module
+ *
+ * @description
+ * Recursively converts a tree node into a Yargs command module.
+ * For leaf nodes, returns the actual command implementation.
+ * For internal nodes, creates a parent command that manages subcommands.
+ */
 export const createCommand = (treeNode: CommandTreeNode): CommandModule => {
   if (treeNode.type === 'leaf') {
     return treeNode.command.commandModule;
