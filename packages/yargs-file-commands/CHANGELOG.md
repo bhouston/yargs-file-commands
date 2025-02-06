@@ -1,5 +1,14 @@
 # yargs-file-commands
 
+## 0.0.12
+
+### Patch Changes
+
+- More explicit exceptions when bad parameters are passed in
+- More robust parameter checking and logging
+- Improved debugging logging
+- More robust debug messages
+
 ## 0.0.11
 
 ### Patch Changes
