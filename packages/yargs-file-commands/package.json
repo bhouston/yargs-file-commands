@@ -1,7 +1,7 @@
 {
   "name": "yargs-file-commands",
   "description": "A yargs helper function that lets you define your commands structure via directory and file naming conventions.",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
