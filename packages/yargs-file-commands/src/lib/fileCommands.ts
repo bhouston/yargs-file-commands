@@ -90,10 +90,15 @@ export const fileCommands = async (options: FileCommandsOptions) => {
 
     const filePaths = await scanDirectory(commandDir, commandDir, fullOptions);
 
+    console.debug(`Importing found commands:`);
     for (const filePath of filePaths) {
+      const localPath = path.relative(commandDir, filePath);
       const segments = segmentPath(filePath, commandDir);
       segments.pop(); // remove extension.
 
+      if (fullOptions.logLevel === 'debug') {
+        console.debug(`  ${localPath} - importing command module`);
+      }
       commands.push({
         fullPath: filePath,
         segments,

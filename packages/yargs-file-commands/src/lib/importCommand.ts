@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {
   type ArgumentsCamelCase,
   type CommandBuilder,
@@ -84,6 +85,13 @@ export const importCommandFromFile = async (
   name: string,
   options: ImportCommandOptions
 ) => {
+  // ensure file exists using fs node library
+  if (fs.existsSync(filePath) === false) {
+    throw new Error(
+      `Can not import command from non-existence file path: ${filePath}`
+    );
+  }
+
   const handlerModule = (await import(filePath)) as CommandImportModule;
   const { logLevel = 'info' } = options;
 
