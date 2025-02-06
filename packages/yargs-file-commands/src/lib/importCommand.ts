@@ -64,6 +64,10 @@ export interface CommandImportModule {
   handler?: CommandHandler;
 }
 
+export interface ImportCommandOptions {
+  logLevel?: 'info' | 'debug';
+}
+
 /**
  * Imports a command module from a file
  * @async
@@ -75,10 +79,15 @@ export interface CommandImportModule {
  * Dynamically imports a command file and constructs a Yargs command module.
  * If no handler is provided, creates a null implementation.
  */
-export const importCommandFromFile = async (filePath: string, name: string) => {
+export const importCommandFromFile = async (
+  filePath: string,
+  name: string,
+  options: ImportCommandOptions
+) => {
   const handlerModule = (await import(filePath)) as CommandImportModule;
+  const { logLevel = 'info' } = options;
 
-  return {
+  const command = {
     command: name,
     describe: handlerModule.describe,
     alias: handlerModule.alias,
@@ -90,4 +99,16 @@ export const importCommandFromFile = async (filePath: string, name: string) => {
         // null implementation
       })
   } as CommandModule;
+
+  if (logLevel === 'debug') {
+    console.debug(
+      'Importing command from',
+      filePath,
+      'as',
+      name,
+      'with description',
+      command.describe
+    );
+  }
+  return command;
 };

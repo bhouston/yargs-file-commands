@@ -7,8 +7,8 @@ import { importCommandFromFile } from '../lib/importCommand.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('importCommandFromFile', async () => {
-  it('should import command module correctly', async () => {
+await describe('importCommandFromFile', async () => {
+  await it('should import command module correctly', async () => {
     const commandPath = path.join(
       __dirname,
       'fixtures',
@@ -16,7 +16,7 @@ describe('importCommandFromFile', async () => {
       'db',
       'health.js'
     );
-    const command = await importCommandFromFile(commandPath, 'health');
+    const command = await importCommandFromFile(commandPath, 'health', {});
 
     assert(command.describe, 'Should have describe property');
     assert(
@@ -29,7 +29,7 @@ describe('importCommandFromFile', async () => {
     );
   });
 
-  it('should handle non-existent files', async () => {
+  await it('should handle non-existent files', async () => {
     const nonExistentPath = path.join(
       __dirname,
       'fixtures',
@@ -39,7 +39,7 @@ describe('importCommandFromFile', async () => {
 
     await assert.rejects(
       async () => {
-        await importCommandFromFile(nonExistentPath, 'non-existent');
+        await importCommandFromFile(nonExistentPath, 'non-existent', {});
       },
       Error,
       'Should throw error for non-existent file'

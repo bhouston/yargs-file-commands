@@ -7,12 +7,13 @@ import { scanDirectory } from '../lib/scanDirectory.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('scanDirectory', async () => {
-  it('should find all command files in directory', async () => {
+await describe('scanDirectory', async () => {
+  await it('should find all command files in directory', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
-    const files = await scanDirectory(commandsDir, {
+    console.log('Scan Directory: ', commandsDir);
+    const files = await scanDirectory(commandsDir, commandsDir, {
       extensions: ['.js'],
-      ignorePatterns: []
+      logLevel: 'debug'
     });
 
     assert.equal(files.length, 2, 'Should find two command files');
@@ -26,11 +27,13 @@ describe('scanDirectory', async () => {
     );
   });
 
-  it('should respect ignore patterns', async () => {
+  await it('should respect ignore patterns', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
-    const files = await scanDirectory(commandsDir, {
+    console.log('Scan Directory: ', commandsDir);
+    const files = await scanDirectory(commandsDir, commandsDir, {
       extensions: ['.js'],
-      ignorePatterns: [/health/]
+      ignorePatterns: [/health/],
+      logLevel: 'debug'
     });
 
     assert.equal(files.length, 1, 'Should find one command file');
@@ -44,11 +47,13 @@ describe('scanDirectory', async () => {
     );
   });
 
-  it('should handle non-existent directories', async () => {
+  await it('should handle non-existent directories', async () => {
     const nonExistentDir = path.join(__dirname, 'fixtures', 'non-existent');
     try {
-      await scanDirectory(nonExistentDir, {
-        extensions: ['.js']
+      console.log('Scan Directory: ', nonExistentDir);
+      await scanDirectory(nonExistentDir, nonExistentDir, {
+        extensions: ['.js'],
+        logLevel: 'debug'
       });
       assert.fail('Should have thrown an error');
     } catch (error) {

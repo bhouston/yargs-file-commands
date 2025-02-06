@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildSegmentTree } from '../lib/buildSegmentTree.js';
-import type { Command } from '../lib/Command.js';
+import { buildSegmentTree } from './buildSegmentTree.js';
+import type { Command } from './Command.js';
 
-describe('buildSegmentTree', async () => {
-  it('should build correct tree structure', async () => {
+await describe('buildSegmentTree', async () => {
+  await it('should build correct tree structure', async () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/db/migration/command.js',
@@ -59,12 +59,12 @@ describe('buildSegmentTree', async () => {
     );
   });
 
-  it('should handle empty input', async () => {
+  await it('should handle empty input', async () => {
     const tree = buildSegmentTree([]);
     assert.equal(tree.length, 0, 'Should return empty array for empty input');
   });
 
-  it('should handle single command', async () => {
+  await it('should handle single command', async () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/test.ts',

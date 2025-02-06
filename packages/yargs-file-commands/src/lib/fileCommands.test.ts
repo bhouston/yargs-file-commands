@@ -11,8 +11,8 @@ import { fileCommands } from '../lib/fileCommands.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('fileCommands', async () => {
-  it('should load commands from directory structure', async () => {
+await describe('fileCommands', async () => {
+  await it('should load commands from directory structure', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
     const commands = await fileCommands({
       commandDirs: [commandsDir],
@@ -40,7 +40,7 @@ describe('fileCommands', async () => {
     );
   });
 
-  it('should respect ignore patterns', async () => {
+  await it('should respect ignore patterns', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
     const commands = await fileCommands({
       commandDirs: [commandsDir],

@@ -1,4 +1,10 @@
-import { buildSegmentTree, createCommand } from './buildSegmentTree.js';
+import path from 'path';
+
+import {
+  buildSegmentTree,
+  createCommand,
+  logCommandTree
+} from './buildSegmentTree.js';
 import type { Command } from './Command.js';
 import { importCommandFromFile } from './importCommand.js';
 import { scanDirectory } from './scanDirectory.js';
@@ -56,33 +62,42 @@ export const DefaultFileCommandsOptions: Partial<FileCommandsOptions> = {
  * 4. Convert the tree into a command hierarchy
  */
 export const fileCommands = async (options: FileCommandsOptions) => {
-  const fullOptions = { ...DefaultFileCommandsOptions, ...options };
+  const fullOptions = {
+    ...DefaultFileCommandsOptions,
+    ...options,
+    logPrefix: '  '
+  };
 
   const commands: Command[] = [];
 
-  await Promise.all(
-    options.commandDirs.map(async (commandDir) => {
-      const filePaths = await scanDirectory(commandDir, fullOptions);
+  for (const commandDir of fullOptions.commandDirs) {
+    const fullPath = path.resolve(commandDir);
+    console.debug(`Scanning directory for commands: ${fullPath}`);
 
-      const rootDirCommands = await Promise.all(
-        filePaths.map(async (filePath) => {
-          const segments = segmentPath(filePath, commandDir);
+    const filePaths = await scanDirectory(commandDir, commandDir, fullOptions);
 
-          return {
-            fullPath: filePath,
-            segments: segmentPath(filePath, commandDir),
-            commandModule: await importCommandFromFile(
-              filePath,
-              segments[segments.length - 1]!
-            )
-          };
-        })
-      );
-      commands.push(...rootDirCommands);
-    })
-  );
+    for (const filePath of filePaths) {
+      const segments = segmentPath(filePath, commandDir);
+      segments.pop(); // remove extension.
+
+      commands.push({
+        fullPath: filePath,
+        segments,
+        commandModule: await importCommandFromFile(
+          filePath,
+          segments[segments.length - 1]!,
+          fullOptions
+        )
+      });
+    }
+  }
 
   const commandRootNodes = buildSegmentTree(commands);
+
+  if (fullOptions.logLevel === 'debug') {
+    console.debug('Command tree structure:');
+    logCommandTree(commandRootNodes, 1);
+  }
 
   const rootCommands = commandRootNodes.map((node) => createCommand(node));
 

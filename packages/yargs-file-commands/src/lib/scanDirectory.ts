@@ -10,6 +10,8 @@ export interface ScanDirectoryOptions {
   ignorePatterns?: RegExp[];
   /** File extensions to include in the scan */
   extensions?: string[];
+  logLevel?: 'info' | 'debug';
+  logPrefix?: string;
 }
 
 /**
@@ -27,45 +29,79 @@ export interface ScanDirectoryOptions {
  */
 export const scanDirectory = async (
   dirPath: string,
+  commandDir: string,
   options: ScanDirectoryOptions = {}
 ): Promise<string[]> => {
-  const { ignorePatterns = [], extensions = [] } = options;
-
-  // Check if path should be ignored
-  const shouldIgnore = ignorePatterns.some((pattern) => pattern.test(dirPath));
-  if (shouldIgnore) {
-    return [];
-  }
+  const {
+    ignorePatterns = [],
+    extensions = ['.js', '.ts'],
+    logLevel = 'info',
+    logPrefix = ''
+  } = options;
 
   try {
     const entries = await readdir(dirPath);
 
-    const nestedFilesPromises = entries.map(async (entry) => {
+    const commandPaths: string[] = [];
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry);
+
+      const localPath = fullPath.replace(commandDir, '');
+
       // apply ignore pattern and early return if matched
       const shouldIgnore = ignorePatterns.some((pattern) =>
-        pattern.test(entry)
+        pattern.test(localPath)
       );
       if (shouldIgnore) {
-        return [];
+        if (logLevel === 'debug') {
+          console.debug(
+            `${logPrefix}${localPath} - ignoring because it matches ignorePattern: ${ignorePatterns
+              .filter((pattern) => pattern.test(localPath))
+              .join(', ')}`
+          );
+        }
+        continue;
       }
 
-      const fullPath = join(dirPath, entry);
       const stats = await stat(fullPath);
 
       if (stats.isDirectory()) {
-        return scanDirectory(fullPath, options);
+        if (logLevel === 'debug') {
+          console.debug(
+            `${logPrefix}${localPath} - directory, scanning for commands:`
+          );
+        }
+        commandPaths.push(
+          ...(await scanDirectory(fullPath, commandDir, {
+            ...options,
+            logPrefix: `${logPrefix}  `
+          }))
+        );
+        continue;
       }
       const extension = path.extname(fullPath);
       if (!extensions.includes(extension)) {
-        return [];
+        if (logLevel === 'debug') {
+          console.debug(
+            `${logPrefix}${localPath} - ignoring as its extension, ${extension}, doesn't match required extension: ${extensions.join(
+              ', '
+            )}`
+          );
+        }
+        continue;
       }
 
-      return [fullPath];
-    });
+      if (logLevel === 'debug') {
+        console.debug(`${logPrefix}${localPath} - possible command file`);
+      }
 
-    const nestedFiles = await Promise.all(nestedFilesPromises);
-    return nestedFiles.flat();
+      commandPaths.push(fullPath);
+    }
+
+    return commandPaths;
   } catch (error) {
-    throw new Error(`Failed to scan directory ${dirPath}: ${error}`);
+    throw new Error(
+      `${logPrefix}Failed to scan directory ${dirPath}: ${error}`
+    );
   }
 };
