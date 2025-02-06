@@ -82,15 +82,31 @@ export const fileCommands = async (options: FileCommandsOptions) => {
     throw new Error('No command directories provided');
   }
 
+  // throw if some command directories are not absolute, first filter to find non-absolute an then throw, listing those that are not absolute
+  const nonAbsoluteDirs = fullOptions.commandDirs.filter(
+    (dir) => !path.isAbsolute(dir)
+  );
+  if (nonAbsoluteDirs.length > 0) {
+    throw new Error(
+      `Command directories must be absolute paths: ${nonAbsoluteDirs.join(
+        ', '
+      )}`
+    );
+  }
+
   const commands: Command[] = [];
 
   for (const commandDir of fullOptions.commandDirs) {
     const fullPath = path.resolve(commandDir);
-    console.debug(`Scanning directory for commands: ${fullPath}`);
+    if (fullOptions.logLevel === 'debug') {
+      console.debug(`Scanning directory for commands: ${fullPath}`);
+    }
 
     const filePaths = await scanDirectory(commandDir, commandDir, fullOptions);
 
-    console.debug(`Importing found commands:`);
+    if (fullOptions.logLevel === 'debug') {
+      console.debug(`Importing found commands:`);
+    }
     for (const filePath of filePaths) {
       const localPath = path.relative(commandDir, filePath);
       const segments = segmentPath(filePath, commandDir);
