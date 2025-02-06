@@ -108,6 +108,25 @@ export const importCommandFromFile = async (
       })
   } as CommandModule;
 
+  const supportedNames = [
+    'describe',
+    'alias',
+    'builder',
+    'deprecated',
+    'handler'
+  ];
+  const module = handlerModule as Record<string, any>;
+  const unsupportedExports = Object.keys(module).filter(
+    (key) => !supportedNames.includes(key)
+  );
+  if (unsupportedExports.length > 0) {
+    throw new Error(
+      `Command module ${name} in ${filePath} has some unsupported exports, probably a misspelling: ${unsupportedExports.join(
+        ', '
+      )}`
+    );
+  }
+
   if (logLevel === 'debug') {
     console.debug(
       'Importing command from',
@@ -118,5 +137,6 @@ export const importCommandFromFile = async (
       command.describe
     );
   }
+
   return command;
 };
