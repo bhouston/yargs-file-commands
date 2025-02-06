@@ -7,22 +7,16 @@ import {
 } from './buildSegmentTree.js';
 import type { Command } from './Command.js';
 import { importCommandFromFile } from './importCommand.js';
-import { scanDirectory } from './scanDirectory.js';
+import { scanDirectory, type ScanDirectoryOptions } from './scanDirectory.js';
 import { segmentPath } from './segmentPath.js';
 
 /**
  * Configuration options for file-based command generation
  * @interface FileCommandsOptions
  */
-export type FileCommandsOptions = {
+export type FileCommandsOptions = ScanDirectoryOptions & {
   /** Array of directory paths to scan for command files */
   commandDirs: string[];
-  /** File extensions to consider when scanning for command files */
-  extensions?: string[];
-  /** Regular expressions for patterns to ignore when scanning directories */
-  ignorePatterns?: RegExp[];
-  /** Logging verbosity level */
-  logLevel?: 'info' | 'debug';
 };
 
 /**
@@ -30,9 +24,13 @@ export type FileCommandsOptions = {
  * @constant
  * @type {Partial<FileCommandsOptions>}
  */
-export const DefaultFileCommandsOptions: Partial<FileCommandsOptions> = {
+export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
+  /** Default directories to scan for command files */
+  commandDirs: [],
+
   /** Default file extensions to process */
   extensions: ['.js', '.ts'],
+
   /** Default patterns to ignore when scanning directories */
   ignorePatterns: [
     /^[.|_].*/, // Hidden files and underscore files
@@ -40,8 +38,12 @@ export const DefaultFileCommandsOptions: Partial<FileCommandsOptions> = {
     /__(?:test|spec)__/, // Test directories
     /\.d\.ts$/ // TypeScript declaration files
   ],
+
   /** Default logging level */
-  logLevel: 'info'
+  logLevel: 'info',
+
+  /** Default log prefix */
+  logPrefix: '  '
 };
 
 /**
@@ -62,11 +64,23 @@ export const DefaultFileCommandsOptions: Partial<FileCommandsOptions> = {
  * 4. Convert the tree into a command hierarchy
  */
 export const fileCommands = async (options: FileCommandsOptions) => {
-  const fullOptions = {
+  const fullOptions: Required<FileCommandsOptions> = {
     ...DefaultFileCommandsOptions,
-    ...options,
-    logPrefix: '  '
+    ...options
   };
+
+  // validate extensions have dots in them
+  if (fullOptions.extensions.some((ext) => !ext.startsWith('.'))) {
+    throw new Error(
+      `Invalid extensions provided, must start with a dot: ${fullOptions.extensions.join(
+        ', '
+      )}`
+    );
+  }
+  // check for empty list of directories to scan
+  if (fullOptions.commandDirs.length === 0) {
+    throw new Error('No command directories provided');
+  }
 
   const commands: Command[] = [];
 
@@ -90,6 +104,15 @@ export const fileCommands = async (options: FileCommandsOptions) => {
         )
       });
     }
+  }
+
+  // check if no commands were found
+  if (commands.length === 0) {
+    throw new Error(
+      `No commands found in specified directories: ${fullOptions.commandDirs.join(
+        ', '
+      )}`
+    );
   }
 
   const commandRootNodes = buildSegmentTree(commands);

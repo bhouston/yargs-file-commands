@@ -6,11 +6,13 @@ import path, { join } from 'path';
  * @interface ScanDirectoryOptions
  */
 export interface ScanDirectoryOptions {
-  /** Regular expressions for patterns to ignore */
-  ignorePatterns?: RegExp[];
-  /** File extensions to include in the scan */
+  /** File extensions to consider when scanning for command files */
   extensions?: string[];
+  /** Regular expressions for patterns to ignore when scanning directories */
+  ignorePatterns?: RegExp[];
+  /** Logging verbosity level */
   logLevel?: 'info' | 'debug';
+  /** Prefix for log messages */
   logPrefix?: string;
 }
 
