@@ -1,5 +1,16 @@
 # yargs-file-commands
 
+## 0.0.15
+
+### Patch Changes
+
+- Throw if a command exports unrecognized names, catches a lot of bugs.
+- More explicit exceptions when bad parameters are passed in
+- Validate that provided command directories are aboslute
+- More robust parameter checking and logging
+- Improved debugging logging
+- More robust debug messages
+
 ## 0.0.14
 
 ### Patch Changes
