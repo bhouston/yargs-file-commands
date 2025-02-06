@@ -16,14 +16,18 @@ await describe('scanDirectory', async () => {
       logLevel: 'debug'
     });
 
-    assert.equal(files.length, 2, 'Should find two command files');
+    assert.equal(
+      files.length,
+      2,
+      `Should find two command files, instead found: ${files.join(', ')}`
+    );
     assert(
       files.some((f) => f.includes('health.js')),
-      'Should find health.js'
+      `Should find health.js, instead found: ${files.join(', ')}`
     );
     assert(
       files.some((f) => f.includes('command.js')),
-      'Should find command.js'
+      `Should find command.js, instead found: ${files.join(', ')}`
     );
   });
 
@@ -36,14 +40,18 @@ await describe('scanDirectory', async () => {
       logLevel: 'debug'
     });
 
-    assert.equal(files.length, 1, 'Should find one command file');
+    assert.equal(
+      files.length,
+      1,
+      `Should find one command file, instead found: ${files.join(', ')}`
+    );
     assert(
       files.some((f) => f.includes('command.js')),
-      'Should find command.js'
+      `Should find command.js, instead found: ${files.join(', ')}`
     );
     assert(
       !files.some((f) => f.includes('health.js')),
-      'Should not find health.js'
+      `Should not find health.js, instead found: ${files.join(', ')}`
     );
   });
 
