@@ -3,6 +3,7 @@
   "type": "module",
   "src": "src/index.ts",
   "bin": "./bin/cli.js",
+  "private": true,
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/index.js",
