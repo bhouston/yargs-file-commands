@@ -4,8 +4,8 @@ import { describe, it } from 'node:test';
 import { buildSegmentTree } from './buildSegmentTree.js';
 import type { Command } from './Command.js';
 
-await describe('buildSegmentTree', async () => {
-  await it('should build correct tree structure', async () => {
+describe('buildSegmentTree', async () => {
+  it('should build correct tree structure', () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/db/migration/command.js',
@@ -59,12 +59,12 @@ await describe('buildSegmentTree', async () => {
     );
   });
 
-  await it('should handle empty input', async () => {
+  it('should handle empty input', () => {
     const tree = buildSegmentTree([]);
     assert.equal(tree.length, 0, 'Should return empty array for empty input');
   });
 
-  await it('should handle single command', async () => {
+  it('should handle single command', () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/test.ts',

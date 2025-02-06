@@ -13,10 +13,11 @@
   "dependencies": {
     "type-fest": "^4.31.0",
     "yargs": "^17",
-    "yargs-file-commands": "*"
+    "yargs-file-commands": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "@types/yargs": "^17.0.33",
     "source-map-support": "^0.5.21"
   }
 }

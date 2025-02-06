@@ -7,7 +7,7 @@ import { scanDirectory } from '../lib/scanDirectory.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-await describe('scanDirectory', async () => {
+describe('scanDirectory', async () => {
   await it('should find all command files in directory', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
     console.log('Scan Directory: ', commandsDir);

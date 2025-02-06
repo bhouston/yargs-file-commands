@@ -11,7 +11,7 @@ import { fileCommands } from '../lib/fileCommands.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-await describe('fileCommands', async () => {
+describe('fileCommands', async () => {
   await it('should load commands from directory structure', async () => {
     const commandsDir = path.join(__dirname, 'fixtures', 'commands');
     const commands = await fileCommands({

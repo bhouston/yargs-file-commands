@@ -7,7 +7,7 @@ import { importCommandFromFile } from '../lib/importCommand.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-await describe('importCommandFromFile', async () => {
+describe('importCommandFromFile', async () => {
   await it('should import command module correctly', async () => {
     const commandPath = path.join(
       __dirname,

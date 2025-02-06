@@ -3,13 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "nx run-many -t build",
-    "typecheck": "nx run-many -t typecheck",
-    "publish": "nx run-many -t publish",
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
-    "lint": "nx run-many -t lint --parallel=8",
-    "format": "nx run-many -t format --parallel=8",
-    "test": "nx run-many -t test --parallel=8",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build"
   },
   "devDependencies": {
@@ -25,7 +19,6 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-sort-exports": "^0.9.1",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "nx": "^19.4",
     "prettier": "^2.8.8",
     "typescript": "^5"
   },
