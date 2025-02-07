@@ -3,3 +3,4 @@ dist
 publish
 LICENSE
 README.md
+.env

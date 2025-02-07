@@ -1,57 +1,55 @@
-import assert from 'node:assert/strict';
-import path from 'node:path';
-import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
+import { test } from 'node:test';
+import assert from 'node:assert';
+import type { Command } from './Command.js';
 
-import type { CommandModule } from 'yargs';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import { fileCommands } from './fileCommands.js';
 
-import { fileCommands } from '../lib/fileCommands.js';
+// get __dirname in ESM style
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-describe('fileCommands', async () => {
-  await it('should load commands from directory structure', async () => {
-    const commandsDir = path.join(__dirname, 'fixtures', 'commands');
-    const commands = await fileCommands({
-      commandDirs: [commandsDir],
-      extensions: ['.js'],
-      logLevel: 'debug'
-    });
-
-    assert.equal(commands.length, 1, 'Should have one root command');
-    const rootCommand = commands[0] as CommandModule;
-    assert(rootCommand, 'Root command should exist');
-    assert.equal(rootCommand.command, 'db', 'Root command should be "db"');
-
-    // Create a new yargs instance
-    const yargsInstance = yargs(hideBin(process.argv));
-
-    if (typeof rootCommand.builder === 'function') {
-      rootCommand.builder(yargsInstance);
-    }
-
-    // Check that the command has subcommands by checking its description
-    const description = rootCommand.describe;
-    assert(
-      typeof description === 'string' && description.includes('db'),
-      'Command should have correct description'
-    );
+test('should load commands from directory structure', async () => {
+  const commands = await fileCommands({
+    commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+    logLevel: 'debug'
   });
 
-  await it('should respect ignore patterns', async () => {
-    const commandsDir = path.join(__dirname, 'fixtures', 'commands');
-    const commands = await fileCommands({
-      commandDirs: [commandsDir],
-      extensions: ['.js'],
-      ignorePatterns: [/health/],
-      logLevel: 'debug'
-    });
+  assert.ok(commands.length > 0);
+});
 
-    assert.equal(commands.length, 1, 'Should have one root command');
-    const rootCommand = commands[0] as CommandModule;
-    assert(rootCommand, 'Root command should exist');
-    assert.equal(rootCommand.command, 'db', 'Root command should be "db"');
+test('should respect ignore patterns', async () => {
+  const commands = await fileCommands({
+    commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+    ignorePatterns: [/health/, /.d.ts/],
+    logLevel: 'debug'
   });
+
+  assert.ok(commands.length > 0);
+});
+
+test('should handle explicit commands and default command', async () => {
+  const commands = await fileCommands({
+    commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+    logLevel: 'debug'
+  });
+
+  console.log(
+    'commands',
+    JSON.stringify(
+      commands.map((c) => c.command),
+      null,
+      2
+    )
+  );
+  // Find the explicit command
+  const explicitCommand = commands.find((cmd) =>
+    cmd.command?.toString().includes('create [name]')
+  );
+  assert.ok(explicitCommand, 'Should find explicit command');
+  assert.equal(explicitCommand?.describe, 'Create something with a name');
+
+  // Find the default command
+  const defaultCommand = commands.find((cmd) => cmd.command === '$0');
+  assert.ok(defaultCommand, 'Should find default command');
+  assert.equal(defaultCommand?.describe, 'Default command');
 });

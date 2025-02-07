@@ -11,4 +11,6 @@ export interface Command {
   segments: string[];
   /** The Yargs command module implementation */
   commandModule: CommandModule;
+  /** Whether this is the default command */
+  isDefault?: boolean;
 }

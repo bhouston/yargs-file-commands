@@ -39,13 +39,14 @@ You can use any combination of file names and directories. We support either [Ne
 │   ├── migration
 │   │   └── command.ts // the "db migration" command
 │   └── health.ts      // the "db health" command
+├── $default.ts        // the default command
 └── studio.start.ts    // the "studio start" command
 ```
 
-Inside each route handler file, you make the default export the route handler. Here is a simple example:
+Inside each route handler file, you define your command configuration. The command name defaults to the filename, but you can explicitly specify it using the `command` export to support positional arguments. Here are some examples:
 
 ```ts
-// commands/studio.start.ts
+// commands/studio.start.ts - Basic command using filename as command name
 
 import type { ArgumentsCamelCase, Argv } from 'yargs';
 import type { BaseOptions } from '../options.js';
@@ -53,6 +54,8 @@ import type { BaseOptions } from '../options.js';
 export interface Options extends BaseOptions {
   port?: number;
 }
+
+export const command = 'start'; // this is optional, it will use the filename if this isn't specified
 
 export const describe = 'Studio web interface';
 
@@ -68,6 +71,35 @@ export const builder = (args: Argv): Argv<Options> => {
 export const handler = async (args: ArgumentsCamelCase<Options>) => {
   const config = await getConfig();
   // Implementation
+};
+```
+
+```ts
+// Command with positional arguments
+
+export const command = 'create [name]';
+export const describe = 'Create a new migration';
+
+export const builder = (args: Argv): Argv<Options> => {
+  return args.positional('name', {
+    describe: 'Name of the migration',
+    type: 'string',
+    demandOption: true
+  });
+};
+
+export const handler = async (args: ArgumentsCamelCase<Options>) => {
+  // Implementation
+};
+```
+
+```ts
+// Must be named $default.ts - Default command (runs when no command is specified)
+
+export const describe = 'Default command';
+
+export const handler = async (args: ArgumentsCamelCase<Options>) => {
+  console.log('Running default command');
 };
 ```
 

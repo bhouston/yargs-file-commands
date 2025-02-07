@@ -18,7 +18,7 @@ describe('scanDirectory', async () => {
 
     assert.equal(
       files.length,
-      2,
+      4,
       `Should find two command files, instead found: ${files.join(', ')}`
     );
     assert(
@@ -36,13 +36,13 @@ describe('scanDirectory', async () => {
     console.log('Scan Directory: ', commandsDir);
     const files = await scanDirectory(commandsDir, commandsDir, {
       extensions: ['.js'],
-      ignorePatterns: [/health/],
+      ignorePatterns: [/health/, /.d.ts/],
       logLevel: 'debug'
     });
 
     assert.equal(
       files.length,
-      1,
+      3,
       `Should find one command file, instead found: ${files.join(', ')}`
     );
     assert(

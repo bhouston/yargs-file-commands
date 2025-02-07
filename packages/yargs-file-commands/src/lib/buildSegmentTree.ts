@@ -75,7 +75,9 @@ function insertIntoTree(
       });
     } else if (currentSegment.type === 'internal') {
       throw new Error(
-        `Conflict: ${currentSegmentName} is both a directory and a command`
+        `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
+          currentSegment
+        )},${JSON.stringify(command)}`
       );
     }
     return;
@@ -91,7 +93,9 @@ function insertIntoTree(
     treeNodes.push(currentSegment);
   } else if (currentSegment.type === 'leaf') {
     throw new Error(
-      `Conflict: ${currentSegmentName} is both a directory and a command`
+      `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
+        currentSegment
+      )}, ${JSON.stringify(command)}`
     );
   }
 

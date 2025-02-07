@@ -95,8 +95,11 @@ export const importCommandFromFile = async (
   const handlerModule = (await import(filePath)) as CommandImportModule;
   const { logLevel = 'info' } = options;
 
+  // Check if this is the default command
+  const isDefault = name === '$default';
+  
   const command = {
-    command: name,
+    command: handlerModule.command ?? (isDefault ? '$0' : name),
     describe: handlerModule.describe,
     alias: handlerModule.alias,
     builder: handlerModule.builder,
@@ -109,6 +112,7 @@ export const importCommandFromFile = async (
   } as CommandModule;
 
   const supportedNames = [
+    'command',
     'describe',
     'alias',
     'builder',
