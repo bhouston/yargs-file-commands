@@ -24,3 +24,9 @@ export const main = async () => {
     .showHelpOnFail(true)
     .help().argv;
 };
+
+
+// Call main when this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(console.error);
+}
