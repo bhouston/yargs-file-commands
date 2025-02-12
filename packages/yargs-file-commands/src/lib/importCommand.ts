@@ -92,12 +92,14 @@ export const importCommandFromFile = async (
     );
   }
 
-  const handlerModule = (await import(filePath)) as CommandImportModule;
+  const url = 'file://' + filePath;
+
+  const handlerModule = (await import(url)) as CommandImportModule;
   const { logLevel = 'info' } = options;
 
   // Check if this is the default command
   const isDefault = name === '$default';
-  
+
   const command = {
     command: handlerModule.command ?? (isDefault ? '$0' : name),
     describe: handlerModule.describe,
