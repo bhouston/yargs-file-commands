@@ -1,5 +1,11 @@
 # yargs-file-commands
 
+## 0.0.20
+
+### Patch Changes
+
+- Add typesafe alternative method to declaring command modules.
+
 ## 0.0.18
 
 ### Patch Changes

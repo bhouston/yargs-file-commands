@@ -47,12 +47,12 @@ export interface FileCommandsParams {
 }
 
 /**
- * Structure of a command module import
+ * Structure of a command module import with individual exports
  * @interface CommandImportModule
  */
 export interface CommandImportModule {
   /** Command aliases */
-  alias?: CommandAlias;
+  aliases?: CommandAlias;
   /** Command builder function */
   builder?: CommandBuilder;
   /** Command name */
@@ -74,36 +74,81 @@ export interface ImportCommandOptions {
  * @async
  * @param {string} filePath - Path to the command file
  * @param {string} name - Command name
+ * @param {ImportCommandOptions} options - Import options
  * @returns {Promise<CommandModule>} Imported command module
  *
  * @description
  * Dynamically imports a command file and constructs a Yargs command module.
+ * Supports two styles of command declaration:
+ * 1. Single export of CommandModule named 'command'
+ * 2. Individual exports of command parts (command, describe, alias, etc.)
  * If no handler is provided, creates a null implementation.
  */
 export const importCommandFromFile = async (
   filePath: string,
   name: string,
   options: ImportCommandOptions
-) => {
+): Promise<CommandModule> => {
   // ensure file exists using fs node library
-  if (fs.existsSync(filePath) === false) {
+  if (!fs.existsSync(filePath)) {
     throw new Error(
-      `Can not import command from non-existence file path: ${filePath}`
+      `Can not import command from non-existent file path: ${filePath}`
     );
   }
 
   const url = 'file://' + filePath;
-
-  const handlerModule = (await import(url)) as CommandImportModule;
   const { logLevel = 'info' } = options;
+
+  // Import the module
+  const imported = await import(url);
 
   // Check if this is the default command
   const isDefault = name === '$default';
 
+  // First try to use the CommandModule export if it exists
+  if (
+    'command' in imported &&
+    typeof imported.command === 'object' &&
+    imported.command !== null
+  ) {
+    const commandModule = imported.command as CommandModule;
+
+    // Ensure the command property exists or use the filename
+    if (!commandModule.command && !isDefault) {
+      commandModule.command = name;
+    } else if (isDefault && !commandModule.command) {
+      commandModule.command = '$0';
+    }
+
+    if (logLevel === 'debug') {
+      console.debug(
+        'Importing CommandModule from',
+        filePath,
+        'as',
+        name,
+        'with description',
+        commandModule.describe
+      );
+    }
+
+    // Return the command module directly without wrapping
+    return {
+      command: commandModule.command,
+      describe: commandModule.describe,
+      builder: commandModule.builder,
+      handler: commandModule.handler,
+      deprecated: commandModule.deprecated,
+      aliases: commandModule.aliases
+    } satisfies CommandModule;
+  }
+
+  // Fall back to individual exports
+  const handlerModule = imported as CommandImportModule;
+
   const command = {
     command: handlerModule.command ?? (isDefault ? '$0' : name),
     describe: handlerModule.describe,
-    alias: handlerModule.alias,
+    aliases: handlerModule.aliases,
     builder: handlerModule.builder,
     deprecated: handlerModule.deprecated,
     handler:
@@ -113,6 +158,7 @@ export const importCommandFromFile = async (
       })
   } as CommandModule;
 
+  // Validate exports
   const supportedNames = [
     'command',
     'describe',
@@ -121,10 +167,12 @@ export const importCommandFromFile = async (
     'deprecated',
     'handler'
   ];
-  const module = handlerModule as Record<string, any>;
+
+  const module = imported as Record<string, any>;
   const unsupportedExports = Object.keys(module).filter(
     (key) => !supportedNames.includes(key)
   );
+
   if (unsupportedExports.length > 0) {
     throw new Error(
       `Command module ${name} in ${filePath} has some unsupported exports, probably a misspelling: ${unsupportedExports.join(
@@ -135,7 +183,7 @@ export const importCommandFromFile = async (
 
   if (logLevel === 'debug') {
     console.debug(
-      'Importing command from',
+      'Importing individual exports from',
       filePath,
       'as',
       name,

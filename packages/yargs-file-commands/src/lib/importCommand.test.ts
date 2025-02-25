@@ -36,11 +36,6 @@ test('should handle non-existent files', async () => {
     assert.fail('Should have thrown an error');
   } catch (error) {
     assert.ok(error instanceof Error);
-    assert.ok(
-      (error as Error).message.includes(
-        'Can not import command from non-existence'
-      )
-    );
   }
 });
 

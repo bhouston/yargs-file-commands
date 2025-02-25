@@ -111,6 +111,52 @@ db health
 studio start
 ```
 
+### Alternative Type-Safe Command Definition
+
+YOu can also use this type-safe way to define commands using the `CommandModule` type from yargs directly. This is the preferred method as it provides better TypeScript support and catches potential errors at compile time rather than runtime:
+
+```ts
+import type { ArgumentsCamelCase, CommandModule } from 'yargs';
+
+type TriageArgs = {
+  owner: string;
+  repo: string;
+  issue: number;
+};
+
+export const command: CommandModule<object, TriageArgs> = {
+  command: 'triage <owner> <repo> <issue>',
+  describe: 'Triage a GitHub issue',
+  builder: {
+    owner: {
+      type: 'string',
+      description: 'GitHub repository owner',
+      demandOption: true
+    },
+    repo: {
+      type: 'string',
+      description: 'GitHub repository name',
+      demandOption: true
+    },
+    issue: {
+      type: 'number',
+      description: 'Issue number',
+      demandOption: true
+    }
+  },
+  handler: async (argv: ArgumentsCamelCase<TriageArgs>) => {
+    // Implementation
+  }
+};
+```
+
+This approach has several advantages:
+
+- Full TypeScript support with proper type inference
+- Compile-time checking of command structure
+- No risk of misspelling exports
+- Better IDE support with autocompletion
+
 ## Options
 
 The "fileCommands" method takes the following options:
