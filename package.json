@@ -4,24 +4,17 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
-    "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build"
+    "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",
+    "check": "biome check --write",
+    "tsc": "pnpm -r tsc"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.4",
     "@changesets/cli": "^2.27.12",
     "@types/node": "^20",
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "eslint": "^8.42.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-promise": "^6.1.1",
-    "eslint-plugin-security": "^1.7.1",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-sort-exports": "^0.9.1",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "prettier": "^2.8.8",
-    "typescript": "^5"
+    "@vitest/coverage-v8": "^1.2.2",
+    "typescript": "^5",
+    "vitest": "^1.2.2"
   },
   "workspaces": [
     "demos/*",

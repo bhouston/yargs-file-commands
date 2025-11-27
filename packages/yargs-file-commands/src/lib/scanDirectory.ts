@@ -1,5 +1,5 @@
-import { readdir, stat } from 'fs/promises';
-import path, { join } from 'path';
+import { readdir, stat } from 'node:fs/promises';
+import path, { join } from 'node:path';
 
 /**
  * Options for directory scanning
@@ -17,6 +17,26 @@ export interface ScanDirectoryOptions {
 }
 
 /**
+ * System-level ignore patterns that ALWAYS apply regardless of user configuration.
+ * These patterns match system files and hidden files that should never be treated as command files.
+ * This ensures compatibility across macOS (.DS_Store), Linux, and Windows.
+ */
+const SYSTEM_IGNORE_PATTERNS: readonly RegExp[] = [
+  /^[.].*/, // Any file or directory starting with a dot (hidden files)
+] as const;
+
+/**
+ * Default ignore patterns for directory scanning (optional, can be overridden).
+ * These patterns match common files that should not be treated as command files.
+ * System ignore patterns are always applied in addition to these defaults.
+ */
+const DEFAULT_IGNORE_PATTERNS: RegExp[] = [
+  /\.(?:test|spec)\.[jt]s$/, // Test files
+  /__(?:test|spec)__/, // Test directories
+  /\.d\.ts$/, // TypeScript declaration files
+];
+
+/**
  * Recursively scans a directory for command files
  * @async
  * @param {string} dirPath - The directory path to scan
@@ -32,14 +52,18 @@ export interface ScanDirectoryOptions {
 export const scanDirectory = async (
   dirPath: string,
   commandDir: string,
-  options: ScanDirectoryOptions = {}
+  options: ScanDirectoryOptions = {},
 ): Promise<string[]> => {
   const {
-    ignorePatterns = [],
+    ignorePatterns = DEFAULT_IGNORE_PATTERNS,
     extensions = ['.js', '.ts'],
     logLevel = 'info',
-    logPrefix = ''
+    logPrefix = '',
   } = options;
+
+  // Always merge system ignore patterns with user-provided patterns
+  // System patterns are checked first to ensure system files are never included
+  const allIgnorePatterns = [...SYSTEM_IGNORE_PATTERNS, ...ignorePatterns];
 
   try {
     const entries = await readdir(dirPath);
@@ -50,16 +74,17 @@ export const scanDirectory = async (
 
       const localPath = fullPath.replace(commandDir, '');
 
-      // apply ignore pattern and early return if matched
-      const shouldIgnore = ignorePatterns.some((pattern) =>
-        pattern.test(localPath)
-      );
+      // Apply ignore patterns - system patterns are always checked first
+      const matchingPatterns = allIgnorePatterns.filter((pattern) => pattern.test(localPath));
+      const shouldIgnore = matchingPatterns.length > 0;
       if (shouldIgnore) {
         if (logLevel === 'debug') {
+          // Check if any matching pattern is a system pattern
+          const matchingSystemPatterns = SYSTEM_IGNORE_PATTERNS.filter((pattern) => pattern.test(localPath));
+          const isSystemPattern = matchingSystemPatterns.length > 0;
+          const patternType = isSystemPattern ? 'system ignore pattern' : 'ignorePattern';
           console.debug(
-            `${logPrefix}${localPath} - ignoring because it matches ignorePattern: ${ignorePatterns
-              .filter((pattern) => pattern.test(localPath))
-              .join(', ')}`
+            `${logPrefix}${localPath} - ignoring because it matches ${patternType}: ${matchingPatterns.map((p) => p.toString()).join(', ')}`,
           );
         }
         continue;
@@ -69,15 +94,13 @@ export const scanDirectory = async (
 
       if (stats.isDirectory()) {
         if (logLevel === 'debug') {
-          console.debug(
-            `${logPrefix}${localPath} - directory, scanning for commands:`
-          );
+          console.debug(`${logPrefix}${localPath} - directory, scanning for commands:`);
         }
         commandPaths.push(
           ...(await scanDirectory(fullPath, commandDir, {
             ...options,
-            logPrefix: `${logPrefix}  `
-          }))
+            logPrefix: `${logPrefix}  `,
+          })),
         );
         continue;
       }
@@ -86,8 +109,8 @@ export const scanDirectory = async (
         if (logLevel === 'debug') {
           console.debug(
             `${logPrefix}${localPath} - ignoring as its extension, ${extension}, doesn't match required extension: ${extensions.join(
-              ', '
-            )}`
+              ', ',
+            )}`,
           );
         }
         continue;
@@ -102,8 +125,9 @@ export const scanDirectory = async (
 
     return commandPaths;
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `${logPrefix}Failed to scan directory ${dirPath}: ${error}`
+      `${logPrefix}Failed to scan directory ${dirPath}: ${errorMessage}. Ensure the directory exists and is accessible.`,
     );
   }
 };

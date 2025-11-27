@@ -2,6 +2,8 @@
 
 [![NPM Package][npm]][npm-url]
 [![NPM Downloads][npm-downloads]][npmtrends-url]
+[![Tests][tests-badge]][tests-url]
+[![Coverage][coverage-badge]][coverage-url]
 
 This Yargs helper function lets you define all your commands as individual files and their file names and directory structure defines via implication your nested command structure.
 
@@ -187,25 +189,19 @@ If you want to contribute, just check out [this git project](https://github.com/
 
 ```sh
 # install dependencies
-npm install
+pnpm install
 
 # build everything
-npm run build
+pnpm run build
 
-# prettify
-npm run format
+# biome
+pnpm run chec
 
-# eslint
-npm run lint
-
-# build and run tests
-npm run test
+# tests
+pnpm vitest
 
 # clean everything, should be like doing a fresh git checkout of the repo.
-npm run clean
-
-# publish the npm package
-npm run publish
+pnpm clean
 
 # run example cli
 npx example-cli
@@ -217,3 +213,7 @@ Underneath the hood, we are using [NX](https://nx.dev) to manage the monorepo an
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
 [npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
 [npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
+[tests-badge]: https://github.com/bhouston/yargs-file-commands/workflows/Tests/badge.svg
+[tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/test.yml
+[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg
+[coverage-url]: https://codecov.io/gh/bhouston/yargs-file-commands

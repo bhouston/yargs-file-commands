@@ -10,7 +10,7 @@ export const builder = (args: Argv): Argv<Options> => {
   const result = args.option('port', {
     alias: 'p',
     type: 'number',
-    describe: 'Port to listen on'
+    describe: 'Port to listen on',
   });
   return result;
 };

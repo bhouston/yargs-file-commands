@@ -1,9 +1,7 @@
-import fs from 'fs';
-import {
-  type ArgumentsCamelCase,
-  type CommandBuilder,
-  type CommandModule
-} from 'yargs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import type { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
 
 /**
  * Represents command alias configuration
@@ -33,9 +31,7 @@ export type CommandDescribe = string | false | undefined;
  * Command handler function type
  * @type {Function}
  */
-export type CommandHandler = (
-  args: ArgumentsCamelCase<any>
-) => void | Promise<any>;
+export type CommandHandler = (args: ArgumentsCamelCase<any>) => undefined | Promise<any>;
 
 /**
  * Parameters for file commands configuration
@@ -87,30 +83,47 @@ export interface ImportCommandOptions {
 export const importCommandFromFile = async (
   filePath: string,
   name: string,
-  options: ImportCommandOptions
+  options: ImportCommandOptions,
 ): Promise<CommandModule> => {
-  // ensure file exists using fs node library
-  if (!fs.existsSync(filePath)) {
+  // Resolve to absolute path first
+  const resolvedPath = path.resolve(filePath);
+
+  // Ensure file exists using fs node library
+  if (!fs.existsSync(resolvedPath)) {
+    const originalPath = filePath !== resolvedPath ? ` (original: ${filePath})` : '';
     throw new Error(
-      `Can not import command from non-existent file path: ${filePath}`
+      `Cannot import command from non-existent file path: ${resolvedPath}${originalPath}. ` +
+        `Ensure the file exists and the path is correct. If using a relative path, consider using an absolute path or path.resolve().`,
     );
   }
 
-  const url = 'file://' + filePath;
+  // Get the real (canonical) path to handle symlinks consistently
+  // This ensures the path matches what pathToFileURL will resolve to
+  const realPath = fs.realpathSync.native(resolvedPath);
+
+  // Construct file URL using Node.js's pathToFileURL which properly handles
+  // path normalization, special characters, and cross-platform compatibility
+  // Use the real path to avoid symlink resolution mismatches
+  const url = pathToFileURL(realPath).href;
   const { logLevel = 'info' } = options;
 
   // Import the module
-  const imported = await import(url);
+  let imported;
+  try {
+    imported = await import(url);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to import command module from ${realPath}: ${errorMessage}. ` +
+        `Ensure the file is a valid JavaScript/TypeScript module and the path is correct.`,
+    );
+  }
 
   // Check if this is the default command
   const isDefault = name === '$default';
 
   // First try to use the CommandModule export if it exists
-  if (
-    'command' in imported &&
-    typeof imported.command === 'object' &&
-    imported.command !== null
-  ) {
+  if ('command' in imported && typeof imported.command === 'object' && imported.command !== null) {
     const commandModule = imported.command as CommandModule;
 
     // Ensure the command property exists or use the filename
@@ -121,14 +134,7 @@ export const importCommandFromFile = async (
     }
 
     if (logLevel === 'debug') {
-      console.debug(
-        'Importing CommandModule from',
-        filePath,
-        'as',
-        name,
-        'with description',
-        commandModule.describe
-      );
+      console.debug('Importing CommandModule from', realPath, 'as', name, 'with description', commandModule.describe);
     }
 
     // Return the command module directly without wrapping
@@ -138,7 +144,7 @@ export const importCommandFromFile = async (
       builder: commandModule.builder,
       handler: commandModule.handler,
       deprecated: commandModule.deprecated,
-      aliases: commandModule.aliases
+      aliases: commandModule.aliases,
     } satisfies CommandModule;
   }
 
@@ -153,43 +159,27 @@ export const importCommandFromFile = async (
     deprecated: handlerModule.deprecated,
     handler:
       handlerModule.handler ??
-      (async (args: ArgumentsCamelCase<any>) => {
+      (async (_args: ArgumentsCamelCase<any>) => {
         // null implementation
-      })
+      }),
   } as CommandModule;
 
   // Validate exports
-  const supportedNames = [
-    'command',
-    'describe',
-    'alias',
-    'builder',
-    'deprecated',
-    'handler'
-  ];
+  const supportedNames = ['command', 'describe', 'alias', 'builder', 'deprecated', 'handler'];
 
   const module = imported as Record<string, any>;
-  const unsupportedExports = Object.keys(module).filter(
-    (key) => !supportedNames.includes(key)
-  );
+  const unsupportedExports = Object.keys(module).filter((key) => !supportedNames.includes(key));
 
   if (unsupportedExports.length > 0) {
     throw new Error(
-      `Command module ${name} in ${filePath} has some unsupported exports, probably a misspelling: ${unsupportedExports.join(
-        ', '
-      )}`
+      `Command module ${name} in ${realPath} has some unsupported exports, probably a misspelling: ${unsupportedExports.join(
+        ', ',
+      )}. Supported exports are: ${supportedNames.join(', ')}.`,
     );
   }
 
   if (logLevel === 'debug') {
-    console.debug(
-      'Importing individual exports from',
-      filePath,
-      'as',
-      name,
-      'with description',
-      command.describe
-    );
+    console.debug('Importing individual exports from', realPath, 'as', name, 'with description', command.describe);
   }
 
   return command;

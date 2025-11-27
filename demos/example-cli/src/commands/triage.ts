@@ -13,22 +13,22 @@ export const command: CommandModule<object, TriageArgs> = {
     owner: {
       type: 'string',
       description: 'GitHub repository owner',
-      demandOption: true
+      demandOption: true,
     },
     repo: {
       type: 'string',
       description: 'GitHub repository name',
-      demandOption: true
+      demandOption: true,
     },
     issue: {
       type: 'number',
       description: 'Issue number',
-      demandOption: true
-    }
+      demandOption: true,
+    },
   },
   handler: async (argv: ArgumentsCamelCase<TriageArgs>) => {
     console.log('owner', argv.owner);
     console.log('repo', argv.repo);
     console.log('issue', argv.issue);
-  }
+  },
 };

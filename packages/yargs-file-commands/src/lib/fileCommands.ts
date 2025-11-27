@@ -1,13 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 
-import {
-  buildSegmentTree,
-  createCommand,
-  logCommandTree
-} from './buildSegmentTree.js';
+import { buildSegmentTree, createCommand, logCommandTree } from './buildSegmentTree.js';
 import type { Command } from './Command.js';
 import { importCommandFromFile } from './importCommand.js';
-import { scanDirectory, type ScanDirectoryOptions } from './scanDirectory.js';
+import { type ScanDirectoryOptions, scanDirectory } from './scanDirectory.js';
 import { segmentPath } from './segmentPath.js';
 
 /**
@@ -31,19 +27,21 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
   /** Default file extensions to process */
   extensions: ['.js', '.ts'],
 
-  /** Default patterns to ignore when scanning directories */
+  /** Default patterns to ignore when scanning directories.
+   * Note: System files (files starting with '.') are ALWAYS ignored regardless of these patterns.
+   * These defaults can be overridden by providing your own ignorePatterns.
+   */
   ignorePatterns: [
-    /^[.|_].*/, // Hidden files and underscore files
     /\.(?:test|spec)\.[jt]s$/, // Test files
     /__(?:test|spec)__/, // Test directories
-    /\.d\.ts$/ // TypeScript declaration files
+    /\.d\.ts$/, // TypeScript declaration files
   ],
 
   /** Default logging level */
   logLevel: 'info',
 
   /** Default log prefix */
-  logPrefix: '  '
+  logPrefix: '  ',
 };
 
 /**
@@ -66,16 +64,12 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
 export const fileCommands = async (options: FileCommandsOptions) => {
   const fullOptions: Required<FileCommandsOptions> = {
     ...DefaultFileCommandsOptions,
-    ...options
+    ...options,
   };
 
   // validate extensions have dots in them
   if (fullOptions.extensions.some((ext) => !ext.startsWith('.'))) {
-    throw new Error(
-      `Invalid extensions provided, must start with a dot: ${fullOptions.extensions.join(
-        ', '
-      )}`
-    );
+    throw new Error(`Invalid extensions provided, must start with a dot: ${fullOptions.extensions.join(', ')}`);
   }
   // check for empty list of directories to scan
   if (fullOptions.commandDirs.length === 0) {
@@ -83,15 +77,9 @@ export const fileCommands = async (options: FileCommandsOptions) => {
   }
 
   // throw if some command directories are not absolute, first filter to find non-absolute an then throw, listing those that are not absolute
-  const nonAbsoluteDirs = fullOptions.commandDirs.filter(
-    (dir) => !path.isAbsolute(dir)
-  );
+  const nonAbsoluteDirs = fullOptions.commandDirs.filter((dir) => !path.isAbsolute(dir));
   if (nonAbsoluteDirs.length > 0) {
-    throw new Error(
-      `Command directories must be absolute paths: ${nonAbsoluteDirs.join(
-        ', '
-      )}`
-    );
+    throw new Error(`Command directories must be absolute paths: ${nonAbsoluteDirs.join(', ')}`);
   }
 
   const commands: Command[] = [];
@@ -118,22 +106,14 @@ export const fileCommands = async (options: FileCommandsOptions) => {
       commands.push({
         fullPath: filePath,
         segments,
-        commandModule: await importCommandFromFile(
-          filePath,
-          segments[segments.length - 1]!,
-          fullOptions
-        )
+        commandModule: await importCommandFromFile(filePath, segments[segments.length - 1]!, fullOptions),
       });
     }
   }
 
   // check if no commands were found
   if (commands.length === 0) {
-    throw new Error(
-      `No commands found in specified directories: ${fullOptions.commandDirs.join(
-        ', '
-      )}`
-    );
+    throw new Error(`No commands found in specified directories: ${fullOptions.commandDirs.join(', ')}`);
   }
 
   const commandRootNodes = buildSegmentTree(commands);

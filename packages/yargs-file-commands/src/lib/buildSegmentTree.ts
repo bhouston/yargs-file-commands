@@ -50,20 +50,14 @@ export const buildSegmentTree = (commands: Command[]): CommandTreeNode[] => {
  * @param {number} depth - Current depth in the segment tree
  * @throws {Error} When there's a conflict between directory and command names
  */
-function insertIntoTree(
-  treeNodes: CommandTreeNode[],
-  command: Command,
-  depth: number
-): void {
+function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: number): void {
   // If we've processed all segments, we shouldn't be here
   if (depth >= command.segments.length) {
     return;
   }
 
   const currentSegmentName = command.segments[depth]!;
-  let currentSegment = treeNodes.find(
-    (s) => s.segmentName === currentSegmentName
-  );
+  let currentSegment = treeNodes.find((s) => s.segmentName === currentSegmentName);
 
   // If this is the last segment, create a leaf node
   if (depth === command.segments.length - 1) {
@@ -71,13 +65,13 @@ function insertIntoTree(
       treeNodes.push({
         type: 'leaf',
         segmentName: currentSegmentName,
-        command
+        command,
       });
     } else if (currentSegment.type === 'internal') {
       throw new Error(
         `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
-          currentSegment
-        )},${JSON.stringify(command)}`
+          currentSegment,
+        )},${JSON.stringify(command)}`,
       );
     }
     return;
@@ -88,14 +82,14 @@ function insertIntoTree(
     currentSegment = {
       type: 'internal',
       segmentName: currentSegmentName,
-      children: []
+      children: [],
     };
     treeNodes.push(currentSegment);
   } else if (currentSegment.type === 'leaf') {
     throw new Error(
       `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
-        currentSegment
-      )}, ${JSON.stringify(command)}`
+        currentSegment,
+      )}, ${JSON.stringify(command)}`,
     );
   }
 
@@ -133,7 +127,7 @@ export const createCommand = (treeNode: CommandTreeNode): CommandModule => {
     },
     handler: async () => {
       // Internal nodes don't need handlers as they'll demand subcommands
-    }
+    },
   };
 
   return command;

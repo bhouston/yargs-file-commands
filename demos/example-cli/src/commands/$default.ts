@@ -12,7 +12,7 @@ export const builder = (yargs: any) => {
   yargs.positional('word', {
     describe: 'Word to be printed',
     type: 'string',
-    default: 'Hello'
+    default: 'Hello',
   });
 };
 

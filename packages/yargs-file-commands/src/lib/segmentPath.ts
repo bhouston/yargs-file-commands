@@ -26,9 +26,7 @@ export const segmentPath = (fullPath: string, baseDir: string): string[] => {
   // Process all segments including filename (without extension)
   const processedSegments = allSegments
     // Remove extension from the last segment (filename)
-    .map((segment, index, array) =>
-      index === array.length - 1 ? segment.replace(/\\.[^/.]+$/, '') : segment
-    )
+    .map((segment, index, array) => (index === array.length - 1 ? segment.replace(/\\.[^/.]+$/, '') : segment))
     // Split segments containing periods
     .flatMap((segment) => segment.split('.'))
     // Filter out empty segments and 'command'

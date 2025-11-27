@@ -1,7 +1,7 @@
-import { createRequire } from 'module';
-import path from 'path';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { PackageJson } from 'type-fest';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { fileCommands } from 'yargs-file-commands';
@@ -17,14 +17,10 @@ export const main = async () => {
     .scriptName(packageInfo.name!)
     .version(packageInfo.version!)
     .command(await fileCommands({ commandDirs: [commandsDir] }))
-    .demandCommand(
-      1,
-      'No command specified - use --help for available commands'
-    )
+    .demandCommand(1, 'No command specified - use --help for available commands')
     .showHelpOnFail(true)
     .help().argv;
 };
-
 
 // Call main when this file is run directly
 if (import.meta.url === `file://${process.argv[1]}`) {
