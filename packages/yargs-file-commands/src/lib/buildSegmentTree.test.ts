@@ -292,9 +292,9 @@ describe('createCommand', () => {
       const mockYargs = {
         command: vi.fn().mockReturnThis(),
         demandCommand: vi.fn().mockReturnThis(),
-      };
+      } as unknown as Parameters<typeof commandModule.builder>[0];
 
-      commandModule.builder(mockYargs as any);
+      commandModule.builder(mockYargs);
       expect(mockYargs.command).toHaveBeenCalledTimes(1);
       expect(mockYargs.demandCommand).toHaveBeenCalledWith(1, 'You must specify a db subcommand');
     }

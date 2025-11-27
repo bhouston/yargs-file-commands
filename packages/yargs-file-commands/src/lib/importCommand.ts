@@ -31,7 +31,7 @@ export type CommandDescribe = string | false | undefined;
  * Command handler function type
  * @type {Function}
  */
-export type CommandHandler = (args: ArgumentsCamelCase<any>) => undefined | Promise<any>;
+export type CommandHandler = (args: ArgumentsCamelCase<Record<string, unknown>>) => undefined | Promise<unknown>;
 
 /**
  * Parameters for file commands configuration
@@ -108,7 +108,7 @@ export const importCommandFromFile = async (
   const { logLevel = 'info' } = options;
 
   // Import the module
-  let imported;
+  let imported: unknown;
   try {
     imported = await import(url);
   } catch (error) {
@@ -123,8 +123,9 @@ export const importCommandFromFile = async (
   const isDefault = name === '$default';
 
   // First try to use the CommandModule export if it exists
-  if ('command' in imported && typeof imported.command === 'object' && imported.command !== null) {
-    const commandModule = imported.command as CommandModule;
+  const importedRecord = imported as Record<string, unknown>;
+  if ('command' in importedRecord && typeof importedRecord.command === 'object' && importedRecord.command !== null) {
+    const commandModule = importedRecord.command as CommandModule;
 
     // Ensure the command property exists or use the filename
     if (!commandModule.command && !isDefault) {
@@ -149,7 +150,7 @@ export const importCommandFromFile = async (
   }
 
   // Fall back to individual exports
-  const handlerModule = imported as CommandImportModule;
+  const handlerModule = importedRecord as CommandImportModule;
 
   const command = {
     command: handlerModule.command ?? (isDefault ? '$0' : name),
@@ -159,7 +160,7 @@ export const importCommandFromFile = async (
     deprecated: handlerModule.deprecated,
     handler:
       handlerModule.handler ??
-      (async (_args: ArgumentsCamelCase<any>) => {
+      (async (_args: ArgumentsCamelCase<Record<string, unknown>>) => {
         // null implementation
       }),
   } as CommandModule;
@@ -167,7 +168,7 @@ export const importCommandFromFile = async (
   // Validate exports
   const supportedNames = ['command', 'describe', 'alias', 'builder', 'deprecated', 'handler'];
 
-  const module = imported as Record<string, any>;
+  const module = importedRecord;
   const unsupportedExports = Object.keys(module).filter((key) => !supportedNames.includes(key));
 
   if (unsupportedExports.length > 0) {

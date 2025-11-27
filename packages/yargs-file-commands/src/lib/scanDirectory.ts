@@ -68,10 +68,9 @@ export const scanDirectory = async (
   try {
     const entries = await readdir(dirPath);
 
-    const commandPaths: string[] = [];
-    for (const entry of entries) {
+    // First, filter out entries that match ignore patterns
+    const entriesToProcess = entries.filter((entry) => {
       const fullPath = join(dirPath, entry);
-
       const localPath = fullPath.replace(commandDir, '');
 
       // Apply ignore patterns - system patterns are always checked first
@@ -82,48 +81,56 @@ export const scanDirectory = async (
           // Check if any matching pattern is a system pattern
           const matchingSystemPatterns = SYSTEM_IGNORE_PATTERNS.filter((pattern) => pattern.test(localPath));
           const isSystemPattern = matchingSystemPatterns.length > 0;
+          // biome-ignore lint/security/noSecrets: This is not a secret, it's a descriptive string for logging
           const patternType = isSystemPattern ? 'system ignore pattern' : 'ignorePattern';
           console.debug(
             `${logPrefix}${localPath} - ignoring because it matches ${patternType}: ${matchingPatterns.map((p) => p.toString()).join(', ')}`,
           );
         }
-        continue;
+        return false;
       }
+      return true;
+    });
 
-      const stats = await stat(fullPath);
+    // Process all entries in parallel
+    const entryResults = await Promise.all(
+      entriesToProcess.map(async (entry) => {
+        const fullPath = join(dirPath, entry);
+        const localPath = fullPath.replace(commandDir, '');
+        const stats = await stat(fullPath);
 
-      if (stats.isDirectory()) {
-        if (logLevel === 'debug') {
-          console.debug(`${logPrefix}${localPath} - directory, scanning for commands:`);
-        }
-        commandPaths.push(
-          ...(await scanDirectory(fullPath, commandDir, {
+        if (stats.isDirectory()) {
+          if (logLevel === 'debug') {
+            console.debug(`${logPrefix}${localPath} - directory, scanning for commands:`);
+          }
+          return scanDirectory(fullPath, commandDir, {
             ...options,
             logPrefix: `${logPrefix}  `,
-          })),
-        );
-        continue;
-      }
-      const extension = path.extname(fullPath);
-      if (!extensions.includes(extension)) {
-        if (logLevel === 'debug') {
-          console.debug(
-            `${logPrefix}${localPath} - ignoring as its extension, ${extension}, doesn't match required extension: ${extensions.join(
-              ', ',
-            )}`,
-          );
+          });
         }
-        continue;
-      }
 
-      if (logLevel === 'debug') {
-        console.debug(`${logPrefix}${localPath} - possible command file`);
-      }
+        const extension = path.extname(fullPath);
+        if (!extensions.includes(extension)) {
+          if (logLevel === 'debug') {
+            console.debug(
+              `${logPrefix}${localPath} - ignoring as its extension, ${extension}, doesn't match required extension: ${extensions.join(
+                ', ',
+              )}`,
+            );
+          }
+          return [];
+        }
 
-      commandPaths.push(fullPath);
-    }
+        if (logLevel === 'debug') {
+          console.debug(`${logPrefix}${localPath} - possible command file`);
+        }
 
-    return commandPaths;
+        return [fullPath];
+      }),
+    );
+
+    // Flatten the results
+    return entryResults.flat();
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(

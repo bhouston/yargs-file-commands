@@ -56,7 +56,10 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
     return;
   }
 
-  const currentSegmentName = command.segments[depth]!;
+  const currentSegmentName = command.segments[depth];
+  if (currentSegmentName === undefined) {
+    return;
+  }
   let currentSegment = treeNodes.find((s) => s.segmentName === currentSegmentName);
 
   // If this is the last segment, create a leaf node

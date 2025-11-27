@@ -84,32 +84,57 @@ export const fileCommands = async (options: FileCommandsOptions) => {
 
   const commands: Command[] = [];
 
-  for (const commandDir of fullOptions.commandDirs) {
-    const fullPath = path.resolve(commandDir);
-    if (fullOptions.logLevel === 'debug') {
-      console.debug(`Scanning directory for commands: ${fullPath}`);
-    }
-
-    const filePaths = await scanDirectory(commandDir, commandDir, fullOptions);
-
-    if (fullOptions.logLevel === 'debug') {
-      console.debug(`Importing found commands:`);
-    }
-    for (const filePath of filePaths) {
-      const localPath = path.relative(commandDir, filePath);
-      const segments = segmentPath(filePath, commandDir);
-      segments.pop(); // remove extension.
-
+  // Process all command directories in parallel
+  const directoryResults = await Promise.all(
+    fullOptions.commandDirs.map(async (commandDir) => {
+      const fullPath = path.resolve(commandDir);
       if (fullOptions.logLevel === 'debug') {
-        console.debug(`  ${localPath} - importing command module`);
+        console.debug(`Scanning directory for commands: ${fullPath}`);
       }
-      commands.push({
-        fullPath: filePath,
-        segments,
-        commandModule: await importCommandFromFile(filePath, segments[segments.length - 1]!, fullOptions),
-      });
-    }
+
+      const filePaths = await scanDirectory(commandDir, commandDir, fullOptions);
+      return { commandDir, filePaths };
+    }),
+  );
+
+  if (fullOptions.logLevel === 'debug') {
+    console.debug(`Importing found commands:`);
   }
+
+  // Process all files in parallel
+  const fileResults = await Promise.all(
+    directoryResults.flatMap(({ commandDir, filePaths }) =>
+      filePaths.map(async (filePath) => {
+        const localPath = path.relative(commandDir, filePath);
+        const segments = segmentPath(filePath, commandDir);
+
+        // Remove extension (last segment) if there are multiple segments
+        // If there's only one segment, it means the file has no name (e.g., .js)
+        if (segments.length > 1) {
+          segments.pop(); // remove extension.
+        } else if (segments.length === 0) {
+          throw new Error(`No segments found for file: ${filePath}`);
+        }
+
+        if (fullOptions.logLevel === 'debug') {
+          console.debug(`  ${localPath} - importing command module`);
+        }
+
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment === undefined) {
+          throw new Error(`No segments found for file: ${filePath}`);
+        }
+
+        return {
+          fullPath: filePath,
+          segments,
+          commandModule: await importCommandFromFile(filePath, lastSegment, fullOptions),
+        };
+      }),
+    ),
+  );
+
+  commands.push(...fileResults);
 
   // check if no commands were found
   if (commands.length === 0) {

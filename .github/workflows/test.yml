@@ -39,7 +39,7 @@ jobs:
         run: pnpm check
 
       - name: Run tests
-        run: pnpm -r test
+        run: pnpm vitest
       
       - name: Find coverage files
         id: coverage

@@ -16,18 +16,21 @@
  * segmentPath('/base/dir/hello/world.command.ts', '/base/dir')
  * // Returns: ['hello', 'world']
  */
+
+// Top-level regex patterns for performance
+const LEADING_SLASHES_REGEX = /^[/\\\\]+/;
+const PATH_SEPARATOR_REGEX = /[/\\\\]/;
+
 export const segmentPath = (fullPath: string, baseDir: string): string[] => {
   // Remove base directory and normalize slashes
-  const relativePath = fullPath.replace(baseDir, '').replace(/^[/\\\\]+/, '');
+  const relativePath = fullPath.replace(baseDir, '').replace(LEADING_SLASHES_REGEX, '');
 
   // Split into path segments and filename
-  const allSegments = relativePath.split(/[/\\\\]/);
+  const allSegments = relativePath.split(PATH_SEPARATOR_REGEX);
 
-  // Process all segments including filename (without extension)
+  // Process all segments including filename
+  // Split segments containing periods (this will split the extension from the filename)
   const processedSegments = allSegments
-    // Remove extension from the last segment (filename)
-    .map((segment, index, array) => (index === array.length - 1 ? segment.replace(/\\.[^/.]+$/, '') : segment))
-    // Split segments containing periods
     .flatMap((segment) => segment.split('.'))
     // Filter out empty segments and 'command'
     .filter((segment) => segment !== '' && segment !== 'command');

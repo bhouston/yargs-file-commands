@@ -13,9 +13,17 @@ const distDir = path.dirname(fileURLToPath(import.meta.url));
 export const main = async () => {
   const commandsDir = path.join(distDir, 'commands');
 
-  return yargs(hideBin(process.argv))
-    .scriptName(packageInfo.name!)
-    .version(packageInfo.version!)
+  const yargsInstance = yargs(hideBin(process.argv));
+
+  if (packageInfo.name) {
+    yargsInstance.scriptName(packageInfo.name);
+  }
+
+  if (packageInfo.version) {
+    yargsInstance.version(packageInfo.version);
+  }
+
+  return yargsInstance
     .command(await fileCommands({ commandDirs: [commandsDir] }))
     .demandCommand(1, 'No command specified - use --help for available commands')
     .showHelpOnFail(true)

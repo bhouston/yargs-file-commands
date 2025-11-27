@@ -1,4 +1,4 @@
-import type { ArgumentsCamelCase } from 'yargs';
+import type { ArgumentsCamelCase, Argv } from 'yargs';
 
 export const command = '* [word]';
 
@@ -8,7 +8,7 @@ type Options = {
   word: string;
 };
 
-export const builder = (yargs: any) => {
+export const builder = (yargs: Argv) => {
   yargs.positional('word', {
     describe: 'Word to be printed',
     type: 'string',
