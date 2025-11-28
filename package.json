@@ -6,7 +6,8 @@
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",
     "check": "biome check --write",
-    "tsc": "pnpm -r tsc"
+    "tsc": "pnpm -r tsc",
+    "make-release": "node ./scripts/make-release.ts packages/yargs-file-commands"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.4",

@@ -21,9 +21,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "tsc": "tsc",
-    "prepublishOnly": "pnpm build && cp ../../README.md ../../LICENSE .",
-    "postpublish": "rm ./README.md ./LICENSE"
+    "tsc": "tsc"
   },
   "homepage": "https://github.com/bhouston/yargs-file-commands#readme",
   "repository": {
