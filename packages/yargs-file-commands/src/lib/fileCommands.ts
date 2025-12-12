@@ -1,5 +1,7 @@
 import path from 'node:path';
 
+import type { CommandModule } from 'yargs';
+
 import { buildSegmentTree, createCommand, logCommandTree } from './buildSegmentTree.js';
 import type { Command } from './Command.js';
 import { importCommandFromFile } from './importCommand.js';
@@ -61,7 +63,7 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
  * 3. Build a tree structure based on file paths
  * 4. Convert the tree into a command hierarchy
  */
-export const fileCommands = async (options: FileCommandsOptions) => {
+export const fileCommands = async (options: FileCommandsOptions): Promise<CommandModule[]> => {
   const fullOptions: Required<FileCommandsOptions> = {
     ...DefaultFileCommandsOptions,
     ...options,

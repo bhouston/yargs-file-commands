@@ -1,7 +1,7 @@
 {
   "name": "yargs-file-commands",
   "description": "A yargs helper function that lets you define your commands structure via directory and file naming conventions.",
-  "version": "0.0.20",
+  "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,8 +20,8 @@
     "typescript"
   ],
   "scripts": {
-    "build": "tsc",
-    "tsc": "tsc"
+    "build": "tsgo",
+    "tsgo": "tsgo"
   },
   "homepage": "https://github.com/bhouston/yargs-file-commands#readme",
   "repository": {

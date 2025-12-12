@@ -5,8 +5,7 @@
   "scripts": {
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",
-    "check": "biome check --write",
-    "tsc": "pnpm -r tsc",
+    "tsgo": "pnpm -r tsgo",
     "make-release": "node ./scripts/make-release.ts packages/yargs-file-commands"
   },
   "devDependencies": {
@@ -14,7 +13,7 @@
     "@changesets/cli": "^2.27.12",
     "@types/node": "^20",
     "@vitest/coverage-v8": "^1.2.2",
-    "typescript": "^5",
+    "@typescript/native-preview": "7.0.0-dev.20251202.1",
     "vitest": "^1.2.2"
   },
   "workspaces": [

@@ -5,9 +5,9 @@
   "bin": "./bin/cli.js",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "tsgo",
     "start": "node ./dist/index.js",
-    "tsc": "tsc"
+    "tsgo": "tsgo"
   },
   "dependencies": {
     "type-fest": "^4.31.0",

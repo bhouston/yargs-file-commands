@@ -17,24 +17,27 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
-    // important for Linux
+   // important for Linux
     "forceConsistentCasingInFileNames": true,
 
-    // linting
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
+    "strictBuiltinIteratorReturn": true,
+    "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
 
-    // modules
-    "resolveJsonModule": false, // causes problems by hoisting json files, and src to the root of the dist folder
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
+    // linting
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false, // biome recommends against.
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
 
     // source maps & type maps
     "declaration": true,
@@ -44,5 +47,6 @@
     "incremental": true
   }
 }
+
 
 
