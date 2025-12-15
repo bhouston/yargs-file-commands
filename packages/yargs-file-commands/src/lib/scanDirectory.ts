@@ -1,4 +1,4 @@
-import { readdir, stat } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import path, { join } from 'node:path';
 
 /**
@@ -66,25 +66,22 @@ export const scanDirectory = async (
   const allIgnorePatterns = [...SYSTEM_IGNORE_PATTERNS, ...ignorePatterns];
 
   try {
-    const entries = await readdir(dirPath);
+    const entries = await readdir(dirPath, { withFileTypes: true });
 
     // First, filter out entries that match ignore patterns
     const entriesToProcess = entries.filter((entry) => {
-      const fullPath = join(dirPath, entry);
+      const fullPath = join(dirPath, entry.name);
       const localPath = fullPath.replace(commandDir, '');
 
       // Apply ignore patterns - system patterns are always checked first
-      const matchingPatterns = allIgnorePatterns.filter((pattern) => pattern.test(localPath));
-      const shouldIgnore = matchingPatterns.length > 0;
-      if (shouldIgnore) {
+      const matchingPattern = allIgnorePatterns.find((pattern) => pattern.test(localPath));
+      if (matchingPattern) {
         if (logLevel === 'debug') {
-          // Check if any matching pattern is a system pattern
-          const matchingSystemPatterns = SYSTEM_IGNORE_PATTERNS.filter((pattern) => pattern.test(localPath));
-          const isSystemPattern = matchingSystemPatterns.length > 0;
+          const isSystemPattern = SYSTEM_IGNORE_PATTERNS.some((pattern) => pattern.test(localPath));
           // biome-ignore lint/security/noSecrets: This is not a secret, it's a descriptive string for logging
           const patternType = isSystemPattern ? 'system ignore pattern' : 'ignorePattern';
           console.debug(
-            `${logPrefix}${localPath} - ignoring because it matches ${patternType}: ${matchingPatterns.map((p) => p.toString()).join(', ')}`,
+            `${logPrefix}${localPath} - ignoring because it matches ${patternType}: ${matchingPattern.toString()}`,
           );
         }
         return false;
@@ -95,11 +92,10 @@ export const scanDirectory = async (
     // Process all entries in parallel
     const entryResults = await Promise.all(
       entriesToProcess.map(async (entry) => {
-        const fullPath = join(dirPath, entry);
+        const fullPath = join(dirPath, entry.name);
         const localPath = fullPath.replace(commandDir, '');
-        const stats = await stat(fullPath);
 
-        if (stats.isDirectory()) {
+        if (entry.isDirectory()) {
           if (logLevel === 'debug') {
             console.debug(`${logPrefix}${localPath} - directory, scanning for commands:`);
           }
