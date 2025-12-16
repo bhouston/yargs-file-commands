@@ -123,6 +123,75 @@ export const command = defineCommand({
 });
 ```
 
+### 4. Shared Options
+
+To share options between commands while maintaining type safety, you can use either helper functions (recommended for correct type inference) or shared option objects.
+
+**Approach 1: Helper Functions (Recommended)**
+
+This approach uses function composition to chain option definitions, allowing TypeScript to correctly infer the resulting types.
+
+```ts
+// shared.ts
+import type { Argv } from 'yargs';
+
+export const withPagination = <T>(yargs: Argv<T>) => {
+  return yargs
+    .option('page', {
+      type: 'number',
+      default: 1,
+      describe: 'Page number'
+    })
+    .option('limit', {
+      type: 'number',
+      default: 10,
+      describe: 'Items per page'
+    });
+};
+
+// commands/users.ts
+import { defineCommand } from 'yargs-file-commands';
+import { withPagination } from '../shared.js';
+
+export const command = defineCommand({
+  command: 'list',
+  builder: (yargs) => withPagination(yargs),
+  handler: async (argv) => {
+    // argv.page and argv.limit are correctly typed as number
+    console.log(`Page: ${argv.page}, Limit: ${argv.limit}`);
+  }
+});
+```
+
+**Approach 2: Shared Objects**
+
+You can also define a common options object and spread it into your command definitions.
+
+```ts
+// shared.ts
+export const commonOptions = {
+  verbose: {
+    alias: 'v',
+    type: 'boolean',
+    describe: 'Run with verbose logging',
+    default: false,
+  } as const
+};
+
+// commands/users.ts
+import { defineCommand } from 'yargs-file-commands';
+import { commonOptions } from '../shared.js';
+
+export const command = defineCommand({
+  command: 'list',
+  builder: (yargs) => yargs.options(commonOptions),
+  handler: async (argv) => {
+    // argv.verbose is correctly typed
+    if (argv.verbose) console.log('Verbose mode');
+  }
+});
+```
+
 ## Options
 
 The `fileCommands` method takes the following options:
