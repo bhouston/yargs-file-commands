@@ -2,6 +2,7 @@
   "name": "private-monorepo",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",
