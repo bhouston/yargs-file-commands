@@ -66,6 +66,12 @@ function main() {
   }
   cpSync(readmePath, join(publishPath, 'README.md'));
 
+  console.log(`Copying .npmignore`);
+  const npmignorePath = join(resolvedPackagePath, '.npmignore');
+  if (existsSync(npmignorePath)) {
+    cpSync(npmignorePath, join(publishPath, '.npmignore'));
+  }
+
   console.log(`Publishing package`);
   execSync('npm publish ./publish/ --access public', {
     cwd: resolvedPackagePath,
