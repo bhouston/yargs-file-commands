@@ -159,7 +159,7 @@ pnpm install
 pnpm run build
 
 # biome
-pnpm run chec
+pnpm biome check --write
 
 # tests
 pnpm vitest
@@ -169,9 +169,11 @@ pnpm clean
 
 # run example cli
 npx example-cli
+
+# publish new release
+pnpm make-release
 ```
 
-Underneath the hood, we are using [NX](https://nx.dev) to manage the monorepo and shared scripts.
 
 [npm]: https://img.shields.io/npm/v/yargs-file-commands
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
