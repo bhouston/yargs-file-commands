@@ -19,19 +19,29 @@ npm install yargs-file-commands
 
 ## Example
 
+### 1. Setup
+
+First, configure your entry point to scan your commands directory:
+
 ```ts
+import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { fileCommands } from 'yargs-file-commands';
+
 export const main = async () => {
-  const commandsDir = path.join(distDir, 'commands');
+  const commandsDir = path.join(process.cwd(), 'dist/commands');
 
   return yargs(hideBin(process.argv))
-    .scriptName(packageInfo.name!)
-    .version(packageInfo.version!)
+    .scriptName('my-cli')
     .command(
-      await fileCommands({ commandDirs: [commandsDir], logLevel: 'debug' })
+      await fileCommands({ commandDirs: [commandsDir] })
     )
     .help().argv;
 };
 ```
+
+### 2. File Structure
 
 You can use any combination of file names and directories. We support either [NextJS](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes) or [Remix](https://remix.run/docs/en/main/file-conventions/routes) conventions for interpreting filenames and directories.
 
@@ -45,66 +55,6 @@ You can use any combination of file names and directories. We support either [Ne
 └── studio.start.ts    // the "studio start" command
 ```
 
-Inside each route handler file, you define your command configuration. The command name defaults to the filename, but you can explicitly specify it using the `command` export to support positional arguments. Here are some examples:
-
-```ts
-// commands/studio.start.ts - Basic command using filename as command name
-
-import type { ArgumentsCamelCase, Argv } from 'yargs';
-import type { BaseOptions } from '../options.js';
-
-export interface Options extends BaseOptions {
-  port?: number;
-}
-
-export const command = 'start'; // this is optional, it will use the filename if this isn't specified
-
-export const describe = 'Studio web interface';
-
-export const builder = (args: Argv): Argv<Options> => {
-  const result = args.option('port', {
-    alias: 'p',
-    type: 'number',
-    describe: 'Port to listen on'
-  });
-  return result;
-};
-
-export const handler = async (args: ArgumentsCamelCase<Options>) => {
-  const config = await getConfig();
-  // Implementation
-};
-```
-
-```ts
-// Command with positional arguments
-
-export const command = 'create [name]';
-export const describe = 'Create a new migration';
-
-export const builder = (args: Argv): Argv<Options> => {
-  return args.positional('name', {
-    describe: 'Name of the migration',
-    type: 'string',
-    demandOption: true
-  });
-};
-
-export const handler = async (args: ArgumentsCamelCase<Options>) => {
-  // Implementation
-};
-```
-
-```ts
-// Must be named $default.ts - Default command (runs when no command is specified)
-
-export const describe = 'Default command';
-
-export const handler = async (args: ArgumentsCamelCase<Options>) => {
-  console.log('Running default command');
-};
-```
-
 The above will result in these commands being registered:
 
 ```
@@ -113,55 +63,69 @@ db health
 studio start
 ```
 
-### Alternative Type-Safe Command Definition
+### 3. Define Commands
 
-YOu can also use this type-safe way to define commands using the `CommandModule` type from yargs directly. This is the preferred method as it provides better TypeScript support and catches potential errors at compile time rather than runtime:
+Use the `defineCommand` helper to define your commands. This ensures full type safety for your arguments based on the options you define in the `builder`.
+
+**Basic Command (`commands/studio.start.ts`)**
 
 ```ts
-import type { ArgumentsCamelCase, CommandModule } from 'yargs';
+import { defineCommand } from 'yargs-file-commands';
 
-type TriageArgs = {
-  owner: string;
-  repo: string;
-  issue: number;
-};
-
-export const command: CommandModule<object, TriageArgs> = {
-  command: 'triage <owner> <repo> <issue>',
-  describe: 'Triage a GitHub issue',
-  builder: {
-    owner: {
-      type: 'string',
-      description: 'GitHub repository owner',
-      demandOption: true
-    },
-    repo: {
-      type: 'string',
-      description: 'GitHub repository name',
-      demandOption: true
-    },
-    issue: {
-      type: 'number',
-      description: 'Issue number',
-      demandOption: true
-    }
-  },
-  handler: async (argv: ArgumentsCamelCase<TriageArgs>) => {
-    // Implementation
+export const command = defineCommand({
+  command: 'start', // Optional: defaults to filename if omitted
+  describe: 'Studio web interface',
+  builder: (yargs) => yargs.option('port', {
+    alias: 'p',
+    type: 'number',
+    describe: 'Port to listen on',
+    default: 3000
+  }),
+  handler: async (argv) => {
+    // argv.port is correctly typed as number
+    console.log(`Starting studio on port ${argv.port}`);
   }
-};
+});
 ```
 
-This approach has several advantages:
+**Positional Arguments (`commands/create.ts`)**
 
-- Full TypeScript support with proper type inference
-- Compile-time checking of command structure
-- No risk of misspelling exports
-- Better IDE support with autocompletion
+```ts
+import { defineCommand } from 'yargs-file-commands';
+
+export const command = defineCommand({
+  command: 'create <name>', // Define positional args in the command string
+  describe: 'Create a new resource',
+  builder: (yargs) => yargs.positional('name', {
+    describe: 'Name of the resource',
+    type: 'string',
+    demandOption: true
+  }),
+  handler: async (argv) => {
+    // argv.name is correctly typed as string
+    console.log(`Creating resource: ${argv.name}`);
+  }
+});
+```
+
+**Default Command (`commands/$default.ts`)**
+
+This command runs when no other command is specified.
+
+```ts
+import { defineCommand } from 'yargs-file-commands';
+
+export const command = defineCommand({
+  describe: 'Default command',
+  handler: async (argv) => {
+    console.log('Running default command');
+  }
+});
+```
 
 ## Options
 
-The "fileCommands" method takes the following options:
+The `fileCommands` method takes the following options:
 
 **commandDirs**
 
