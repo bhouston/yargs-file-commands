@@ -216,6 +216,29 @@ The `fileCommands` method takes the following options:
 - The verbosity level for the plugin, either `debug` or `info`
 - Default: `"info"`
 
+**validation**
+
+- Whether to validate that positional arguments registered in the builder function match those declared in the command string
+- When enabled, throws an error if positional arguments are registered via `.positional()` but not declared in the command string (e.g., `command: 'create'` should be `command: 'create <arg1> <arg2>'` if positionals are used)
+- This helps catch a common mistake where positional arguments are defined in the builder but missing from the command string, which causes them to be `undefined` at runtime
+- Default: `true`
+
+**Example:**
+
+```ts
+// ❌ This will fail validation if validation: true
+export const command = defineCommand({
+  command: 'create', // Missing positional arguments!
+  builder: (yargs) => yargs.positional('name', { ... }),
+});
+
+// ✅ This passes validation
+export const command = defineCommand({
+  command: 'create <name>', // Positional arguments declared
+  builder: (yargs) => yargs.positional('name', { ... }),
+});
+```
+
 ## Plugin Development (for Contributors only)
 
 If you want to contribute, just check out [this git project](https://github.com/bhouston/yargs-file-commands) and run the following commands to get going:

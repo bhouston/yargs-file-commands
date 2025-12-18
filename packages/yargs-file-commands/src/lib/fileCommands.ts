@@ -7,6 +7,7 @@ import type { Command } from './Command.js';
 import { importCommandFromFile } from './importCommand.js';
 import { type ScanDirectoryOptions, scanDirectory } from './scanDirectory.js';
 import { segmentPath } from './segmentPath.js';
+import { validatePositionals } from './validatePositionals.js';
 
 /**
  * Configuration options for file-based command generation
@@ -15,6 +16,8 @@ import { segmentPath } from './segmentPath.js';
 export type FileCommandsOptions = ScanDirectoryOptions & {
   /** Array of directory paths to scan for command files */
   commandDirs: string[];
+  /** Whether to validate that positional arguments in builder match command string */
+  validation?: boolean;
 };
 
 /**
@@ -44,6 +47,9 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
 
   /** Default log prefix */
   logPrefix: '  ',
+
+  /** Default validation setting - enabled by default */
+  validation: true,
 };
 
 /**
@@ -127,10 +133,17 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
           throw new Error(`No segments found for file: ${filePath}`);
         }
 
+        const commandModule = await importCommandFromFile(filePath, lastSegment, fullOptions);
+
+        // Validate positional arguments if validation is enabled
+        if (fullOptions.validation) {
+          await validatePositionals(commandModule, filePath);
+        }
+
         return {
           fullPath: filePath,
           segments,
-          commandModule: await importCommandFromFile(filePath, lastSegment, fullOptions),
+          commandModule,
         };
       }),
     ),

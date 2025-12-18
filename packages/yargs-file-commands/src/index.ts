@@ -1,2 +1,2 @@
-export * from './lib/fileCommands.js';
 export * from './lib/defineCommand.js';
+export * from './lib/fileCommands.js';
