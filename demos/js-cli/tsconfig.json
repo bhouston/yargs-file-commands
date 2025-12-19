@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["../js-cli/src"],
+  "include": ["src"],
   "compilerOptions": {
-    "outDir": "../js-cli/dist",
+    "outDir": "dist",
     "declaration": false
   }
 }

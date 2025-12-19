@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import path from 'node:path';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PackageJson } from 'type-fest';
 import yargs from 'yargs';
@@ -12,7 +12,6 @@ const distDir = path.dirname(fileURLToPath(import.meta.url));
 
 export const main = async () => {
   const commandsDir = path.join(distDir, 'commands');
-
   const yargsInstance = yargs(hideBin(process.argv));
 
   if (packageInfo.name) {

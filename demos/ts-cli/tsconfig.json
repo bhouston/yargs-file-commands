@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "outDir": "dist",
+   
+    // source maps & type maps
+    "declaration": false,
+    "sourceMap": false,
+    "incremental": false,
+   
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+  }
+}

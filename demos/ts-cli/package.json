@@ -1,12 +1,13 @@
 {
-  "name": "example-cli",
+  "name": "ts-cli",
+  "description": "A direct loading typescript demo using yargs-file-commands",
   "type": "module",
   "src": "src/index.ts",
-  "bin": "./bin/cli.js",
+  "bin": "./bin/ts-cli.js",
   "private": true,
   "scripts": {
     "build": "tsgo",
-    "start": "node ./dist/index.js",
+    "start": "node ./src/index.ts",
     "tsgo": "tsgo"
   },
   "dependencies": {

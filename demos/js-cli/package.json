@@ -1,0 +1,23 @@
+{
+  "name": "js-cli",
+  "description": "A javascript demo CLI building using yargs-file-commands",
+  "type": "module",
+  "src": "src/index.ts",
+  "bin": "./bin/js-cli.js",
+  "private": true,
+  "scripts": {
+    "build": "tsgo",
+    "start": "node ./dist/index.js",
+    "tsgo": "tsgo"
+  },
+  "dependencies": {
+    "type-fest": "^4.31.0",
+    "yargs": "^17",
+    "yargs-file-commands": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/yargs": "^17.0.33",
+    "source-map-support": "^0.5.21"
+  }
+}

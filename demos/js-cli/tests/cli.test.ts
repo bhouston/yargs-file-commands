@@ -15,13 +15,14 @@ const runCli = (args: string = '') => {
   }
 };
 
-describe('example-cli integration tests', () => {
+describe('js-cli integration tests', () => {
   it('should show help with --help flag', () => {
     const output = runCli('--help');
     expect(output).toContain('Commands:');
-    expect(output).toContain('example-cli hello');
-    expect(output).toContain('example-cli joke');
-    expect(output).toContain('example-cli studio');
+    expect(output).toContain('js-cli [word]');
+    expect(output).toContain('js-cli hello');
+    expect(output).toContain('js-cli joke');
+    expect(output).toContain('js-cli studio');
   });
 
   it('should run hello world command', () => {
