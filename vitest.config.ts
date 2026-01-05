@@ -9,6 +9,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
+      all: false,
       exclude: [
         '**/node_modules',
         '**/coverage',
@@ -23,6 +24,8 @@ export default defineConfig({
         '**/vitest.config.js',
         '**/fixtures',
         'demos/**',
+        '/tmp/**',
+        '**/tmp/**',
       ],
       include: [
         'packages/yargs-file-commands/**',
