@@ -37,6 +37,9 @@ jobs:
       - name: Run tests
         run: pnpm vitest
       
+      - name: Run tests with coverage
+        run: pnpm vitest run --coverage
+      
       - name: Find coverage files
         id: coverage
         run: |
