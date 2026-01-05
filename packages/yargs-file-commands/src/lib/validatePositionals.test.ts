@@ -249,4 +249,20 @@ describe('validatePositionals', () => {
 
     await expect(validatePositionals(commandModule, '/test/path.js')).resolves.not.toThrow();
   });
+
+  it('should handle non-string command values in array', () => {
+    // Test the edge case where cmd is not a string after array extraction
+    expect(extractPositionalsFromCommandString([null as any, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([undefined as any, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([123 as any, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([{} as any, 'create <name>'])).toEqual([]);
+  });
+
+  it('should handle empty array in command string', () => {
+    expect(extractPositionalsFromCommandString([])).toEqual([]);
+  });
+
+  it('should handle array with empty string as first element', () => {
+    expect(extractPositionalsFromCommandString(['', 'create <name>'])).toEqual([]);
+  });
 });

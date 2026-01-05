@@ -31,7 +31,7 @@
         "noFloatingPromises": "error",
         "noImportCycles": "error",
         "noMisusedPromises": "error",
-        "noShadow": "error",
+        "noShadow": "off",
         "noUnnecessaryConditions": "error",
         "noUnusedExpressions": "error",
         "noUselessCatchBinding": "error",

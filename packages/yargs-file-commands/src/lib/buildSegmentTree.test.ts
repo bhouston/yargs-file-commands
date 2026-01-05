@@ -364,3 +364,146 @@ describe('logCommandTree', () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe('buildSegmentTree edge cases', () => {
+  it('should handle commands with undefined segment name', () => {
+    const commands: Command[] = [
+      {
+        fullPath: '/commands/test.ts',
+        segments: ['test', undefined as any], // Undefined segment
+        commandModule: {
+          command: 'test',
+          describe: 'Test command',
+          handler: async () => {},
+        },
+      },
+    ];
+
+    // Should handle undefined segments gracefully
+    const tree = buildSegmentTree(commands);
+    expect(tree.length).toBeGreaterThan(0);
+  });
+
+  it('should handle commands with isDefault flag', () => {
+    const commands: Command[] = [
+      {
+        fullPath: '/commands/$default.ts',
+        segments: ['$default'],
+        isDefault: true,
+        commandModule: {
+          command: '$0',
+          describe: 'Default command',
+          handler: async () => {},
+        },
+      },
+    ];
+
+    const tree = buildSegmentTree(commands);
+    expect(tree.length).toBe(1);
+    expect(tree[0]?.segmentName).toBe('$default');
+    expect(tree[0]?.type).toBe('leaf');
+  });
+
+  it('should handle commands with empty segments array gracefully', () => {
+    const commands: Command[] = [
+      {
+        fullPath: '/commands/test.ts',
+        segments: [], // Empty segments
+        commandModule: {
+          command: 'test',
+          describe: 'Test command',
+          handler: async () => {},
+        },
+      },
+    ];
+
+    // Should handle empty segments without crashing
+    const tree = buildSegmentTree(commands);
+    expect(tree.length).toBe(0); // Empty segments result in empty tree
+  });
+
+  it('should verify internal node handler is async function', () => {
+    const healthCommand: Command = {
+      fullPath: '/commands/db/health.ts',
+      segments: ['db', 'health'],
+      commandModule: {
+        command: 'health',
+        describe: 'Health check',
+        handler: async () => {},
+      },
+    };
+
+    const tree = buildSegmentTree([healthCommand]);
+    const dbNode = tree[0];
+    if (!dbNode || dbNode.type !== 'internal') {
+      throw new Error('Expected internal node');
+    }
+
+    const commandModule = createCommand(dbNode);
+    expect(commandModule.handler).toBeDefined();
+    expect(typeof commandModule.handler).toBe('function');
+
+    // Verify handler is async (returns a Promise)
+    if (commandModule.handler) {
+      const result = commandModule.handler({} as any);
+      expect(result).toBeInstanceOf(Promise);
+    }
+  });
+
+  it('should handle very deeply nested command structures', () => {
+    const commands: Command[] = [
+      {
+        fullPath: '/commands/a/b/c/d/e/f/g.ts',
+        segments: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+        commandModule: {
+          command: 'g',
+          describe: 'Deeply nested command',
+          handler: async () => {},
+        },
+      },
+    ];
+
+    const tree = buildSegmentTree(commands);
+    expect(tree.length).toBe(1);
+
+    // Traverse the tree to verify depth
+    let currentNode = tree[0];
+    let depth = 0;
+    while (currentNode && currentNode.type === 'internal') {
+      expect(currentNode.children.length).toBeGreaterThan(0);
+      currentNode = currentNode.children[0];
+      depth++;
+    }
+
+    expect(depth).toBe(6); // 6 internal nodes before leaf
+    expect(currentNode?.type).toBe('leaf');
+  });
+
+  it('should handle commands with special characters in segment names', () => {
+    const commands: Command[] = [
+      {
+        fullPath: '/commands/test-command.ts',
+        segments: ['test-command'],
+        commandModule: {
+          command: 'test-command',
+          describe: 'Test with dash',
+          handler: async () => {},
+        },
+      },
+      {
+        fullPath: '/commands/test_command.ts',
+        segments: ['test_command'],
+        commandModule: {
+          command: 'test_command',
+          describe: 'Test with underscore',
+          handler: async () => {},
+        },
+      },
+    ];
+
+    const tree = buildSegmentTree(commands);
+    expect(tree.length).toBe(2);
+    const segmentNames = tree.map((n) => n.segmentName).sort();
+    expect(segmentNames).toEqual(['test-command', 'test_command']);
+  });
+});

@@ -1,7 +1,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { fileCommands } from './fileCommands.js';
 
@@ -154,5 +154,94 @@ describe('fileCommands', () => {
     });
 
     expect(commands.length).toBeGreaterThan(0);
+  });
+
+  it('should handle validation disabled', async () => {
+    const commands = await fileCommands({
+      commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+      validation: false,
+    });
+
+    expect(commands.length).toBeGreaterThan(0);
+  });
+
+  it('should test debug logging for command importing', async () => {
+    const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+
+    await fileCommands({
+      commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+      logLevel: 'debug',
+    });
+
+    // Check that debug logging for importing commands was called
+    const debugCalls = consoleSpy.mock.calls.map((call) => call[0]?.toString() || '');
+    expect(debugCalls.some((call) => call.includes('importing command module'))).toBe(true);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should test debug logging for command tree', async () => {
+    const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+
+    await fileCommands({
+      commandDirs: [path.join(__dirname, 'fixtures', 'commands')],
+      logLevel: 'debug',
+    });
+
+    // Check that debug logging for command tree was called
+    const debugCalls = consoleSpy.mock.calls.map((call) => call[0]?.toString() || '');
+    expect(debugCalls.some((call) => call.includes('Command tree structure'))).toBe(true);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should handle single-segment files correctly', async () => {
+    // Test files with only one segment (no directory structure)
+    const tempDir = path.join(tmpdir(), `yargs-single-segment-${Date.now()}`);
+    await mkdir(tempDir, { recursive: true });
+
+    try {
+      await writeFile(
+        path.join(tempDir, 'single.ts'),
+        "export const describe = 'Single segment command';\nexport const handler = async () => {};",
+      );
+
+      const commands = await fileCommands({
+        commandDirs: [tempDir],
+        extensions: ['.ts'],
+      });
+
+      expect(commands.length).toBeGreaterThan(0);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('should handle commands with validation errors gracefully', async () => {
+    // Create a command file with positional arguments not declared in command string
+    const tempDir = path.join(tmpdir(), `yargs-validation-error-${Date.now()}`);
+    await mkdir(tempDir, { recursive: true });
+
+    try {
+      // Use individual exports style instead of defineCommand to avoid import issues
+      await writeFile(
+        path.join(tempDir, 'bad.ts'),
+        `export const command = 'bad'; // Missing positional declaration
+export const describe = 'Bad command';
+export const builder = (yargs) => yargs.positional('name', { type: 'string' });
+export const handler = async () => {};`,
+      );
+
+      // This should throw a validation error
+      await expect(
+        fileCommands({
+          commandDirs: [tempDir],
+          extensions: ['.ts'],
+          validation: true,
+        }),
+      ).rejects.toThrow(/has.*positional argument.*registered in builder/);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
