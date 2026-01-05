@@ -252,9 +252,13 @@ describe('validatePositionals', () => {
 
   it('should handle non-string command values in array', () => {
     // Test the edge case where cmd is not a string after array extraction
+    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
     expect(extractPositionalsFromCommandString([null as any, 'create <name>'])).toEqual([]);
+    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
     expect(extractPositionalsFromCommandString([undefined as any, 'create <name>'])).toEqual([]);
+    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
     expect(extractPositionalsFromCommandString([123 as any, 'create <name>'])).toEqual([]);
+    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
     expect(extractPositionalsFromCommandString([{} as any, 'create <name>'])).toEqual([]);
   });
 

@@ -264,6 +264,7 @@ export const command = 'test';`,
 
       // Verify the null handler can be called and doesn't throw
       if (command.handler) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test file - need any for handler testing
         await expect(command.handler({} as any)).resolves.toBeUndefined();
       }
     } finally {

@@ -370,6 +370,7 @@ describe('buildSegmentTree edge cases', () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/test.ts',
+        // biome-ignore lint/suspicious/noExplicitAny: Test edge case with undefined segment
         segments: ['test', undefined as any], // Undefined segment
         commandModule: {
           command: 'test',
@@ -445,6 +446,7 @@ describe('buildSegmentTree edge cases', () => {
 
     // Verify handler is async (returns a Promise)
     if (commandModule.handler) {
+      // biome-ignore lint/suspicious/noExplicitAny: Test file - need any for handler testing
       const result = commandModule.handler({} as any);
       expect(result).toBeInstanceOf(Promise);
     }

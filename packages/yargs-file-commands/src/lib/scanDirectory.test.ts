@@ -264,7 +264,6 @@ describe('scanDirectory', () => {
       });
 
       // Check that debug logging was called (may include system ignore pattern logging)
-      const debugCalls = consoleSpy.mock.calls.map((call) => call[0]?.toString() || '');
       // The hidden file should be ignored, and if debug logging is enabled,
       // we should see some debug output
       expect(consoleSpy).toHaveBeenCalled();
@@ -364,10 +363,6 @@ describe('scanDirectory', () => {
       expect(files.some((f) => f.includes('valid.ts') && !f.includes('valid2'))).toBe(true);
       expect(files.some((f) => f.includes('valid2.ts'))).toBe(true);
       // Hidden file should not be included (system ignore pattern)
-      const hiddenFiles = files.filter((f) => {
-        const parts = f.split(path.sep);
-        return parts.some((part) => part.startsWith('.') && part.includes('hidden'));
-      });
       // Note: The hidden file path contains `.hidden` which should be ignored
       // But the check might need to account for how paths are normalized
       // For now, we verify the valid files are found

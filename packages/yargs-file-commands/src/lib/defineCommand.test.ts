@@ -168,7 +168,8 @@ describe('defineCommand', () => {
     expect(command).toHaveProperty('handler');
 
     // Verify types are correct
-    const cmdModule: CommandModule = command;
+    // biome-ignore lint/suspicious/noExplicitAny: Test file - need to verify CommandModule type
+    const cmdModule: CommandModule<any, any> = command;
     expect(cmdModule.command).toBe('test');
   });
 
