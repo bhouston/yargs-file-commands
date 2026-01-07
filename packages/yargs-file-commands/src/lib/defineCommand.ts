@@ -1,5 +1,7 @@
 import type { ArgumentsCamelCase, Argv, CommandModule, InferredOptionTypes, Options } from 'yargs';
 
+export type DefineCommandResult<T = {}, U = {}> = CommandModule<T, U>;
+
 /**
  * Helper to define a command with type inference for arguments.
  *
@@ -24,7 +26,7 @@ export function defineCommand<T = {}, U = {}>(module: {
   deprecated?: boolean | string;
   builder: (yargs: Argv<T>) => Argv<U> | PromiseLike<Argv<U>>;
   handler: (args: ArgumentsCamelCase<U>) => void | Promise<void>;
-}): CommandModule<T, U>;
+}): DefineCommandResult<T, U>;
 
 /**
  * Helper to define a command with type inference for arguments using an options object builder.
@@ -38,9 +40,9 @@ export function defineCommand<O extends { [key: string]: Options }, T = {}>(modu
   deprecated?: boolean | string;
   builder: O;
   handler: (args: ArgumentsCamelCase<InferredOptionTypes<O>>) => void | Promise<void>;
-}): CommandModule<T, InferredOptionTypes<O>>;
+}): DefineCommandResult<T, InferredOptionTypes<O>>;
 
 // biome-ignore lint/suspicious/noExplicitAny: required to return a CommandModule
-export function defineCommand(module: any): any {
+export function defineCommand(module: any): DefineCommandResult {
   return module;
 }
