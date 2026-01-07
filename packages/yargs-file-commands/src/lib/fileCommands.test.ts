@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -93,8 +94,8 @@ describe('fileCommands', () => {
 
   it('should throw error when no commands found', async () => {
     // Create a temporary empty directory
-    // Use a unique timestamp to avoid collisions with other tests
-    const tempDir = path.join(tmpdir(), `yargs-empty-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    // Use a unique UUID to avoid collisions with other tests
+    const tempDir = path.join(tmpdir(), `yargs-empty-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -111,8 +112,8 @@ describe('fileCommands', () => {
   });
 
   it('should handle multiple command directories', async () => {
-    const tempDir1 = path.join(tmpdir(), `yargs-test-1-${Date.now()}`);
-    const tempDir2 = path.join(tmpdir(), `yargs-test-2-${Date.now()}`);
+    const tempDir1 = path.join(tmpdir(), `yargs-test-1-${randomUUID()}`);
+    const tempDir2 = path.join(tmpdir(), `yargs-test-2-${randomUUID()}`);
     await mkdir(tempDir1, { recursive: true });
     await mkdir(tempDir2, { recursive: true });
 
@@ -197,7 +198,7 @@ describe('fileCommands', () => {
 
   it('should handle single-segment files correctly', async () => {
     // Test files with only one segment (no directory structure)
-    const tempDir = path.join(tmpdir(), `yargs-single-segment-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-single-segment-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -219,7 +220,7 @@ describe('fileCommands', () => {
 
   it('should handle commands with validation errors gracefully', async () => {
     // Create a command file with positional arguments not declared in command string
-    const tempDir = path.join(tmpdir(), `yargs-validation-error-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-validation-error-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {

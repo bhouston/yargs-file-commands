@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -49,7 +50,7 @@ describe('importCommandFromFile', () => {
 
   it('should handle CommandModule export style', async () => {
     // Create a temporary command file with CommandModule export
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'cmd.js')); // Use .js and ensure absolute path
 
@@ -78,7 +79,7 @@ describe('importCommandFromFile', () => {
   it('should handle CommandModule export with default command name', async () => {
     // Create a temporary command file with CommandModule export for default
     // Note: Using a simpler filename to avoid potential issues with $ character in file URLs
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'default-cmd.js')); // Use simpler name
 
@@ -111,7 +112,7 @@ describe('importCommandFromFile', () => {
 
   it('should throw error for unsupported exports', async () => {
     // Create a temporary command file with unsupported exports
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'cmd.mjs')); // Use .mjs for better ESM support
 
@@ -142,7 +143,7 @@ export const anotherBadExport = 123;`,
 
   it('should create null handler when handler is not provided', async () => {
     // Create a temporary command file without handler
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'cmd.js')); // Use .js and ensure absolute path
 
@@ -177,7 +178,7 @@ export const command = 'test';`,
 
   it('should use filename as command name when not provided', async () => {
     // Create a temporary command file without explicit command name
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'mycommand.js')); // Use .js and ensure absolute path
 
@@ -213,7 +214,7 @@ export const handler = async () => {};`,
   });
 
   it('should log debug message for CommandModule export style', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'cmd.js'));
 
@@ -244,7 +245,7 @@ export const handler = async () => {};`,
   });
 
   it('should verify null handler is actually callable and does nothing', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'cmd.js'));
 
@@ -273,7 +274,7 @@ export const command = 'test';`,
   });
 
   it('should handle import errors gracefully', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'syntax-error.js'));
 
@@ -292,7 +293,7 @@ export const command = 'test';`,
   });
 
   it('should handle CommandModule with all properties', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'full-cmd.js'));
 
@@ -325,7 +326,7 @@ export const command = 'test';`,
   });
 
   it('should handle individual exports with all supported properties', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
     const filePath = path.resolve(path.join(tempDir, 'individual.js'));
 

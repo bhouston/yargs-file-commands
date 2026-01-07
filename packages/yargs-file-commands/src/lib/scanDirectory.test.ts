@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -48,7 +49,7 @@ describe('scanDirectory', () => {
 
   it('should ignore files with non-matching extensions', async () => {
     // Create a temporary directory with mixed file types
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -82,7 +83,7 @@ describe('scanDirectory', () => {
 
   it('should handle custom extensions', async () => {
     // Create a temporary directory with .js files
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -103,7 +104,7 @@ describe('scanDirectory', () => {
 
   it('should handle multiple extensions', async () => {
     // Create a temporary directory with different file types
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -136,7 +137,7 @@ describe('scanDirectory', () => {
 
   it('should handle nested directories with extension filtering', async () => {
     // Create a temporary directory structure
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     const subDir = path.join(tempDir, 'subdir');
     await mkdir(subDir, { recursive: true });
 
@@ -175,7 +176,7 @@ describe('scanDirectory', () => {
   });
 
   it('should handle empty directories', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -201,7 +202,7 @@ describe('scanDirectory', () => {
   });
 
   it('should ignore files starting with dot (system ignore pattern)', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -226,7 +227,7 @@ describe('scanDirectory', () => {
   });
 
   it('should ignore directories starting with dot', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     const hiddenDir = path.join(tempDir, '.hidden');
     await mkdir(hiddenDir, { recursive: true });
 
@@ -249,7 +250,7 @@ describe('scanDirectory', () => {
   });
 
   it('should log system ignore patterns in debug mode', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -277,7 +278,7 @@ describe('scanDirectory', () => {
   });
 
   it('should log custom ignore patterns in debug mode', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -307,7 +308,7 @@ describe('scanDirectory', () => {
   });
 
   it('should handle mix of system and custom ignore patterns', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     await mkdir(tempDir, { recursive: true });
 
     try {
@@ -346,7 +347,7 @@ describe('scanDirectory', () => {
   });
 
   it('should handle hidden files in nested directories', async () => {
-    const tempDir = path.join(tmpdir(), `yargs-test-${Date.now()}`);
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
     const subDir = path.join(tempDir, 'subdir');
     await mkdir(subDir, { recursive: true });
 
