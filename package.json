@@ -7,6 +7,8 @@
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",
     "tsgo": "pnpm -r tsgo",
+    "test": "pnpm vitest",
+    "lint": "pnpm biome check",
     "make-release": "node ./scripts/make-release.ts packages/yargs-file-commands"
   },
   "devDependencies": {
