@@ -266,6 +266,10 @@ npx example-cli
 pnpm make-release
 ```
 
+## Author
+
+[Ben Houston](https://benhouston3d.com), Sponsored by [Land of Assets](https://landofassets.com)
+
 
 [npm]: https://img.shields.io/npm/v/yargs-file-commands
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
