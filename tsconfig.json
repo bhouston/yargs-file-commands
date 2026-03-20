@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [],
+  "include": [],
+  "references": [{ "path": "./packages/yargs-file-commands" }, { "path": "./demos/js-cli" }]
+}

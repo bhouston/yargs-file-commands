@@ -47,7 +47,7 @@ describe('buildSegmentTree', () => {
 
     expect(rootNode.children.length).toBe(2);
 
-    const childSegments = rootNode.children.map((child) => child.segmentName).sort();
+    const childSegments = rootNode.children.map((child) => child.segmentName).toSorted();
     expect(childSegments).toEqual(['health', 'migration']);
   });
 
@@ -157,7 +157,7 @@ describe('buildSegmentTree', () => {
 
     const tree = buildSegmentTree(commands);
     expect(tree.length).toBe(2);
-    expect(tree.map((n) => n.segmentName).sort()).toEqual(['hello', 'world']);
+    expect(tree.map((n) => n.segmentName).toSorted()).toEqual(['hello', 'world']);
   });
 
   it('should handle nested commands at different depths', () => {
@@ -187,7 +187,7 @@ describe('buildSegmentTree', () => {
     expect(tree[0]?.segmentName).toBe('a');
     if (tree[0]?.type === 'internal') {
       expect(tree[0].children.length).toBe(2);
-      const childNames = tree[0].children.map((c) => c.segmentName).sort();
+      const childNames = tree[0].children.map((c) => c.segmentName).toSorted();
       expect(childNames).toEqual(['b', 'd']);
 
       const bNode = tree[0].children.find((c) => c.segmentName === 'b');
@@ -505,7 +505,7 @@ describe('buildSegmentTree edge cases', () => {
 
     const tree = buildSegmentTree(commands);
     expect(tree.length).toBe(2);
-    const segmentNames = tree.map((n) => n.segmentName).sort();
+    const segmentNames = tree.map((n) => n.segmentName).toSorted();
     expect(segmentNames).toEqual(['test-command', 'test_command']);
   });
 });

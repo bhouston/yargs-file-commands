@@ -1,6 +1,6 @@
 import type { Argv, CommandModule } from 'yargs';
 
-import type { Command } from './Command';
+import type { Command } from './Command.js';
 
 /**
  * Represents a node in the command tree structure

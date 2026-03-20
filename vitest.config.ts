@@ -27,11 +27,7 @@ export default defineConfig({
         '/tmp/**',
         '**/tmp/**',
       ],
-      include: [
-        'packages/yargs-file-commands/**',
-      ]
-    }
+      include: ['packages/yargs-file-commands/**'],
+    },
   },
-  
 });
-

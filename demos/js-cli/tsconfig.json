@@ -1,8 +1,8 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src"],
+  "extends": "../../tsconfig.node.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "declaration": false
-  }
+    "composite": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "../../packages/yargs-file-commands" }]
 }

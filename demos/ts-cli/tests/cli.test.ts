@@ -7,7 +7,7 @@ const runCli = (args: string = '') => {
     const cliPath = path.resolve(__dirname, '../src/index.ts');
     return execSync(`node ${cliPath} ${args}`, {
       encoding: 'utf-8',
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
   } catch (error: any) {
     // yargs outputs errors to stdout, so combine both stdout and stderr

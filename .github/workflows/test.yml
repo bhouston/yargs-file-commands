@@ -13,33 +13,36 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.0
-      
-      - name: Setup Node.js 
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: 'pnpm'
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Run type check
-        run: pnpm tsgo
-      
+        run: pnpm tsc
+
       - name: Run linter
-        run: pnpm biome check
+        run: pnpm lint
+
+      - name: Run format check
+        run: pnpm format
 
       - name: Run tests
-        run: pnpm vitest
-      
+        run: pnpm test
+
       - name: Run tests with coverage
-        run: pnpm vitest run --coverage
-      
+        run: pnpm exec vitest run --coverage
+
       - name: Find coverage files
         id: coverage
         run: |
@@ -54,7 +57,7 @@ jobs:
             echo "has_coverage=true" >> $GITHUB_OUTPUT
             echo "files=$COVERAGE_FILES" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Upload coverage reports to Codecov
         if: steps.coverage.outputs.has_coverage == 'true'
         uses: codecov/codecov-action@v4
@@ -66,4 +69,3 @@ jobs:
           fail_ci_if_error: false
           directory: ./
           verbose: true
-

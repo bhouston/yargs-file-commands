@@ -1,36 +1,29 @@
 {
   "name": "yargs-file-commands",
-  "description": "A yargs helper function that lets you define your commands structure via directory and file naming conventions.",
   "version": "1.2.2",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "source": "./src/index.ts",
-  "license": "MIT",
-  "author": "Ben Houston <neuralsoft@gmail.com> (https://benhouston3d.com)",
+  "description": "A yargs helper function that lets you define your commands structure via directory and file naming conventions.",
   "keywords": [
-    "yargs",
-    "file-router",
-    "files",
-    "directory",
     "automatic",
     "commandDir",
+    "directory",
+    "file-router",
+    "files",
     "helper",
     "nodejs",
-    "typescript"
+    "typescript",
+    "yargs"
   ],
-  "scripts": {
-    "build": "tsgo",
-    "tsgo": "tsgo"
-  },
   "homepage": "https://github.com/bhouston/yargs-file-commands#readme",
+  "bugs": {
+    "url": "https://github.com/bhouston/yargs-file-commands/issues"
+  },
+  "license": "MIT",
+  "author": "Ben Houston <neuralsoft@gmail.com> (https://benhouston3d.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bhouston/yargs-file-commands"
   },
-  "bugs": {
-    "url": "https://github.com/bhouston/yargs-file-commands/issues"
-  },
+  "source": "./src/index.ts",
   "files": [
     "dist",
     "src",
@@ -39,17 +32,24 @@
     "LICENSE",
     "CHANGELOG.md"
   ],
-  "peerDependencies": {
-    "yargs": "^17"
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsgo",
+    "tsgo": "tsgo"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "@types/yargs": "^17.0.33",
     "yargs": "^17"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
+  "peerDependencies": {
+    "yargs": "^17"
   },
   "engines": {
     "node": ">=20.0.0"

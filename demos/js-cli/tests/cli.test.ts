@@ -7,7 +7,7 @@ const runCli = (args: string = '') => {
     const cliPath = path.resolve(__dirname, '../dist/index.js');
     return execSync(`node ${cliPath} ${args}`, {
       encoding: 'utf-8',
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
   } catch (error: any) {
     // yargs outputs errors to stdout, so combine both stdout and stderr
@@ -63,7 +63,9 @@ describe('js-cli integration tests', () => {
     });
 
     it('should create token with optional domain-whitelist option', () => {
-      const output = runCli('tokens create myaccount mytoken --type FRONTEND --org myorg --domain-whitelist example.com');
+      const output = runCli(
+        'tokens create myaccount mytoken --type FRONTEND --org myorg --domain-whitelist example.com',
+      );
       expect(output).toContain('Service Account: myaccount');
       expect(output).toContain('Token: mytoken');
       expect(output).toContain('Type: FRONTEND');
@@ -71,7 +73,9 @@ describe('js-cli integration tests', () => {
     });
 
     it('should create token with all options including shared options', () => {
-      const output = runCli('tokens create myaccount mytoken --type SECRET --org myorg --project myproject --description "Test token" --format yaml');
+      const output = runCli(
+        'tokens create myaccount mytoken --type SECRET --org myorg --project myproject --description "Test token" --format yaml',
+      );
       expect(output).toContain('Service Account: myaccount');
       expect(output).toContain('Token: mytoken');
       expect(output).toContain('Type: SECRET');
@@ -84,22 +88,26 @@ describe('js-cli integration tests', () => {
 
     it('should show error when missing first positional argument', () => {
       const output = runCli('tokens create --type FRONTEND --org myorg');
-      expect(output).toContain('Not enough non-option arguments') || expect(output).toContain('Missing required argument');
+      expect(output.includes('Not enough non-option arguments') || output.includes('Missing required argument')).toBe(
+        true,
+      );
     });
 
     it('should show error when missing second positional argument', () => {
       const output = runCli('tokens create myaccount --type FRONTEND --org myorg');
-      expect(output).toContain('Not enough non-option arguments') || expect(output).toContain('Missing required argument');
+      expect(output.includes('Not enough non-option arguments') || output.includes('Missing required argument')).toBe(
+        true,
+      );
     });
 
     it('should show error when missing required type option', () => {
       const output = runCli('tokens create myaccount mytoken --org myorg');
-      expect(output).toContain('Missing required argument: type') || expect(output).toContain('Required option');
+      expect(output.includes('Missing required argument: type') || output.includes('Required option')).toBe(true);
     });
 
     it('should show error when missing required org option', () => {
       const output = runCli('tokens create myaccount mytoken --type FRONTEND');
-      expect(output).toContain('Missing required argument: org') || expect(output).toContain('Required option');
+      expect(output.includes('Missing required argument: org') || output.includes('Required option')).toBe(true);
     });
 
     it('should show help for tokens create command', () => {

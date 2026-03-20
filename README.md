@@ -34,9 +34,7 @@ export const main = async () => {
 
   return yargs(hideBin(process.argv))
     .scriptName('my-cli')
-    .command(
-      await fileCommands({ commandDirs: [commandsDir] })
-    )
+    .command(await fileCommands({ commandDirs: [commandsDir] }))
     .help().argv;
 };
 ```
@@ -75,16 +73,17 @@ import { defineCommand } from 'yargs-file-commands';
 export const command = defineCommand({
   command: 'start', // Optional: defaults to filename if omitted
   describe: 'Studio web interface',
-  builder: (yargs) => yargs.option('port', {
-    alias: 'p',
-    type: 'number',
-    describe: 'Port to listen on',
-    default: 3000
-  }),
+  builder: (yargs) =>
+    yargs.option('port', {
+      alias: 'p',
+      type: 'number',
+      describe: 'Port to listen on',
+      default: 3000,
+    }),
   handler: async (argv) => {
     // argv.port is correctly typed as number
     console.log(`Starting studio on port ${argv.port}`);
-  }
+  },
 });
 ```
 
@@ -96,15 +95,16 @@ import { defineCommand } from 'yargs-file-commands';
 export const command = defineCommand({
   command: 'create <name>', // Define positional args in the command string
   describe: 'Create a new resource',
-  builder: (yargs) => yargs.positional('name', {
-    describe: 'Name of the resource',
-    type: 'string',
-    demandOption: true
-  }),
+  builder: (yargs) =>
+    yargs.positional('name', {
+      describe: 'Name of the resource',
+      type: 'string',
+      demandOption: true,
+    }),
   handler: async (argv) => {
     // argv.name is correctly typed as string
     console.log(`Creating resource: ${argv.name}`);
-  }
+  },
 });
 ```
 
@@ -119,7 +119,7 @@ export const command = defineCommand({
   describe: 'Default command',
   handler: async (argv) => {
     console.log('Running default command');
-  }
+  },
 });
 ```
 
@@ -140,12 +140,12 @@ export const withPagination = <T>(yargs: Argv<T>) => {
     .option('page', {
       type: 'number',
       default: 1,
-      describe: 'Page number'
+      describe: 'Page number',
     })
     .option('limit', {
       type: 'number',
       default: 10,
-      describe: 'Items per page'
+      describe: 'Items per page',
     });
 };
 
@@ -159,7 +159,7 @@ export const command = defineCommand({
   handler: async (argv) => {
     // argv.page and argv.limit are correctly typed as number
     console.log(`Page: ${argv.page}, Limit: ${argv.limit}`);
-  }
+  },
 });
 ```
 
@@ -175,7 +175,7 @@ export const commonOptions = {
     type: 'boolean',
     describe: 'Run with verbose logging',
     default: false,
-  } as const
+  } as const,
 };
 
 // commands/users.ts
@@ -188,7 +188,7 @@ export const command = defineCommand({
   handler: async (argv) => {
     // argv.verbose is correctly typed
     if (argv.verbose) console.log('Verbose mode');
-  }
+  },
 });
 ```
 
@@ -239,37 +239,20 @@ export const command = defineCommand({
 });
 ```
 
-## Plugin Development (for Contributors only)
+## Development
 
-If you want to contribute, just check out [this git project](https://github.com/bhouston/yargs-file-commands) and run the following commands to get going:
-
-```sh
-# install dependencies
+```bash
 pnpm install
-
-# build everything
-pnpm run build
-
-# biome
-pnpm biome check --write
-
-# tests
-pnpm vitest
-
-# clean everything, should be like doing a fresh git checkout of the repo.
-pnpm clean
-
-# run example cli
-npx example-cli
-
-# publish new release
-pnpm make-release
+pnpm tsc # typescript-native
+pnpm lint # oxlint
+pnpm lint:fix
+pnpm format # oxfmt
+pnpm test # vitest
 ```
 
 ## Author
 
 [Ben Houston](https://benhouston3d.com), Sponsored by [Land of Assets](https://landofassets.com)
-
 
 [npm]: https://img.shields.io/npm/v/yargs-file-commands
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands

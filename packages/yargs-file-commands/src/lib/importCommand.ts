@@ -116,6 +116,7 @@ export const importCommandFromFile = async (
     throw new Error(
       `Failed to import command module from ${realPath}: ${errorMessage}. ` +
         `Ensure the file is a valid JavaScript/TypeScript module and the path is correct.`,
+      { cause: error },
     );
   }
 

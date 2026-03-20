@@ -131,6 +131,7 @@ export const scanDirectory = async (
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
       `${logPrefix}Failed to scan directory ${dirPath}: ${errorMessage}. Ensure the directory exists and is accessible.`,
+      { cause: error },
     );
   }
 };

@@ -1,15 +1,8 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src"],
+  "extends": "../../tsconfig.node.json",
   "compilerOptions": {
-    "outDir": "dist",
-   
-    // source maps & type maps
-    "declaration": false,
-    "sourceMap": false,
-    "incremental": false,
-   
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-  }
+    "noEmit": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "../../packages/yargs-file-commands" }]
 }
