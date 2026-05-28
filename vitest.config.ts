@@ -6,6 +6,7 @@ export default defineConfig({
     isolate: false,
     globals: true,
     environment: 'node',
+    exclude: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/publish/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
