@@ -40,8 +40,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsgo",
-    "tsgo": "tsgo"
+    "build": "tsc",
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

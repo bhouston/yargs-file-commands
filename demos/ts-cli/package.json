@@ -5,9 +5,9 @@
   "bin": "./bin/ts-cli.js",
   "type": "module",
   "scripts": {
-    "build": "tsgo",
+    "build": "tsc",
     "start": "node ./src/index.ts",
-    "tsgo": "tsgo"
+    "tsc": "tsc"
   },
   "dependencies": {
     "type-fest": "^4.31.0",

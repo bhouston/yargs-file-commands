@@ -243,7 +243,7 @@ export const command = defineCommand({
 
 ```bash
 pnpm install
-pnpm tsc # typescript-native
+pnpm tsc
 pnpm lint # oxlint
 pnpm lint:fix
 pnpm format # oxfmt
