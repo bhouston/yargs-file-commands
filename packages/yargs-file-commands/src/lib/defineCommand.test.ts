@@ -9,7 +9,7 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'test',
       describe: 'Test command',
-      builder: (yargs) => yargs.option('name', { type: 'string' }),
+      builder: (y) => y.option('name', { type: 'string' }),
       handler: async (argv) => {
         expect(argv.name).toBeDefined();
       },
@@ -45,8 +45,8 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'create <name>',
       describe: 'Create command',
-      builder: (yargs) =>
-        yargs.positional('name', {
+      builder: (y) =>
+        y.positional('name', {
           type: 'string',
           describe: 'Name of the resource',
           demandOption: true,
@@ -65,7 +65,7 @@ describe('defineCommand', () => {
       command: 'test',
       aliases: ['t', 'test-cmd'],
       describe: 'Test command',
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -78,7 +78,7 @@ describe('defineCommand', () => {
       command: 'test',
       aliases: 't',
       describe: 'Test command',
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -91,7 +91,7 @@ describe('defineCommand', () => {
       command: 'old',
       describe: 'Old command',
       deprecated: true,
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -103,7 +103,7 @@ describe('defineCommand', () => {
       command: 'old',
       describe: 'Old command',
       deprecated: 'Use new command instead',
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -114,7 +114,7 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'hidden',
       describe: false,
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -124,7 +124,7 @@ describe('defineCommand', () => {
   it('should handle commands without command name', () => {
     const command = defineCommand({
       describe: 'Command without explicit name',
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -137,9 +137,9 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'test',
       describe: 'Test command',
-      builder: async (yargs) => {
+      builder: async (y) => {
         await Promise.resolve();
-        return yargs.option('name', { type: 'string' });
+        return y.option('name', { type: 'string' });
       },
       handler: async () => {},
     });
@@ -155,7 +155,7 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'test',
       describe: 'Test command',
-      builder: (yargs) => yargs.option('verbose', { type: 'boolean', alias: 'v' }),
+      builder: (y) => y.option('verbose', { type: 'boolean', alias: 'v' }),
       handler: async (argv) => {
         expect(argv.verbose).toBeDefined();
       },
@@ -177,7 +177,7 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: ['test', 't'],
       describe: 'Test command',
-      builder: (yargs) => yargs,
+      builder: (y) => y,
       handler: async () => {},
     });
 
@@ -188,8 +188,8 @@ describe('defineCommand', () => {
     const command = defineCommand({
       command: 'complex',
       describe: 'Complex command',
-      builder: (yargs) =>
-        yargs
+      builder: (y) =>
+        y
           .option('name', { type: 'string', demandOption: true })
           .option('count', { type: 'number', default: 1 })
           .option('verbose', { type: 'boolean', alias: 'v' })

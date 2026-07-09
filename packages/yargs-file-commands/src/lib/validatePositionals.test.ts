@@ -58,6 +58,40 @@ describe('extractPositionalsFromCommandString', () => {
   });
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const builderWithNoPositionals = (yargs: any) => yargs.option('name', { type: 'string' });
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const builderWithSinglePositional = (yargs: any) =>
+  yargs.positional('name', {
+    type: 'string',
+    describe: 'Name',
+  });
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const builderWithMultiplePositionals = (yargs: any) =>
+  yargs
+    .positional('serviceAccount', {
+      type: 'string',
+      describe: 'Service account',
+    })
+    .positional('token', {
+      type: 'string',
+      describe: 'Token',
+    });
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const asyncBuilder = async (yargs: any) =>
+  yargs.positional('name', {
+    type: 'string',
+    describe: 'Name',
+  });
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const builderThatThrows = (yargs: any) => {
+  yargs.positional('name', { type: 'string' });
+  throw new Error('Builder error');
+};
+// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
+const builderWithPositionalsAndOptions = (yargs: any) =>
+  yargs.positional('name', { type: 'string' }).option('verbose', { type: 'boolean' });
+
 describe('extractPositionalsFromBuilder', () => {
   it('should return empty array for undefined builder', async () => {
     expect(await extractPositionalsFromBuilder(undefined)).toEqual([]);
@@ -72,60 +106,28 @@ describe('extractPositionalsFromBuilder', () => {
   });
 
   it('should return empty array for builder with no positionals', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = (yargs: any) => yargs.option('name', { type: 'string' });
-    expect(await extractPositionalsFromBuilder(builder)).toEqual([]);
+    expect(await extractPositionalsFromBuilder(builderWithNoPositionals)).toEqual([]);
   });
 
   it('should extract single positional from builder', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = (yargs: any) =>
-      yargs.positional('name', {
-        type: 'string',
-        describe: 'Name',
-      });
-    expect(await extractPositionalsFromBuilder(builder)).toEqual(['name']);
+    expect(await extractPositionalsFromBuilder(builderWithSinglePositional)).toEqual(['name']);
   });
 
   it('should extract multiple positionals from builder', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = (yargs: any) =>
-      yargs
-        .positional('serviceAccount', {
-          type: 'string',
-          describe: 'Service account',
-        })
-        .positional('token', {
-          type: 'string',
-          describe: 'Token',
-        });
-    expect(await extractPositionalsFromBuilder(builder)).toEqual(['serviceAccount', 'token']);
+    expect(await extractPositionalsFromBuilder(builderWithMultiplePositionals)).toEqual(['serviceAccount', 'token']);
   });
 
   it('should handle async builder', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = async (yargs: any) =>
-      yargs.positional('name', {
-        type: 'string',
-        describe: 'Name',
-      });
-    expect(await extractPositionalsFromBuilder(builder)).toEqual(['name']);
+    expect(await extractPositionalsFromBuilder(asyncBuilder)).toEqual(['name']);
   });
 
   it('should handle builder that throws (return collected positionals)', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = (yargs: any) => {
-      yargs.positional('name', { type: 'string' });
-      throw new Error('Builder error');
-    };
     // Should not throw, should return what was collected before the error
-    expect(await extractPositionalsFromBuilder(builder)).toEqual(['name']);
+    expect(await extractPositionalsFromBuilder(builderThatThrows)).toEqual(['name']);
   });
 
   it('should handle builder with positionals and options', async () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-    const builder = (yargs: any) => yargs.positional('name', { type: 'string' }).option('verbose', { type: 'boolean' });
-    expect(await extractPositionalsFromBuilder(builder)).toEqual(['name']);
+    expect(await extractPositionalsFromBuilder(builderWithPositionalsAndOptions)).toEqual(['name']);
   });
 });
 
