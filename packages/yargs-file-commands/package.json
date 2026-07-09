@@ -44,12 +44,11 @@
     "tsc": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "@types/yargs": "^17.0.33",
-    "yargs": "^17"
+    "@types/yargs": "^17.0.35",
+    "yargs": "^18.0.0"
   },
   "peerDependencies": {
-    "yargs": "^17"
+    "yargs": "^18.0.0"
   },
   "engines": {
     "node": ">=24.0.0"

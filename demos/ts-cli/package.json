@@ -11,12 +11,11 @@
   },
   "dependencies": {
     "type-fest": "^4.31.0",
-    "yargs": "^17",
+    "yargs": "^18.0.0",
     "yargs-file-commands": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "@types/yargs": "^17.0.33",
+    "@types/yargs": "^17.0.35",
     "source-map-support": "^0.5.21"
   },
   "src": "src/index.ts"
