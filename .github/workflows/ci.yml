@@ -1,35 +1,67 @@
-name: ci
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev, main]
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
-  ci:
+  quality:
+    name: Quality
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
-          version: 11.0.8
-          run_install: false
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm audit --audit-level=high
+      - run: pnpm build:release
+      - name: Package size gate
+        run: pnpm size | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+          name: coverage
+          path: coverage/
+      - uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          fail_ci_if_error: false
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # no build script in this repo
-      - name: Type check
-        run: pnpm tsc
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Test
-        run: pnpm test
+  policy:
+    name: PR policy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate PR routing and issue link
+        run: node scripts/check-pr.mjs
+      - name: Validate title and commits
+        if: github.base_ref == 'dev'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          printf '%s\n' "$PR_TITLE" | pnpm exec commitlint
+          pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA"
