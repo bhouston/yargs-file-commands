@@ -25,7 +25,9 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
 
 `dev` is the default integration branch, so issue closing keywords take effect
 when implementation PRs merge there. CI checks branch naming, issue references,
-PR titles, and commits; Husky validates local commit messages.
+PR titles, and commits; Husky validates local commit messages. Existing history
+through `09abc19` predates enforcement and is excluded from CI commit linting.
+All commits after that adoption boundary are checked.
 
 ## Development and quality gates
 

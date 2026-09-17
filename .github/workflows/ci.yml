@@ -5,6 +5,7 @@ on:
     branches: [dev]
   pull_request:
     branches: [dev, main]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   workflow_call:
 
 permissions:
@@ -64,4 +65,9 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           printf '%s\n' "$PR_TITLE" | pnpm exec commitlint
+          # Existing local history predates commitlint adoption. Do not rewrite it.
+          LEGACY_HEAD=09abc19b58f242dd016fe5be869c14a6efa0423b
+          if git merge-base --is-ancestor "$BASE_SHA" "$LEGACY_HEAD"; then
+            BASE_SHA="$LEGACY_HEAD"
+          fi
           pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA"
