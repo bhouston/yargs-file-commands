@@ -1,8 +1,7 @@
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,7 +11,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require dispatch on main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Release must be dispatched on main, not ${{ github.ref }}" >&2
+            exit 1
+          fi
   checks:
+    needs: guard
     uses: ./.github/workflows/ci.yml
     secrets: inherit
   release:
