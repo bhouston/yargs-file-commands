@@ -26,6 +26,7 @@ jobs:
       - run: pnpm tsc
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm test:release
       - run: pnpm audit --audit-level=high
       - run: pnpm build:release
       - name: Package size gate
