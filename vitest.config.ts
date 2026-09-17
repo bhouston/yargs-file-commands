@@ -9,8 +9,8 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/publish/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      all: false,
+      reporter: ['text', 'json', 'json-summary', 'html', 'lcov'],
+      thresholds: { statements: 95, branches: 85, functions: 95, lines: 95 },
       exclude: [
         '**/node_modules',
         '**/coverage',
@@ -28,7 +28,7 @@ export default defineConfig({
         '/tmp/**',
         '**/tmp/**',
       ],
-      include: ['packages/yargs-file-commands/**'],
+      include: ['packages/yargs-file-commands/src/**/*.ts'],
     },
   },
 });

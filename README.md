@@ -7,7 +7,7 @@
 
 This Yargs helper function lets you define all your commands as individual files and their file names and directory structure defines via implication your nested command structure.
 
-Supports both JavaScript and TypeScript (on Node 22+.)
+Supports both JavaScript and TypeScript (on Node 24+.)
 
 ## Installation
 
@@ -250,6 +250,9 @@ pnpm format # oxfmt
 pnpm test # vitest
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the issue, PR, and release workflow,
+and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
+
 ## Author
 
 [Ben Houston](https://ben3d.ca), Sponsored by [Land of Assets](https://landofassets.com)
@@ -258,7 +261,7 @@ pnpm test # vitest
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
 [npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
 [npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
-[tests-badge]: https://github.com/bhouston/yargs-file-commands/workflows/Tests/badge.svg
-[tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/test.yml
-[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg
+[tests-badge]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml/badge.svg?branch=dev
+[tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml
+[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/dev/graph/badge.svg
 [coverage-url]: https://codecov.io/gh/bhouston/yargs-file-commands
