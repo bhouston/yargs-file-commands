@@ -7,7 +7,7 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
 
 1. Before implementation, create or reuse a GitHub issue. Follow the change request
    template: describe what and why, constraints, and observable acceptance criteria.
-2. Branch from current `origin/dev`, using `<type>/<issue>-<short-description>`:
+2. Branch from current `origin/main`, using `<type>/<issue>-<short-description>`:
    `feature/42-batch-export`, `fix/43-empty-input`, or `chore/44-update-ci`.
    Supported branch types: feature, fix, docs, chore, refactor, test, ci.
 3. Make every commit a Conventional Commit: `type(scope): description`.
@@ -16,18 +16,19 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
    `feat` triggers a minor release; `fix` and `perf` trigger a patch release.
    A `!` after the type/scope or a `BREAKING CHANGE:` footer triggers a major
    release. Other types do not release on their own.
-4. Run the checks below. Open a PR against `dev`, with a Conventional Commit title
+4. Run the checks below. Open a PR against `main`, with a Conventional Commit title
    and `Closes #<issue>` in the body matching the issue number in the branch.
    Explain resulting behavior, validation, and compatibility changes.
-5. Merge reviewed implementation PRs into `dev`. Preserve Conventional Commits
-   with merge/rebase, or use a conventional squash title and preserve any breaking
-   change footer. Never commit directly to `main` or `dev`.
+5. Merge reviewed PRs into `main`. Preserve Conventional Commits with merge/rebase,
+   or use a conventional squash title and preserve any breaking change footer.
+   Never commit directly to `main`.
 
-`dev` is the default integration branch, so issue closing keywords take effect
-when implementation PRs merge there. CI checks branch naming, issue references,
-PR titles, and commits; Husky validates local commit messages. Existing history
-through `09abc19` predates enforcement and is excluded from CI commit linting.
-All commits after that adoption boundary are checked.
+`main` is the default and sole integration branch, so issue closing keywords take
+effect when PRs merge there. Merging a PR runs CI but never publishes; see
+Releases below for cutting an actual release. CI checks branch naming, issue
+references, PR titles, and commits; Husky validates local commit messages.
+Existing history through `09abc19` predates enforcement and is excluded from CI
+commit linting. All commits after that adoption boundary are checked.
 
 ## Development and quality gates
 
@@ -60,20 +61,22 @@ Codecov upload.
 
 ## Releases
 
-Open a release PR from this repository's `dev` branch to `main`. Use a **merge
-commit**, never squash or rebase a release PR: shared history must be preserved
-so semantic-release does not re-release old changes. Review changes since the last
-release and verify breaking changes have Conventional Commit markers. Only `dev`
-may target `main`. No release occurs on an ordinary merge into `dev`.
+Releases are cut manually, on demand, from `main`: they do not happen on every
+merge. When `main` has release-worthy commits ready to ship, run:
 
-After merging to `main`, the release workflow repeats quality checks, analyzes
-commits since the last `v*` tag, updates the staged package version, generates notes
-and a CHANGELOG.md, publishes to npm with OIDC, and creates a GitHub release/tag.
-No release-worthy commits means no release. Source package.json versions are
-placeholders after adoption; npm versions and GitHub tags are authoritative.
-Generated version/changelog files are not committed back to either branch. Each
-release's notes are available on GitHub and in the published package; the repository
-CHANGELOG.md records the historical baseline and links to the release history.
+```sh
+gh workflow run release.yml --ref main
+```
+
+The workflow refuses to run unless dispatched on `main`. It repeats quality checks,
+then analyzes commits since the last `v*` tag, updates the staged package version,
+generates notes and a CHANGELOG.md, publishes to npm with OIDC, and creates a
+GitHub release/tag. No release-worthy commits means the run succeeds as a no-op.
+Source package.json versions are placeholders after adoption; npm versions and
+GitHub tags are authoritative. Generated version/changelog files are not committed
+back to `main`. Each release's notes are available on GitHub and in the published
+package; the repository CHANGELOG.md records the historical baseline and links to
+the release history.
 
 The former manual `make-release` command has been removed. `pnpm build:release`
 only stages a clean package; it never publishes. Do not run `pnpm release` locally.
@@ -91,7 +94,7 @@ Actions, and enter:
 The workflow uses GitHub-hosted runners, Node 26 with npm >=11.5.1, and
 `id-token: write`. No `NPM_TOKEN` or `NODE_AUTH_TOKEN` secret is needed.
 See [npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
-Configure this before merging the first release PR into `main`.
+Configure this before running the release workflow.
 
 The initial `v1.2.2` baseline tag points to npm's recorded gitHead
 `4b22698114bde648aab626c518e2e082187fc7a4`. Since that release, existing repository
@@ -101,11 +104,11 @@ Do not move existing release tags.
 
 ### GitHub settings
 
-Use `dev` as the default branch. Protect `dev` and `main` with required PRs and
-required checks `Quality` and `PR policy`; disable force pushes and deletion.
-Allow merge commits so release PRs can preserve history. A solo maintainer can use
-zero required approvals while still requiring passing checks. Enable private
-vulnerability reporting under Settings → Security if desired.
+Use `main` as the default branch. Protect it with required PRs and required checks
+`Quality` and `PR policy`; disable force pushes and deletion. A solo maintainer can
+use zero required approvals while still requiring passing checks. Enable private
+vulnerability reporting under Settings → Security if desired. `dev` is left inactive
+after the single-branch migration; it is not used for contributions or releases.
 
 ## Rollout to other repositories
 

@@ -261,7 +261,7 @@ and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
 [npm-url]: https://www.npmjs.com/package/yargs-file-commands
 [npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
 [npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
-[tests-badge]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml/badge.svg?branch=dev
+[tests-badge]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml/badge.svg?branch=main
 [tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml
-[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/dev/graph/badge.svg
+[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg
 [coverage-url]: https://codecov.io/gh/bhouston/yargs-file-commands
