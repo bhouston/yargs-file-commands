@@ -38,6 +38,7 @@ pnpm install --frozen-lockfile
 pnpm tsc
 pnpm lint
 pnpm test
+pnpm test:release
 pnpm audit --audit-level=high
 pnpm build:release
 pnpm size
@@ -45,6 +46,10 @@ pnpm size
 
 Tests include coverage of production TypeScript source, including untested files.
 Minimum coverage is 95% statements, 85% branches, 95% functions, and 95% lines.
+`pnpm test:release` checks version selection and renders release notes using the
+configured plugins without publishing. Keep the Conventional Commits preset on
+major 9 while the release-notes generator uses changelog writer 8; preset 10
+requires writer 9. Upgrade them together and keep the release check passing.
 The 10 kB gzip size budget measures the staged package's JavaScript, excluding
 peer dependencies. Adjust budgets only with a documented reason in the PR.
 High and critical dependency advisories fail CI; investigate rather than suppressing
