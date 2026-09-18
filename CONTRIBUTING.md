@@ -67,6 +67,9 @@ merge. When `main` has release-worthy commits ready to ship, run:
 gh workflow run release.yml --ref main
 ```
 
+Add `-f dry_run=true` to validate versioning, the changelog, and staged packages
+without publishing or tagging.
+
 The workflow refuses to run unless dispatched on `main`. It repeats quality checks,
 then analyzes commits since the last `v*` tag, updates the package version,
 generates notes and a CHANGELOG.md, publishes to npm with `pnpm publish` and OIDC
