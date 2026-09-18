@@ -51,7 +51,7 @@ Minimum coverage is 95% statements, 85% branches, 95% functions, and 95% lines.
 configured plugins without publishing. Keep the Conventional Commits preset on
 major 9 while the release-notes generator uses changelog writer 8; preset 10
 requires writer 9. Upgrade them together and keep the release check passing.
-The 10 kB gzip size budget measures the staged package's JavaScript, excluding
+The 10 kB gzip size budget measures the published package's JavaScript, excluding
 peer dependencies. Adjust budgets only with a documented reason in the PR.
 High and critical dependency advisories fail CI; investigate rather than suppressing
 the gate. Coverage reports are uploaded as artifacts and to Codecov. The existing
@@ -69,17 +69,17 @@ gh workflow run release.yml --ref main
 ```
 
 The workflow refuses to run unless dispatched on `main`. It repeats quality checks,
-then analyzes commits since the last `v*` tag, updates the staged package version,
-generates notes and a CHANGELOG.md, publishes to npm with OIDC, and creates a
-GitHub release/tag. No release-worthy commits means the run succeeds as a no-op.
-Source package.json versions are placeholders after adoption; npm versions and
-GitHub tags are authoritative. Generated version/changelog files are not committed
-back to `main`. Each release's notes are available on GitHub and in the published
-package; the repository CHANGELOG.md records the historical baseline and links to
-the release history.
+then analyzes commits since the last `v*` tag, updates the package version,
+generates notes and a CHANGELOG.md, publishes to npm with `pnpm publish` and OIDC
+trusted publishing, and creates a GitHub release/tag. No release-worthy commits
+means the run succeeds as a no-op. Source package.json versions are placeholders
+after adoption; npm versions and GitHub tags are authoritative. Generated
+version/changelog files are not committed back to `main`. Each release's notes are
+available on GitHub and in the published package; `packages/yargs-file-commands/CHANGELOG.md`
+records the historical baseline and links to the release history.
 
 The former manual `make-release` command has been removed. `pnpm build:release`
-only stages a clean package; it never publishes. Do not run `pnpm release` locally.
+only builds the package; it never publishes. Do not run `pnpm release` locally.
 
 ### npm trusted publishing setup (maintainer)
 
@@ -91,9 +91,10 @@ Actions, and enter:
 - Workflow filename: `release.yml`
 - Environment name: leave blank (the workflow does not use an environment)
 
-The workflow uses GitHub-hosted runners, Node 26 with npm >=11.5.1, and
-`id-token: write`. No `NPM_TOKEN` or `NODE_AUTH_TOKEN` secret is needed.
-See [npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+The workflow uses GitHub-hosted runners, Node 26 with pnpm >=11.1.3 (required for
+OIDC-publish support), and `id-token: write`. No `NPM_TOKEN` or `NODE_AUTH_TOKEN`
+secret is needed. See
+[npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
 Configure this before running the release workflow.
 
 The initial `v1.2.2` baseline tag points to npm's recorded gitHead
