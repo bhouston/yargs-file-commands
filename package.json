@@ -17,18 +17,18 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "build": "pnpm --filter yargs-file-commands build",
-    "build:release": "pnpm build && node scripts/prepare-package.mjs",
+    "build:release": "pnpm build",
     "size": "size-limit",
     "release": "semantic-release",
     "test:release": "node scripts/check-release.mjs"
   },
   "devDependencies": {
+    "@anolilab/semantic-release-pnpm": "^8.1.25",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^12.0.9",
-    "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@size-limit/file": "^14.0.0",
     "@types/node": "^22.10.0",
@@ -54,13 +54,17 @@
   "size-limit": [
     {
       "name": "Published JavaScript (gzip)",
-      "path": "packages/yargs-file-commands/publish/dist/**/*.js",
+      "path": [
+        "packages/yargs-file-commands/dist/**/*.js",
+        "!packages/yargs-file-commands/dist/**/*.test.js",
+        "!packages/yargs-file-commands/dist/**/fixtures/**"
+      ],
       "limit": "10 kB",
       "gzip": true
     }
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   },
-  "packageManager": "pnpm@11.0.8"
+  "packageManager": "pnpm@11.27.0"
 }

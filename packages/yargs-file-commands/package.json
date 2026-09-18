@@ -27,6 +27,9 @@
   "files": [
     "dist",
     "src",
+    "!**/*.test.*",
+    "!**/fixtures/**",
+    "!**/*.tsbuildinfo",
     "package.json",
     "README.md",
     "LICENSE",
