@@ -2,6 +2,11 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate and preview the release without publishing
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -45,4 +50,4 @@ jobs:
       - name: Publish with npm trusted publishing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm release
+        run: pnpm release ${{ inputs.dry_run && '--dry-run' || '' }}
