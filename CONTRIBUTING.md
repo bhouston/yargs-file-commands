@@ -7,9 +7,8 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
 
 1. Before implementation, create or reuse a GitHub issue. Follow the change request
    template: describe what and why, constraints, and observable acceptance criteria.
-2. Branch from current `origin/main`, using `<type>/<issue>-<short-description>`:
-   `feature/42-batch-export`, `fix/43-empty-input`, or `chore/44-update-ci`.
-   Supported branch types: feature, fix, docs, chore, refactor, test, ci.
+2. Branch from current `origin/main`. Branch names are not restricted to any
+   naming convention; use whatever name is descriptive for the work.
 3. Make every commit a Conventional Commit: `type(scope): description`.
    Use feat, fix, docs, chore, refactor, test, style, perf, build, ci, or revert.
    Scope is optional. Reference the issue in the body when useful.
@@ -17,7 +16,7 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
    A `!` after the type/scope or a `BREAKING CHANGE:` footer triggers a major
    release. Other types do not release on their own.
 4. Run the checks below. Open a PR against `main`, with a Conventional Commit title
-   and `Closes #<issue>` in the body matching the issue number in the branch.
+   and `Closes #<issue>` in the body referencing the issue from step 1.
    Explain resulting behavior, validation, and compatibility changes.
 5. Merge reviewed PRs into `main` with a merge commit (`gh pr merge --merge`) so
    every Conventional Commit is preserved. Do not squash or rebase-merge.
@@ -25,8 +24,8 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
 
 `main` is the default and sole integration branch, so issue closing keywords take
 effect when PRs merge there. Merging a PR runs CI but never publishes; see
-Releases below for cutting an actual release. CI checks branch naming, issue
-references, PR titles, and commits; Husky validates local commit messages.
+Releases below for cutting an actual release. CI checks issue references, PR
+titles, and commits; Husky validates local commit messages.
 Existing history through `09abc19` predates enforcement and is excluded from CI
 commit linting. All commits after that adoption boundary are checked.
 
