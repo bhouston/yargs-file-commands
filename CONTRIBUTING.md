@@ -19,8 +19,8 @@ rules here; AGENTS.md and CLAUDE.md only load this file.
 4. Run the checks below. Open a PR against `main`, with a Conventional Commit title
    and `Closes #<issue>` in the body matching the issue number in the branch.
    Explain resulting behavior, validation, and compatibility changes.
-5. Merge reviewed PRs into `main`. Preserve Conventional Commits with merge/rebase,
-   or use a conventional squash title and preserve any breaking change footer.
+5. Merge reviewed PRs into `main` with a merge commit (`gh pr merge --merge`) so
+   every Conventional Commit is preserved. Do not squash or rebase-merge.
    Never commit directly to `main`.
 
 `main` is the default and sole integration branch, so issue closing keywords take
