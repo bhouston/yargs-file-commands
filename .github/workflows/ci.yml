@@ -29,6 +29,13 @@ jobs:
       - run: pnpm test:release
       - run: pnpm audit --audit-level=high
       - run: pnpm build:release
+      - name: Verify published package includes dist
+        run: |
+          cd packages/yargs-file-commands
+          pnpm pack --dry-run | grep -qx 'dist/index.js' || {
+            echo "::error::dist/index.js missing from the packed tarball; the publish step would ship a broken package."
+            exit 1
+          }
       - name: Package size gate
         run: pnpm size | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
