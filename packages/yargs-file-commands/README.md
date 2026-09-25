@@ -4,6 +4,7 @@
 [![NPM Downloads][npm-downloads]][npmtrends-url]
 [![Tests][tests-badge]][tests-url]
 [![Coverage][coverage-badge]][coverage-url]
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white)][discord-url]
 
 This Yargs helper function lets you define all your commands as individual files and their file names and directory structure defines via implication your nested command structure.
 
@@ -257,3 +258,4 @@ reporting.
 [tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml
 [coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg
 [coverage-url]: https://codecov.io/gh/bhouston/yargs-file-commands
+[discord-url]: https://discord.gg/fwupDN493R
