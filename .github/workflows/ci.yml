@@ -32,7 +32,7 @@ jobs:
       - run: pnpm lint
       - name: Check formatting
         run: pnpm exec oxfmt --check .
-      - run: pnpm test --coverage
+      - run: pnpm test
       # --- repository-specific steps (package-content check, release-notes dry run, size budget) ---
       - run: pnpm build:release
       - name: Verify published package includes dist
