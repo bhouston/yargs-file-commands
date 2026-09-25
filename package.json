@@ -1,11 +1,7 @@
 {
-  "name": "private-monorepo",
+  "name": "yargs-file-commands-monorepo",
   "version": "0.0.1",
   "private": true,
-  "workspaces": [
-    "demos/*",
-    "packages/*"
-  ],
   "type": "module",
   "scripts": {
     "prepare": "husky",
@@ -65,7 +61,7 @@
     }
   ],
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "pnpm@11.27.0"
 }
