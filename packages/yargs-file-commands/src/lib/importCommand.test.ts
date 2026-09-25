@@ -3,6 +3,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import type { ArgumentsCamelCase } from 'yargs';
 
 import { importCommandFromFile } from './importCommand.js';
 
@@ -265,8 +266,7 @@ export const command = 'test';`,
 
       // Verify the null handler can be called and doesn't throw
       if (command.handler) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test file - need any for handler testing
-        await expect(command.handler({} as any)).resolves.toBeUndefined();
+        await expect(command.handler({} as ArgumentsCamelCase<Record<string, unknown>>)).resolves.toBeUndefined();
       }
     } finally {
       await rm(tempDir, { recursive: true, force: true });

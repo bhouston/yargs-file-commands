@@ -9,9 +9,10 @@ const runCli = (args: string = '') => {
       encoding: 'utf-8',
       stdio: 'pipe',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // yargs outputs errors to stdout, so combine both stdout and stderr
-    return (error.stdout || '') + (error.stderr || '');
+    const { stdout, stderr } = error as { stdout?: string; stderr?: string };
+    return (stdout ?? '') + (stderr ?? '');
   }
 };
 

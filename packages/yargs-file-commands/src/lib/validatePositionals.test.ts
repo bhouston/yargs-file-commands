@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CommandModule } from 'yargs';
+import type { Argv, CommandBuilder, CommandModule } from 'yargs';
 
 import {
   extractPositionalsFromBuilder,
@@ -58,16 +58,13 @@ describe('extractPositionalsFromCommandString', () => {
   });
 });
 
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const builderWithNoPositionals = (yargs: any) => yargs.option('name', { type: 'string' });
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const builderWithSinglePositional = (yargs: any) =>
+const builderWithNoPositionals = (yargs: Argv) => yargs.option('name', { type: 'string' });
+const builderWithSinglePositional = (yargs: Argv) =>
   yargs.positional('name', {
     type: 'string',
     describe: 'Name',
   });
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const builderWithMultiplePositionals = (yargs: any) =>
+const builderWithMultiplePositionals = (yargs: Argv) =>
   yargs
     .positional('serviceAccount', {
       type: 'string',
@@ -77,19 +74,16 @@ const builderWithMultiplePositionals = (yargs: any) =>
       type: 'string',
       describe: 'Token',
     });
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const asyncBuilder = async (yargs: any) =>
+const asyncBuilder = async (yargs: Argv) =>
   yargs.positional('name', {
     type: 'string',
     describe: 'Name',
   });
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const builderThatThrows = (yargs: any) => {
+const builderThatThrows = (yargs: Argv) => {
   yargs.positional('name', { type: 'string' });
   throw new Error('Builder error');
 };
-// biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-const builderWithPositionalsAndOptions = (yargs: any) =>
+const builderWithPositionalsAndOptions = (yargs: Argv) =>
   yargs.positional('name', { type: 'string' }).option('verbose', { type: 'boolean' });
 
 describe('extractPositionalsFromBuilder', () => {
@@ -101,8 +95,7 @@ describe('extractPositionalsFromBuilder', () => {
     const objectBuilder = {
       name: { type: 'string' },
     };
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock - object builder type
-    expect(await extractPositionalsFromBuilder(objectBuilder as any)).toEqual([]);
+    expect(await extractPositionalsFromBuilder(objectBuilder as unknown as CommandBuilder)).toEqual([]);
   });
 
   it('should return empty array for builder with no positionals', async () => {
@@ -135,8 +128,7 @@ describe('validatePositionals', () => {
   it('should pass validation when positionals match', async () => {
     const commandModule: CommandModule = {
       command: 'create <name>',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.positional('name', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.positional('name', { type: 'string' }),
       handler: () => {},
     };
 
@@ -146,8 +138,7 @@ describe('validatePositionals', () => {
   it('should pass validation when multiple positionals match', async () => {
     const commandModule: CommandModule = {
       command: 'create <serviceAccount> <token>',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) =>
+      builder: (yargs: Argv) =>
         yargs.positional('serviceAccount', { type: 'string' }).positional('token', { type: 'string' }),
       handler: () => {},
     };
@@ -159,8 +150,7 @@ describe('validatePositionals', () => {
     // Command string can have positionals not in builder - this is allowed
     const commandModule: CommandModule = {
       command: 'create <name> <optional>',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.positional('name', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.positional('name', { type: 'string' }),
       handler: () => {},
     };
 
@@ -170,8 +160,7 @@ describe('validatePositionals', () => {
   it('should pass validation when no positionals exist', async () => {
     const commandModule: CommandModule = {
       command: 'create',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.option('name', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.option('name', { type: 'string' }),
       handler: () => {},
     };
 
@@ -181,8 +170,7 @@ describe('validatePositionals', () => {
   it('should throw error when builder has positionals but command string does not', async () => {
     const commandModule: CommandModule = {
       command: 'create',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) =>
+      builder: (yargs: Argv) =>
         yargs.positional('serviceAccount', { type: 'string' }).positional('token', { type: 'string' }),
       handler: () => {},
     };
@@ -195,8 +183,7 @@ describe('validatePositionals', () => {
   it('should throw error when builder has positionals not in command string', async () => {
     const commandModule: CommandModule = {
       command: 'create <name>',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.positional('name', { type: 'string' }).positional('token', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.positional('name', { type: 'string' }).positional('token', { type: 'string' }),
       handler: () => {},
     };
 
@@ -208,8 +195,7 @@ describe('validatePositionals', () => {
   it('should include file path in error message', async () => {
     const commandModule: CommandModule = {
       command: 'create',
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.positional('name', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.positional('name', { type: 'string' }),
       handler: () => {},
     };
 
@@ -223,8 +209,7 @@ describe('validatePositionals', () => {
       command: 'create',
       builder: {
         name: { type: 'string' },
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock - object builder type
-      } as any,
+      } as unknown as CommandModule['builder'],
       handler: () => {},
     };
 
@@ -244,8 +229,7 @@ describe('validatePositionals', () => {
   it('should handle command string as array', async () => {
     const commandModule: CommandModule = {
       command: ['create <name>', 'c <name>'],
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock - yargs builder type
-      builder: (yargs: any) => yargs.positional('name', { type: 'string' }),
+      builder: (yargs: Argv) => yargs.positional('name', { type: 'string' }),
       handler: () => {},
     };
 
@@ -254,14 +238,10 @@ describe('validatePositionals', () => {
 
   it('should handle non-string command values in array', () => {
     // Test the edge case where cmd is not a string after array extraction
-    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
-    expect(extractPositionalsFromCommandString([null as any, 'create <name>'])).toEqual([]);
-    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
-    expect(extractPositionalsFromCommandString([undefined as any, 'create <name>'])).toEqual([]);
-    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
-    expect(extractPositionalsFromCommandString([123 as any, 'create <name>'])).toEqual([]);
-    // biome-ignore lint/suspicious/noExplicitAny: Test edge cases with invalid command string types
-    expect(extractPositionalsFromCommandString([{} as any, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([null as unknown as string, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([undefined as unknown as string, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([123 as unknown as string, 'create <name>'])).toEqual([]);
+    expect(extractPositionalsFromCommandString([{} as unknown as string, 'create <name>'])).toEqual([]);
   });
 
   it('should handle empty array in command string', () => {

@@ -62,8 +62,10 @@ export async function extractPositionalsFromBuilder(builder: CommandBuilder | un
 
   // Wrap the positional method to track calls
   const originalPositional = mockYargs.positional.bind(mockYargs);
-  // biome-ignore lint/suspicious/noExplicitAny: Need to override yargs positional method to track calls
-  (mockYargs as any).positional = (name: string, config: PositionalOptions) => {
+  (mockYargs as unknown as { positional: typeof mockYargs.positional }).positional = (
+    name: string,
+    config: PositionalOptions,
+  ) => {
     positionals.push(name);
     return originalPositional(name, config);
   };
