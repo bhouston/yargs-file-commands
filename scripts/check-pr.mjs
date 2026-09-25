@@ -1,9 +1,13 @@
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
-const { pull_request: pr } = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
-if (!pr) throw new Error('Expected a pull request event');
-if (pr.base.ref !== 'main') throw new Error('PRs must target main');
-const linked = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b/i.test(pr.body ?? '');
-if (!linked) {
-  throw new Error('PR body must close an issue, e.g. Closes #42');
+export function checkPullRequest(pr) {
+  if (pr.base.ref !== 'main') throw new Error('Contribution PRs must target main.');
+  const closing = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#\d+\b/i;
+  if (!closing.test(pr.body ?? '')) throw new Error('PR body must include Closes #<issue>.');
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+  checkPullRequest(event.pull_request);
 }
