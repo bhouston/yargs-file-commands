@@ -22,10 +22,27 @@ pnpm lint # oxlint
 pnpm lint:fix
 pnpm format # oxfmt
 pnpm test # vitest
+pnpm test:release # checks version selection and release notes without publishing
+pnpm audit --audit-level=high
+pnpm build:release
+pnpm size
 ```
 
+Tests cover production TypeScript source, including untested files. Minimum
+coverage is 95% statements, 85% branches, 95% functions, and 95% lines. The
+published package's JavaScript (gzipped, excluding peer dependencies) has a 10 kB
+size budget; adjust it only with a documented reason in the PR. High and critical
+dependency advisories fail CI. Coverage reports upload as CI artifacts and to
+Codecov via the `CODECOV_TOKEN` secret; Codecov upload failures are nonblocking,
+but the local coverage gate always applies.
+
+Commit history through `09abc19` predates commitlint adoption and is excluded
+from CI commit linting; all commits after that boundary are checked (see
+`.github/workflows/ci.yml`'s `policy` job).
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the issue, PR, and release workflow,
-and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
+[RELEASING.md](RELEASING.md) for cutting a release, and [SECURITY.md](SECURITY.md)
+for private vulnerability reporting.
 
 ## Author
 
