@@ -42,7 +42,6 @@ export function defineCommand<O extends { [key: string]: Options }, T = {}>(modu
   handler: (args: ArgumentsCamelCase<InferredOptionTypes<O>>) => void | Promise<void>;
 }): DefineCommandResult<T, InferredOptionTypes<O>>;
 
-// biome-ignore lint/suspicious/noExplicitAny: required to return a CommandModule
-export function defineCommand(module: any): DefineCommandResult {
-  return module;
+export function defineCommand(module: unknown): DefineCommandResult {
+  return module as DefineCommandResult;
 }

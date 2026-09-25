@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { ArgumentsCamelCase } from 'yargs';
 
 import { buildSegmentTree, createCommand, logCommandTree } from './buildSegmentTree.js';
 import type { Command } from './Command.js';
@@ -370,8 +371,7 @@ describe('buildSegmentTree edge cases', () => {
     const commands: Command[] = [
       {
         fullPath: '/commands/test.ts',
-        // biome-ignore lint/suspicious/noExplicitAny: Test edge case with undefined segment
-        segments: ['test', undefined as any], // Undefined segment
+        segments: ['test', undefined as unknown as string], // Undefined segment
         commandModule: {
           command: 'test',
           describe: 'Test command',
@@ -446,8 +446,7 @@ describe('buildSegmentTree edge cases', () => {
 
     // Verify handler is async (returns a Promise)
     if (commandModule.handler) {
-      // biome-ignore lint/suspicious/noExplicitAny: Test file - need any for handler testing
-      const result = commandModule.handler({} as any);
+      const result = commandModule.handler({} as ArgumentsCamelCase<Record<string, unknown>>);
       expect(result).toBeInstanceOf(Promise);
     }
   });
