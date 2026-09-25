@@ -8,18 +8,18 @@ When `main` has release-worthy commits ready to ship, run:
 gh workflow run release.yml --ref main
 ```
 
-Add `-f dry_run=true` to validate versioning, the changelog, and staged packages
-without publishing or tagging.
+Add `-f dry_run=true` to validate versioning, the release notes, and staged
+packages without publishing or tagging.
 
 The workflow refuses to run unless dispatched on `main`. It repeats quality checks,
 then analyzes commits since the last `v*` tag, updates the package version,
-generates notes and a CHANGELOG.md, publishes to npm with `pnpm publish` and OIDC
+generates release notes, publishes to npm with `pnpm publish` and OIDC
 trusted publishing, and creates a GitHub release/tag. No release-worthy commits
 means the run succeeds as a no-op. Source `package.json` versions are placeholders
 after adoption; npm versions and GitHub tags are authoritative. Generated
-version/changelog files are not committed back to `main`. Each release's notes are
-available on GitHub and in the published package; `packages/yargs-file-commands/CHANGELOG.md`
-records the historical baseline and links to the release history.
+version files are not committed back to `main`. The
+[GitHub Releases page](https://github.com/bhouston/yargs-file-commands/releases)
+is the changelog of record; there is no generated `CHANGELOG.md` file.
 
 `pnpm build:release` only builds the package; it never publishes. Do not run
 `pnpm release` locally.

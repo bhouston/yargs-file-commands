@@ -4,7 +4,6 @@ export default {
   plugins: [
     ['@semantic-release/commit-analyzer', { preset: 'conventionalcommits' }],
     ['@semantic-release/release-notes-generator', { preset: 'conventionalcommits' }],
-    ['@semantic-release/changelog', { changelogFile: 'packages/yargs-file-commands/CHANGELOG.md' }],
     ['@anolilab/semantic-release-pnpm', { pkgRoot: 'packages/yargs-file-commands' }],
     [
       '@semantic-release/github',
@@ -12,7 +11,6 @@ export default {
         successComment: false,
         failComment: false,
         releasedLabels: false,
-        assets: [{ path: 'packages/yargs-file-commands/CHANGELOG.md', label: 'Changelog' }],
       },
     ],
   ],

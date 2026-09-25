@@ -32,8 +32,7 @@
     "!**/*.tsbuildinfo",
     "package.json",
     "README.md",
-    "LICENSE",
-    "CHANGELOG.md"
+    "LICENSE"
   ],
   "type": "module",
   "main": "dist/index.js",
