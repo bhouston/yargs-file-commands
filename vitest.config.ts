@@ -23,7 +23,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/vitest.config.ts',
         '**/vitest.config.js',
-        '**/fixtures',
+        '**/fixtures/**',
         'demos/**',
         '/tmp/**',
         '**/tmp/**',
