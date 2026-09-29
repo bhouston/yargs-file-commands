@@ -180,5 +180,16 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
  */
 export const validateCommands = async (options: FileCommandsOptions): Promise<void> => {
   const commands = await scanCommands({ ...options, validation: true });
-  await Promise.all(commands.map((command) => command.load()));
+  // createCommand imports each command (and checks each group definition) one level at a time
+  const loadAll = async (nodes: ReturnType<typeof buildSegmentTree>): Promise<void> => {
+    await Promise.all(
+      nodes.map(async (node) => {
+        await createCommand(node, options);
+        if (node.type === 'internal') {
+          await loadAll(node.children);
+        }
+      }),
+    );
+  };
+  await loadAll(buildSegmentTree(commands));
 };

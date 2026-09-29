@@ -1,6 +1,7 @@
 import type { Argv, CommandModule } from 'yargs';
 
 import type { Command } from './Command.js';
+import { noopHandler } from './importCommand.js';
 
 /**
  * Represents a node in the command tree structure
@@ -15,6 +16,8 @@ type CommandTreeNode = {
       type: 'internal';
       /** Child command nodes */
       children: CommandTreeNode[];
+      /** Optional file at the group's own path that defines the group (describe, builder, ...) */
+      definition?: Command;
     }
   | {
       /** Leaf node type with command implementation */
@@ -33,7 +36,8 @@ type CommandTreeNode = {
  * Constructs a hierarchical tree structure from flat command definitions,
  * preserving the command hierarchy defined by the file system structure.
  * When two commands have the same segments, the later one replaces the earlier one,
- * so later commandDirs overlay earlier ones.
+ * so later commandDirs overlay earlier ones. A command whose segments match a group
+ * becomes that group's definition.
  */
 export const buildSegmentTree = (commands: Command[]): CommandTreeNode[] => {
   const rootTreeNodes: CommandTreeNode[] = [];
@@ -76,11 +80,8 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
       // Overlay: a command from a later commandDir replaces the earlier one
       currentSegment.command = command;
     } else {
-      throw new Error(
-        `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
-          currentSegment,
-        )},${JSON.stringify(command)}`,
-      );
+      // A file at a group's own path defines the group (later commandDirs win here too)
+      currentSegment.definition = command;
     }
     return;
   }
@@ -94,11 +95,15 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
     };
     treeNodes.push(currentSegment);
   } else if (currentSegment.type === 'leaf') {
-    throw new Error(
-      `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
-        currentSegment,
-      )}, ${JSON.stringify(command)}`,
-    );
+    // The command found first turns out to be at a group's path: it defines the group
+    const index = treeNodes.indexOf(currentSegment);
+    currentSegment = {
+      type: 'internal',
+      segmentName: currentSegmentName,
+      children: [],
+      definition: currentSegment.command,
+    };
+    treeNodes[index] = currentSegment;
   }
 
   // Recurse into children
@@ -129,10 +134,28 @@ export const createCommand = async (
   }
 
   const name = treeNode.segmentName;
+  const definition = await treeNode.definition?.load();
+  if (definition !== undefined && definition.handler !== undefined && definition.handler !== noopHandler) {
+    throw new Error(
+      `Conflict: ${name} is both a directory and a command. ${treeNode.definition?.fullPath} is at the path of ` +
+        `the "${name}" group, so it defines the group, but it exports a handler, and groups require a subcommand ` +
+        `so the handler would never run. Remove the handler, or rename the file or the directory.`,
+    );
+  }
+
   return {
-    command: name,
-    describe: `${name} commands`,
+    command: definition?.command ?? name,
+    describe: definition?.describe ?? `${name} commands`,
+    aliases: definition?.aliases,
+    deprecated: definition?.deprecated,
     builder: async (yargs: Argv): Promise<Argv> => {
+      // The group's own builder runs first, so its options and middleware apply to its subcommands
+      const builder = definition?.builder;
+      if (typeof builder === 'function') {
+        await builder(yargs);
+      } else if (builder !== undefined) {
+        yargs.options(builder);
+      }
       yargs.command(await Promise.all(treeNode.children.map((child) => createCommand(child, options))));
       yargs.demandCommand(1, options.demandCommandMessage ?? `You must specify a ${name} subcommand`);
       return yargs;

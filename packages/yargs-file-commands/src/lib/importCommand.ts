@@ -61,6 +61,11 @@ export interface CommandImportModule {
   handler?: CommandHandler;
 }
 
+/** Handler used when a module exports none, so callers can tell it apart from a real one */
+export const noopHandler = async (_args: ArgumentsCamelCase<Record<string, unknown>>) => {
+  // null implementation
+};
+
 export interface ImportCommandOptions {
   logLevel?: 'info' | 'debug';
 }
@@ -156,11 +161,7 @@ export const importCommandFromFile = async (
     aliases: handlerModule.aliases,
     builder: handlerModule.builder,
     deprecated: handlerModule.deprecated,
-    handler:
-      handlerModule.handler ??
-      (async (_args: ArgumentsCamelCase<Record<string, unknown>>) => {
-        // null implementation
-      }),
+    handler: handlerModule.handler ?? noopHandler,
   } as CommandModule;
 
   // Validate exports
