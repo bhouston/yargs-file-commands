@@ -342,4 +342,38 @@ export const handler = async () => {};`,
       }
     });
   });
+
+  describe('demandCommandMessage', () => {
+    const failMessage = async (argv: string[], demandCommandMessage?: string) => {
+      const tempDir = path.join(tmpdir(), `yargs-demand-${randomUUID()}`);
+      const g = globalThis as unknown as { __yfcLoaded: string[]; __yfcRan: string[] };
+      g.__yfcLoaded = [];
+      g.__yfcRan = [];
+      try {
+        await writeTree(tempDir, ['top.js', 'db/health.js', 'db/migrate/up.js']);
+        const commands = await fileCommands({ commandDirs: [tempDir], demandCommandMessage });
+        let message: string | undefined;
+        await yargs(argv)
+          .command(commands)
+          .exitProcess(false)
+          .fail((msg) => {
+            message = msg;
+          })
+          .parseAsync();
+        return message;
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    };
+
+    it('uses the configured message for every group at any depth', async () => {
+      const message = 'Please specify a subcommand';
+      expect(await failMessage(['db'], message)).toBe(message);
+      expect(await failMessage(['db', 'migrate'], message)).toBe(message);
+    });
+
+    it('keeps the per-group default message', async () => {
+      expect(await failMessage(['db', 'migrate'])).toBe('You must specify a migrate subcommand');
+    });
+  });
 });

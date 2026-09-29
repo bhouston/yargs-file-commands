@@ -18,6 +18,8 @@ export type FileCommandsOptions = ScanDirectoryOptions & {
   commandDirs: string[];
   /** Whether to validate that positional arguments in builder match command string */
   validation?: boolean;
+  /** Message used by every group when run without a subcommand */
+  demandCommandMessage?: string;
 };
 
 /**
@@ -25,7 +27,7 @@ export type FileCommandsOptions = ScanDirectoryOptions & {
  * @constant
  * @type {Partial<FileCommandsOptions>}
  */
-export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
+export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
   /** Default directories to scan for command files */
   commandDirs: [],
 
@@ -57,7 +59,7 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
  * Nothing is imported here.
  */
 const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> => {
-  const fullOptions: Required<FileCommandsOptions> = {
+  const fullOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
     ...DefaultFileCommandsOptions,
     ...options,
   };
@@ -158,7 +160,7 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
     logCommandTree(commandRootNodes, 1);
   }
 
-  return Promise.all(commandRootNodes.map(createCommand));
+  return Promise.all(commandRootNodes.map((node) => createCommand(node, options)));
 };
 
 /**

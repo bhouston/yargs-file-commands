@@ -110,7 +110,15 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
  * builder imports and registers its children only when yargs enters the group, so a
  * CLI invocation only loads the modules along the command path it uses.
  */
-export const createCommand = async (treeNode: CommandTreeNode): Promise<CommandModule> => {
+export interface CreateCommandOptions {
+  /** Message used by every group when run without a subcommand; defaults to `You must specify a <name> subcommand` */
+  demandCommandMessage?: string;
+}
+
+export const createCommand = async (
+  treeNode: CommandTreeNode,
+  options: CreateCommandOptions = {},
+): Promise<CommandModule> => {
   if (treeNode.type === 'leaf') {
     return treeNode.command.load();
   }
@@ -120,8 +128,8 @@ export const createCommand = async (treeNode: CommandTreeNode): Promise<CommandM
     command: name,
     describe: `${name} commands`,
     builder: async (yargs: Argv): Promise<Argv> => {
-      yargs.command(await Promise.all(treeNode.children.map(createCommand)));
-      yargs.demandCommand(1, `You must specify a ${name} subcommand`);
+      yargs.command(await Promise.all(treeNode.children.map((child) => createCommand(child, options))));
+      yargs.demandCommand(1, options.demandCommandMessage ?? `You must specify a ${name} subcommand`);
       return yargs;
     },
     handler: async () => {
