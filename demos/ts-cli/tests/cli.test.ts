@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import path from 'path';
+import { validate } from '@clidoc/core';
 import { describe, expect, it } from 'vitest';
 
 const runCli = (args: string = '') => {
@@ -17,6 +18,13 @@ const runCli = (args: string = '') => {
 };
 
 describe('ts-cli integration tests', () => {
+  it('docgen writes a valid OpenCLI document with every command', () => {
+    const document = JSON.parse(runCli('docgen'));
+    expect(validate(document)).toEqual({ valid: true, errors: [] });
+    // the '*' default command is keyed as the binary itself
+    expect(Object.keys(document.commands).toSorted()).toEqual(['ts-cli', 'ts-cli docgen', 'ts-cli joke']);
+  });
+
   it('should show help with --help flag', () => {
     const output = runCli('--help');
     expect(output).toContain('Commands:');

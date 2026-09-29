@@ -156,7 +156,10 @@ export const createCommand = async (
       } else if (builder !== undefined) {
         yargs.options(builder);
       }
-      yargs.command(await Promise.all(treeNode.children.map((child) => createCommand(child, options))));
+      // One at a time: builder walkers like clidoc only record .command(module), not .command([modules])
+      for (const child of await Promise.all(treeNode.children.map((c) => createCommand(c, options)))) {
+        yargs.command(child);
+      }
       yargs.demandCommand(1, options.demandCommandMessage ?? `You must specify a ${name} subcommand`);
       return yargs;
     },

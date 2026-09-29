@@ -3,3 +3,6 @@ packages:
   - 'demos/*'
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@clidoc/core@1.1.0'
+  - '@clidoc/yargs@1.1.0'
