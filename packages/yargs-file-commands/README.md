@@ -109,6 +109,22 @@ export const command = defineCommand({
 });
 ```
 
+**Default Export**
+
+The command module can also be the file's default export. It is treated exactly like `export const command`, including the filename fallback for the command name:
+
+```ts
+import { defineCommand } from 'yargs-file-commands';
+
+export default defineCommand({
+  command: 'get <id>',
+  describe: 'Get a thing',
+  handler: async (argv) => {
+    console.log(`Getting ${argv.id}`);
+  },
+});
+```
+
 **Default Command (`commands/$default.ts`)**
 
 This command runs when no other command is specified.

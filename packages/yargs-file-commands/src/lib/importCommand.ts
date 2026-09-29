@@ -76,7 +76,7 @@ export interface ImportCommandOptions {
  * @description
  * Dynamically imports a command file and constructs a Yargs command module.
  * Supports two styles of command declaration:
- * 1. Single export of CommandModule named 'command'
+ * 1. Single export of CommandModule named 'command' (or the default export)
  * 2. Individual exports of command parts (command, describe, alias, etc.)
  * If no handler is provided, creates a null implementation.
  */
@@ -123,10 +123,13 @@ export const importCommandFromFile = async (
   // Check if this is the default command
   const isDefault = name === '$default';
 
-  // First try to use the CommandModule export if it exists
+  // First try to use a CommandModule object exported as `command` or `default`
   const importedRecord = imported as Record<string, unknown>;
-  if ('command' in importedRecord && typeof importedRecord.command === 'object' && importedRecord.command !== null) {
-    const commandModule = importedRecord.command as CommandModule;
+  const moduleExport = [importedRecord.command, importedRecord.default].find(
+    (value) => typeof value === 'object' && value !== null,
+  );
+  if (moduleExport) {
+    const commandModule = moduleExport as CommandModule;
 
     // Ensure the command property exists or use the filename
     if (!commandModule.command && !isDefault) {
