@@ -222,7 +222,7 @@ The `fileCommands` method takes the following options:
 - Whether to validate that positional arguments registered in the builder function match those declared in the command string
 - When enabled, throws an error if positional arguments are registered via `.positional()` but not declared in the command string (e.g., `command: 'create'` should be `command: 'create <arg1> <arg2>'` if positionals are used)
 - This helps catch a common mistake where positional arguments are defined in the builder but missing from the command string, which causes them to be `undefined` at runtime
-- Default: `true`
+- Default: `false`. The check runs each command's builder, which adds noticeable startup time to large CLIs, so run it in your tests with `validateCommands` instead (see below)
 
 **Example:**
 
@@ -237,6 +237,22 @@ export const command = defineCommand({
 export const command = defineCommand({
   command: 'create <name>', // Positional arguments declared
   builder: (yargs) => yargs.positional('name', { ... }),
+});
+```
+
+### Validating commands in tests
+
+`validateCommands` takes the same options as `fileCommands`. It imports every command module and runs positional validation, and throws on the first problem, including a command file that fails to import. Call it from a unit test so mistakes are caught in CI without slowing down every CLI launch:
+
+```ts
+import path from 'node:path';
+import { validateCommands } from 'yargs-file-commands';
+import { expect, it } from 'vitest';
+
+it('all commands are valid', async () => {
+  await expect(
+    validateCommands({ commandDirs: [path.join(import.meta.dirname, 'commands')] }),
+  ).resolves.toBeUndefined();
 });
 ```
 

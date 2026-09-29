@@ -48,8 +48,8 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
   /** Default log prefix */
   logPrefix: '  ',
 
-  /** Default validation setting - enabled by default */
-  validation: true,
+  /** Positional validation is off at runtime; call validateCommands() from a test instead */
+  validation: false,
 };
 
 /**
@@ -166,4 +166,13 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
   const rootCommands = commandRootNodes.map((node) => createCommand(node));
 
   return rootCommands;
+};
+
+/**
+ * Imports every command module under `commandDirs` and validates its positional arguments,
+ * throwing on the first problem. Intended for a CLI's unit tests, so the check doesn't cost
+ * anything at runtime.
+ */
+export const validateCommands = async (options: FileCommandsOptions): Promise<void> => {
+  await fileCommands({ ...options, validation: true });
 };
