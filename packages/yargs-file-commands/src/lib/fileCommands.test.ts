@@ -25,6 +25,25 @@ export const handler = () => { globalThis.__yfcRan.push(${JSON.stringify(name)})
   }
 };
 
+const writeCommand = async (file: string, description: string) => {
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, `export const describe = ${JSON.stringify(description)};\nexport const handler = () => {};\n`);
+};
+
+const helpFor = async (commandDirs: string[], argv: string[]) => {
+  const logs: string[] = [];
+  const logSpy = vi.spyOn(console, 'log').mockImplementation((msg) => logs.push(String(msg)));
+  try {
+    await yargs(argv)
+      .command(await fileCommands({ commandDirs }))
+      .exitProcess(false)
+      .parseAsync();
+  } finally {
+    logSpy.mockRestore();
+  }
+  return logs.join('\n');
+};
+
 describe('fileCommands', () => {
   it('should load commands from directory structure', async () => {
     const commands = await fileCommands({
@@ -374,6 +393,61 @@ export const handler = async () => {};`,
 
     it('keeps the per-group default message', async () => {
       expect(await failMessage(['db', 'migrate'])).toBe('You must specify a migrate subcommand');
+    });
+  });
+
+  describe('overlays', () => {
+    it('later commandDirs replace commands and add to groups from earlier ones', async () => {
+      const base = path.join(tmpdir(), `yargs-overlay-base-${randomUUID()}`);
+      const over = path.join(tmpdir(), `yargs-overlay-over-${randomUUID()}`);
+      try {
+        await writeCommand(path.join(base, 'top.js'), 'base top');
+        await writeCommand(path.join(base, 'db', 'health.js'), 'base health');
+        await writeCommand(path.join(base, 'db', 'backup.js'), 'base backup');
+        await writeCommand(path.join(over, 'top.js'), 'overlay top');
+        await writeCommand(path.join(over, 'db', 'health.js'), 'overlay health');
+        await writeCommand(path.join(over, 'db', 'restore.js'), 'overlay restore');
+
+        const rootHelp = await helpFor([base, over], ['--help']);
+        expect(rootHelp).toContain('overlay top');
+        expect(rootHelp).not.toContain('base top');
+
+        const dbHelp = await helpFor([base, over], ['db', '--help']);
+        expect(dbHelp).toContain('overlay health');
+        expect(dbHelp).not.toContain('base health');
+        expect(dbHelp).toContain('base backup');
+        expect(dbHelp).toContain('overlay restore');
+
+        // Order matters: reversed, the base directory wins
+        expect(await helpFor([over, base], ['--help'])).toContain('base top');
+      } finally {
+        await rm(base, { recursive: true, force: true });
+        await rm(over, { recursive: true, force: true });
+      }
+    });
+
+    it('a command in one dir and a group of the same name in another is a conflict', async () => {
+      const base = path.join(tmpdir(), `yargs-overlay-conflict-a-${randomUUID()}`);
+      const over = path.join(tmpdir(), `yargs-overlay-conflict-b-${randomUUID()}`);
+      try {
+        await writeCommand(path.join(base, 'db', 'health.js'), 'health');
+        await writeCommand(path.join(over, 'db.js'), 'db');
+        await expect(fileCommands({ commandDirs: [base, over] })).rejects.toThrow(/Conflict: db/);
+      } finally {
+        await rm(base, { recursive: true, force: true });
+        await rm(over, { recursive: true, force: true });
+      }
+    });
+
+    it('two files in one directory mapping to the same command throw', async () => {
+      const dir = path.join(tmpdir(), `yargs-overlay-dup-${randomUUID()}`);
+      try {
+        await writeCommand(path.join(dir, 'db.health.js'), 'dotted');
+        await writeCommand(path.join(dir, 'db', 'health.js'), 'nested');
+        await expect(fileCommands({ commandDirs: [dir] })).rejects.toThrow(/Duplicate command "db health"/);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
     });
   });
 });

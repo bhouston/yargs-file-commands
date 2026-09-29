@@ -209,6 +209,29 @@ export const command = defineCommand({
 });
 ```
 
+## Command Overlays
+
+`commandDirs` can list several directories. Their trees are merged: groups with the same name combine their commands, and when two directories define the same command, **the later directory wins**. This lets you layer hand-written commands over generated ones without editing the generated files:
+
+```ts
+await fileCommands({
+  commandDirs: [
+    path.join(distDir, 'commands-generated'), // e.g. generated from an OpenAPI spec
+    path.join(distDir, 'commands'), // hand-written: replaces or adds to the generated tree
+  ],
+});
+```
+
+```
+commands-generated/            commands/
+├── db/                        ├── db/
+│   ├── health.ts              │   ├── health.ts   // replaces the generated "db health"
+│   └── backup.ts              │   └── restore.ts  // adds "db restore" next to "db backup"
+└── status.ts                  └── login.ts        // adds a new top-level command
+```
+
+A command in one directory and a group of the same name in another is a conflict error, and so are two files in the **same** directory that map to the same command (for example `db.health.ts` and `db/health.ts`).
+
 ## Lazy Loading
 
 Command modules are loaded lazily, one group at a time. `fileCommands` scans the whole directory tree up front, which is cheap, but imports only the root-level command files. A group imports its own command files when yargs enters it, so `my-cli --help` loads only root-level commands, and `my-cli db migration` loads only the files in `commands/` and `commands/db/` (sibling commands are needed for help output). Large CLIs with thousands of commands stay fast to start.

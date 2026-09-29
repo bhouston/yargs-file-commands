@@ -92,8 +92,11 @@ const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> =>
     }),
   );
 
-  const commands = directoryResults.flatMap(({ commandDir, filePaths }) =>
-    filePaths.map((filePath): Command => {
+  const commands = directoryResults.flatMap(({ commandDir, filePaths }) => {
+    // Two files in one directory mapping to the same command is ambiguous; across
+    // directories it is an overlay, resolved by buildSegmentTree (later wins).
+    const seen = new Map<string, string>();
+    return filePaths.map((filePath): Command => {
       const localPath = path.relative(commandDir, filePath);
       const segments = segmentPath(filePath, commandDir);
 
@@ -109,6 +112,13 @@ const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> =>
       if (lastSegment === undefined) {
         throw new Error(`No segments found for file: ${filePath}`);
       }
+
+      const key = segments.join(' ');
+      const other = seen.get(key);
+      if (other !== undefined) {
+        throw new Error(`Duplicate command "${key}": ${other} and ${filePath} map to the same command`);
+      }
+      seen.set(key, filePath);
 
       return {
         fullPath: filePath,
@@ -128,8 +138,8 @@ const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> =>
           return commandModule;
         },
       };
-    }),
-  );
+    });
+  });
 
   // check if no commands were found
   if (commands.length === 0) {

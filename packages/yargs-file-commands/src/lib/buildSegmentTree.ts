@@ -32,6 +32,8 @@ type CommandTreeNode = {
  * @description
  * Constructs a hierarchical tree structure from flat command definitions,
  * preserving the command hierarchy defined by the file system structure.
+ * When two commands have the same segments, the later one replaces the earlier one,
+ * so later commandDirs overlay earlier ones.
  */
 export const buildSegmentTree = (commands: Command[]): CommandTreeNode[] => {
   const rootTreeNodes: CommandTreeNode[] = [];
@@ -70,7 +72,10 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
         segmentName: currentSegmentName,
         command,
       });
-    } else if (currentSegment.type === 'internal') {
+    } else if (currentSegment.type === 'leaf') {
+      // Overlay: a command from a later commandDir replaces the earlier one
+      currentSegment.command = command;
+    } else {
       throw new Error(
         `Conflict: ${currentSegmentName} is both a directory and a command ${JSON.stringify(
           currentSegment,
