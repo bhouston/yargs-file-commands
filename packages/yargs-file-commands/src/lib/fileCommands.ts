@@ -53,23 +53,10 @@ export const DefaultFileCommandsOptions: Required<FileCommandsOptions> = {
 };
 
 /**
- * Generates a command tree structure from files in specified directories
- * @async
- * @param {FileCommandsOptions} options - Configuration options for command generation
- * @returns {Promise<Command[]>} Array of root-level commands with their nested subcommands
- *
- * @description
- * This function scans the specified directories for command files and builds a hierarchical
- * command structure based on the file system layout. It processes files in parallel for better
- * performance and supports nested commands through directory structure.
- *
- * The function will:
- * 1. Scan all specified command directories
- * 2. Process found files to extract command information
- * 3. Build a tree structure based on file paths
- * 4. Convert the tree into a command hierarchy
+ * Scans `commandDirs` and returns every command file with a loader for its module.
+ * Nothing is imported here.
  */
-export const fileCommands = async (options: FileCommandsOptions): Promise<CommandModule[]> => {
+const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> => {
   const fullOptions: Required<FileCommandsOptions> = {
     ...DefaultFileCommandsOptions,
     ...options,
@@ -90,8 +77,6 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
     throw new Error(`Command directories must be absolute paths: ${nonAbsoluteDirs.join(', ')}`);
   }
 
-  const commands: Command[] = [];
-
   // Process all command directories in parallel
   const directoryResults = await Promise.all(
     fullOptions.commandDirs.map(async (commandDir) => {
@@ -105,74 +90,83 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
     }),
   );
 
-  if (fullOptions.logLevel === 'debug') {
-    console.debug(`Importing found commands:`);
-  }
+  const commands = directoryResults.flatMap(({ commandDir, filePaths }) =>
+    filePaths.map((filePath): Command => {
+      const localPath = path.relative(commandDir, filePath);
+      const segments = segmentPath(filePath, commandDir);
 
-  // Process all files in parallel
-  const fileResults = await Promise.all(
-    directoryResults.flatMap(({ commandDir, filePaths }) =>
-      filePaths.map(async (filePath) => {
-        const localPath = path.relative(commandDir, filePath);
-        const segments = segmentPath(filePath, commandDir);
+      // Remove extension (last segment) if there are multiple segments
+      // If there's only one segment, it means the file has no name (e.g., .js)
+      if (segments.length > 1) {
+        segments.pop(); // remove extension.
+      } else if (segments.length === 0) {
+        throw new Error(`No segments found for file: ${filePath}`);
+      }
 
-        // Remove extension (last segment) if there are multiple segments
-        // If there's only one segment, it means the file has no name (e.g., .js)
-        if (segments.length > 1) {
-          segments.pop(); // remove extension.
-        } else if (segments.length === 0) {
-          throw new Error(`No segments found for file: ${filePath}`);
-        }
+      const lastSegment = segments[segments.length - 1];
+      if (lastSegment === undefined) {
+        throw new Error(`No segments found for file: ${filePath}`);
+      }
 
-        if (fullOptions.logLevel === 'debug') {
-          console.debug(`  ${localPath} - importing command module`);
-        }
+      return {
+        fullPath: filePath,
+        segments,
+        load: async () => {
+          if (fullOptions.logLevel === 'debug') {
+            console.debug(`  ${localPath} - importing command module`);
+          }
 
-        const lastSegment = segments[segments.length - 1];
-        if (lastSegment === undefined) {
-          throw new Error(`No segments found for file: ${filePath}`);
-        }
+          const commandModule = await importCommandFromFile(filePath, lastSegment, fullOptions);
 
-        const commandModule = await importCommandFromFile(filePath, lastSegment, fullOptions);
+          // Validate positional arguments if validation is enabled
+          if (fullOptions.validation) {
+            await validatePositionals(commandModule, filePath);
+          }
 
-        // Validate positional arguments if validation is enabled
-        if (fullOptions.validation) {
-          await validatePositionals(commandModule, filePath);
-        }
-
-        return {
-          fullPath: filePath,
-          segments,
-          commandModule,
-        };
-      }),
-    ),
+          return commandModule;
+        },
+      };
+    }),
   );
-
-  commands.push(...fileResults);
 
   // check if no commands were found
   if (commands.length === 0) {
     throw new Error(`No commands found in specified directories: ${fullOptions.commandDirs.join(', ')}`);
   }
 
+  return commands;
+};
+
+/**
+ * Generates a command tree structure from files in specified directories
+ * @async
+ * @param {FileCommandsOptions} options - Configuration options for command generation
+ * @returns {Promise<CommandModule[]>} Root-level commands with their nested subcommands
+ *
+ * @description
+ * Scans the specified directories and builds a hierarchical command structure from the
+ * file system layout. Only root-level command modules are imported up front; each group
+ * imports its own commands when yargs enters it, so an invocation only loads the modules
+ * along the command path it uses.
+ */
+export const fileCommands = async (options: FileCommandsOptions): Promise<CommandModule[]> => {
+  const commands = await scanCommands(options);
   const commandRootNodes = buildSegmentTree(commands);
 
-  if (fullOptions.logLevel === 'debug') {
+  if (options.logLevel === 'debug') {
     console.debug('Command tree structure:');
     logCommandTree(commandRootNodes, 1);
   }
 
-  const rootCommands = commandRootNodes.map((node) => createCommand(node));
-
-  return rootCommands;
+  return Promise.all(commandRootNodes.map(createCommand));
 };
 
 /**
  * Imports every command module under `commandDirs` and validates its positional arguments,
- * throwing on the first problem. Intended for a CLI's unit tests, so the check doesn't cost
- * anything at runtime.
+ * throwing on the first problem, including a module that fails to import. Intended for a
+ * CLI's unit tests, so the check doesn't cost anything at runtime.
  */
 export const validateCommands = async (options: FileCommandsOptions): Promise<void> => {
-  await fileCommands({ ...options, validation: true });
+  const commands = await scanCommands({ ...options, validation: true });
+  await Promise.all(commands.map((command) => command.load()));
 };

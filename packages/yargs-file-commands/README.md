@@ -209,6 +209,14 @@ export const command = defineCommand({
 });
 ```
 
+## Lazy Loading
+
+Command modules are loaded lazily, one group at a time. `fileCommands` scans the whole directory tree up front, which is cheap, but imports only the root-level command files. A group imports its own command files when yargs enters it, so `my-cli --help` loads only root-level commands, and `my-cli db migration` loads only the files in `commands/` and `commands/db/` (sibling commands are needed for help output). Large CLIs with thousands of commands stay fast to start.
+
+Because group builders are async, parse with `await yargs(...).parseAsync()` (or `await ....argv`) rather than relying on a synchronous `.parse()` result.
+
+A command file with a mistake in it is only imported when a user goes into its group, so call `validateCommands` from a test to import and check every command (see [Validating commands in tests](#validating-commands-in-tests)).
+
 ## Options
 
 The `fileCommands` method takes the following options:
