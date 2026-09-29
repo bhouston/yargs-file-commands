@@ -10,24 +10,24 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/db/migration/command.js',
         segments: ['db', 'migration'],
-        commandModule: {
+        load: async () => ({
           command: 'migration',
           describe: 'Migration command',
           handler: async () => {
             // Test handler
           },
-        },
+        }),
       },
       {
         fullPath: '/commands/db/health.js',
         segments: ['db', 'health'],
-        commandModule: {
+        load: async () => ({
           command: 'health',
           describe: 'Health command',
           handler: async () => {
             // Test handler
           },
-        },
+        }),
       },
     ];
 
@@ -62,13 +62,13 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/test.ts',
         segments: ['test'],
-        commandModule: {
+        load: async () => ({
           command: 'test',
           describe: 'Test command',
           handler: async () => {
             // Test handler
           },
-        },
+        }),
       },
     ];
 
@@ -89,20 +89,20 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/db/migration/command.js',
         segments: ['db', 'migration'],
-        commandModule: {
+        load: async () => ({
           command: 'migration',
           describe: 'Migration command',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/db.js',
         segments: ['db'],
-        commandModule: {
+        load: async () => ({
           command: 'db',
           describe: 'DB command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -114,20 +114,20 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/db.js',
         segments: ['db'],
-        commandModule: {
+        load: async () => ({
           command: 'db',
           describe: 'DB command',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/db/migration/command.js',
         segments: ['db', 'migration'],
-        commandModule: {
+        load: async () => ({
           command: 'migration',
           describe: 'Migration command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -139,20 +139,20 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/hello.ts',
         segments: ['hello'],
-        commandModule: {
+        load: async () => ({
           command: 'hello',
           describe: 'Hello command',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/world.ts',
         segments: ['world'],
-        commandModule: {
+        load: async () => ({
           command: 'world',
           describe: 'World command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -166,20 +166,20 @@ describe('buildSegmentTree', () => {
       {
         fullPath: '/commands/a/b/c.ts',
         segments: ['a', 'b', 'c'],
-        commandModule: {
+        load: async () => ({
           command: 'c',
           describe: 'C command',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/a/d.ts',
         segments: ['a', 'd'],
-        commandModule: {
+        load: async () => ({
           command: 'd',
           describe: 'D command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -202,17 +202,17 @@ describe('buildSegmentTree', () => {
 });
 
 describe('createCommand', () => {
-  it('should create command module from leaf node', () => {
+  it('should create command module from leaf node', async () => {
     const command: Command = {
       fullPath: '/commands/test.ts',
       segments: ['test'],
-      commandModule: {
+      load: async () => ({
         command: 'test',
         describe: 'Test command',
         handler: async () => {
           // Test handler
         },
-      },
+      }),
     };
 
     const treeNode = {
@@ -221,21 +221,21 @@ describe('createCommand', () => {
       command,
     };
 
-    const commandModule = createCommand(treeNode);
+    const commandModule = await createCommand(treeNode);
     expect(commandModule.command).toBe('test');
     expect(commandModule.describe).toBe('Test command');
-    expect(commandModule.handler).toBe(command.commandModule.handler);
+    expect(typeof commandModule.handler).toBe('function');
   });
 
-  it('should create command module from internal node with children', () => {
+  it('should create command module from internal node with children', async () => {
     const childCommand: Command = {
       fullPath: '/commands/db/health.ts',
       segments: ['db', 'health'],
-      commandModule: {
+      load: async () => ({
         command: 'health',
         describe: 'Health check',
         handler: async () => {},
-      },
+      }),
     };
 
     const childTreeNode = {
@@ -250,32 +250,32 @@ describe('createCommand', () => {
       children: [childTreeNode],
     };
 
-    const commandModule = createCommand(internalTreeNode);
+    const commandModule = await createCommand(internalTreeNode);
     expect(commandModule.command).toBe('db');
     expect(commandModule.describe).toBe('db commands');
     expect(commandModule.builder).toBeDefined();
     expect(commandModule.handler).toBeDefined();
   });
 
-  it('should create nested command structure with builder', () => {
+  it('should create nested command structure with builder', async () => {
     const healthCommand: Command = {
       fullPath: '/commands/db/health.ts',
       segments: ['db', 'health'],
-      commandModule: {
+      load: async () => ({
         command: 'health',
         describe: 'Health check',
         handler: async () => {},
-      },
+      }),
     };
 
     const migrationCommand: Command = {
       fullPath: '/commands/db/migration.ts',
       segments: ['db', 'migration'],
-      commandModule: {
+      load: async () => ({
         command: 'migration',
         describe: 'Migration',
         handler: async () => {},
-      },
+      }),
     };
 
     const tree = buildSegmentTree([healthCommand, migrationCommand]);
@@ -284,7 +284,7 @@ describe('createCommand', () => {
       throw new Error('Expected internal node');
     }
 
-    const commandModule = createCommand(dbNode);
+    const commandModule = await createCommand(dbNode);
     expect(commandModule.command).toBe('db');
     expect(commandModule.builder).toBeDefined();
 
@@ -295,7 +295,7 @@ describe('createCommand', () => {
         demandCommand: vi.fn().mockReturnThis(),
       } as unknown as Parameters<typeof commandModule.builder>[0];
 
-      commandModule.builder(mockYargs);
+      await commandModule.builder(mockYargs);
       expect(mockYargs.command).toHaveBeenCalledTimes(1);
       expect(mockYargs.demandCommand).toHaveBeenCalledWith(1, 'You must specify a db subcommand');
     }
@@ -310,20 +310,20 @@ describe('logCommandTree', () => {
       {
         fullPath: '/commands/db/health.ts',
         segments: ['db', 'health'],
-        commandModule: {
+        load: async () => ({
           command: 'health',
           describe: 'Health',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/hello.ts',
         segments: ['hello'],
-        commandModule: {
+        load: async () => ({
           command: 'hello',
           describe: 'Hello',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -346,11 +346,11 @@ describe('logCommandTree', () => {
       {
         fullPath: '/commands/a/b/c.ts',
         segments: ['a', 'b', 'c'],
-        commandModule: {
+        load: async () => ({
           command: 'c',
           describe: 'C',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -372,11 +372,11 @@ describe('buildSegmentTree edge cases', () => {
       {
         fullPath: '/commands/test.ts',
         segments: ['test', undefined as unknown as string], // Undefined segment
-        commandModule: {
+        load: async () => ({
           command: 'test',
           describe: 'Test command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -391,11 +391,11 @@ describe('buildSegmentTree edge cases', () => {
         fullPath: '/commands/$default.ts',
         segments: ['$default'],
         isDefault: true,
-        commandModule: {
+        load: async () => ({
           command: '$0',
           describe: 'Default command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -410,11 +410,11 @@ describe('buildSegmentTree edge cases', () => {
       {
         fullPath: '/commands/test.ts',
         segments: [], // Empty segments
-        commandModule: {
+        load: async () => ({
           command: 'test',
           describe: 'Test command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -423,15 +423,15 @@ describe('buildSegmentTree edge cases', () => {
     expect(tree.length).toBe(0); // Empty segments result in empty tree
   });
 
-  it('should verify internal node handler is async function', () => {
+  it('should verify internal node handler is async function', async () => {
     const healthCommand: Command = {
       fullPath: '/commands/db/health.ts',
       segments: ['db', 'health'],
-      commandModule: {
+      load: async () => ({
         command: 'health',
         describe: 'Health check',
         handler: async () => {},
-      },
+      }),
     };
 
     const tree = buildSegmentTree([healthCommand]);
@@ -440,7 +440,7 @@ describe('buildSegmentTree edge cases', () => {
       throw new Error('Expected internal node');
     }
 
-    const commandModule = createCommand(dbNode);
+    const commandModule = await createCommand(dbNode);
     expect(commandModule.handler).toBeDefined();
     expect(typeof commandModule.handler).toBe('function');
 
@@ -456,11 +456,11 @@ describe('buildSegmentTree edge cases', () => {
       {
         fullPath: '/commands/a/b/c/d/e/f/g.ts',
         segments: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-        commandModule: {
+        load: async () => ({
           command: 'g',
           describe: 'Deeply nested command',
           handler: async () => {},
-        },
+        }),
       },
     ];
 
@@ -485,20 +485,20 @@ describe('buildSegmentTree edge cases', () => {
       {
         fullPath: '/commands/test-command.ts',
         segments: ['test-command'],
-        commandModule: {
+        load: async () => ({
           command: 'test-command',
           describe: 'Test with dash',
           handler: async () => {},
-        },
+        }),
       },
       {
         fullPath: '/commands/test_command.ts',
         segments: ['test_command'],
-        commandModule: {
+        load: async () => ({
           command: 'test_command',
           describe: 'Test with underscore',
           handler: async () => {},
-        },
+        }),
       },
     ];
 

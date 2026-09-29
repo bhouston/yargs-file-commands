@@ -9,8 +9,8 @@ export interface Command {
   fullPath: string;
   /** Array of path segments representing the command hierarchy */
   segments: string[];
-  /** The Yargs command module implementation */
-  commandModule: CommandModule;
+  /** Imports the Yargs command module; only called when yargs needs this command */
+  load: () => Promise<CommandModule>;
   /** Whether this is the default command */
   isDefault?: boolean;
 }

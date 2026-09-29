@@ -3,11 +3,27 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import yargs from 'yargs';
 
 import { fileCommands, validateCommands } from './fileCommands.js';
 
 // get __dirname in ESM style
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// Each command module records its import in a global so tests can see what was loaded.
+const writeTree = async (root: string, files: string[]) => {
+  for (const file of files) {
+    const name = file.replace(/\.js$/, '');
+    await mkdir(path.dirname(path.join(root, file)), { recursive: true });
+    await writeFile(
+      path.join(root, file),
+      `globalThis.__yfcLoaded.push(${JSON.stringify(name)});
+export const describe = ${JSON.stringify(`describe ${name}`)};
+export const handler = () => { globalThis.__yfcRan.push(${JSON.stringify(name)}); };
+`,
+    );
+  }
+};
 
 describe('fileCommands', () => {
   it('should load commands from directory structure', async () => {
@@ -257,5 +273,73 @@ export const handler = async () => {};`,
     await expect(
       validateCommands({ commandDirs: [path.join(__dirname, 'fixtures', 'commands')] }),
     ).resolves.toBeUndefined();
+  });
+
+  describe('lazy loading', () => {
+    const run = async (argv: string[]) => {
+      const tempDir = path.join(tmpdir(), `yargs-lazy-${randomUUID()}`);
+      const g = globalThis as unknown as { __yfcLoaded: string[]; __yfcRan: string[] };
+      g.__yfcLoaded = [];
+      g.__yfcRan = [];
+      const logs: string[] = [];
+      const logSpy = vi.spyOn(console, 'log').mockImplementation((msg) => logs.push(String(msg)));
+      try {
+        await writeTree(tempDir, ['top.js', 'db/health.js', 'db/migrate/up.js', 'db/migrate/down.js', 'other/x.js']);
+        const commands = await fileCommands({ commandDirs: [tempDir] });
+        await yargs(argv).command(commands).exitProcess(false).parseAsync();
+        return { loaded: [...g.__yfcLoaded].toSorted(), ran: g.__yfcRan, help: logs.join('\n') };
+      } finally {
+        logSpy.mockRestore();
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    };
+
+    it('root --help imports only root-level command modules', async () => {
+      const { loaded, help } = await run(['--help']);
+      expect(loaded).toEqual(['top']);
+      expect(help).toContain('db commands');
+      expect(help).toContain('describe top');
+    });
+
+    it('group --help imports only that group level and lists its commands', async () => {
+      const { loaded, help } = await run(['db', '--help']);
+      expect(loaded).toEqual(['db/health', 'top']);
+      expect(help).toContain('describe db/health');
+      expect(help).toContain('migrate commands');
+    });
+
+    it('running a nested command imports only modules along its path', async () => {
+      const { loaded, ran } = await run(['db', 'migrate', 'up']);
+      expect(loaded).toEqual(['db/health', 'db/migrate/down', 'db/migrate/up', 'top']);
+      expect(ran).toEqual(['db/migrate/up']);
+    });
+
+    it('validateCommands imports every command module', async () => {
+      const tempDir = path.join(tmpdir(), `yargs-lazy-validate-${randomUUID()}`);
+      const g = globalThis as unknown as { __yfcLoaded: string[] };
+      g.__yfcLoaded = [];
+      try {
+        await writeTree(tempDir, ['top.js', 'db/health.js', 'db/migrate/up.js']);
+        await validateCommands({ commandDirs: [tempDir] });
+        expect(g.__yfcLoaded.toSorted()).toEqual(['db/health', 'db/migrate/up', 'top']);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    });
+
+    it('validateCommands reports a command module that fails to import', async () => {
+      const tempDir = path.join(tmpdir(), `yargs-lazy-broken-${randomUUID()}`);
+      try {
+        await mkdir(path.join(tempDir, 'db'), { recursive: true });
+        await writeFile(path.join(tempDir, 'top.js'), 'export const handler = () => {};');
+        await writeFile(path.join(tempDir, 'db', 'broken.js'), "throw new Error('boom');");
+        // fileCommands never touches db/broken.js...
+        await expect(fileCommands({ commandDirs: [tempDir] })).resolves.toHaveLength(2);
+        // ...validateCommands does
+        await expect(validateCommands({ commandDirs: [tempDir] })).rejects.toThrow(/Failed to import.*boom/);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    });
   });
 });

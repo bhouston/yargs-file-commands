@@ -103,37 +103,31 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
 /**
  * Creates a Yargs command module from a tree node
  * @param {CommandTreeNode} treeNode - The tree node to convert
- * @returns {CommandModule} Yargs command module
+ * @returns {Promise<CommandModule>} Yargs command module
  *
  * @description
- * Recursively converts a tree node into a Yargs command module.
- * For leaf nodes, returns the actual command implementation.
- * For internal nodes, creates a parent command that manages subcommands.
+ * Leaf nodes import their command module. Internal nodes return a group command whose
+ * builder imports and registers its children only when yargs enters the group, so a
+ * CLI invocation only loads the modules along the command path it uses.
  */
-export const createCommand = (treeNode: CommandTreeNode): CommandModule => {
+export const createCommand = async (treeNode: CommandTreeNode): Promise<CommandModule> => {
   if (treeNode.type === 'leaf') {
-    return treeNode.command.commandModule;
+    return treeNode.command.load();
   }
 
   const name = treeNode.segmentName;
-  // For internal nodes, create a command that registers all children
-  const command: CommandModule = {
+  return {
     command: name,
     describe: `${name} commands`,
-    builder: (yargs: Argv): Argv => {
-      // Register all child segments as subcommands
-      yargs.command(treeNode.children.map((child) => createCommand(child)));
-      // Demand a subcommand unless we're at the root
+    builder: async (yargs: Argv): Promise<Argv> => {
+      yargs.command(await Promise.all(treeNode.children.map(createCommand)));
       yargs.demandCommand(1, `You must specify a ${name} subcommand`);
-
       return yargs;
     },
     handler: async () => {
       // Internal nodes don't need handlers as they'll demand subcommands
     },
   };
-
-  return command;
 };
 
 export const logCommandTree = (commands: CommandTreeNode[], level = 0) => {
