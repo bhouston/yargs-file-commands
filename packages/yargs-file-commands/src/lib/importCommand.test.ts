@@ -372,7 +372,7 @@ export const command = 'test';`,
         filePath,
         `export const command = 'individual';
 export const describe = 'Individual exports';
-export const alias = 'ind';
+export const aliases = ['ind', 'i'];
 export const deprecated = true;
 export const builder = (yargs) => yargs;
 export const handler = async () => {};`,
@@ -384,8 +384,7 @@ export const handler = async () => {};`,
 
       expect(command.command).toBe('individual');
       expect(command.describe).toBe('Individual exports');
-      // Note: alias/aliases handling has an inconsistency in the codebase
-      // The validation allows 'alias' but code uses 'aliases'
+      expect(command.aliases).toEqual(['ind', 'i']);
       expect(command.deprecated).toBe(true);
       expect(command.builder).toBeDefined();
       expect(command.handler).toBeDefined();
