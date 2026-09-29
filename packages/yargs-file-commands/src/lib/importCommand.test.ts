@@ -111,6 +111,43 @@ describe('importCommandFromFile', () => {
     }
   });
 
+  it('should handle default export CommandModule style', async () => {
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
+    await mkdir(tempDir, { recursive: true });
+    const explicitPath = path.resolve(path.join(tempDir, 'explicit.js'));
+    const unnamedPath = path.resolve(path.join(tempDir, 'unnamed.js'));
+    const defaultPath = path.resolve(path.join(tempDir, 'default-cmd.js'));
+
+    try {
+      await writeFile(
+        explicitPath,
+        `export default {
+          command: 'get <id>',
+          describe: 'Get a thing',
+          aliases: ['g'],
+          handler: async () => {}
+        };`,
+      );
+      await writeFile(unnamedPath, `export default { describe: 'Unnamed', handler: async () => {} };`);
+      await writeFile(defaultPath, `export default { describe: 'Default', handler: async () => {} };`);
+
+      const explicit = await importCommandFromFile(explicitPath, 'explicit', { logLevel: 'info' });
+      expect(explicit.command).toBe('get <id>');
+      expect(explicit.describe).toBe('Get a thing');
+      expect(explicit.aliases).toEqual(['g']);
+      expect(explicit.handler).toBeDefined();
+
+      const byName = await importCommandFromFile(unnamedPath, 'unnamed', { logLevel: 'info' });
+      expect(byName.command).toBe('unnamed');
+      expect(byName.describe).toBe('Unnamed');
+
+      const asDefault = await importCommandFromFile(defaultPath, '$default', { logLevel: 'info' });
+      expect(asDefault.command).toBe('$0');
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it('should throw error for unsupported exports', async () => {
     // Create a temporary command file with unsupported exports
     const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
