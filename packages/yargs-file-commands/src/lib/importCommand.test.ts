@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import type { ArgumentsCamelCase } from 'yargs';
 
@@ -143,6 +145,31 @@ describe('importCommandFromFile', () => {
 
       const asDefault = await importCommandFromFile(defaultPath, '$default', { logLevel: 'info' });
       expect(asDefault.command).toBe('$0');
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('should not mutate the imported module when defaulting the command name', async () => {
+    const tempDir = path.join(tmpdir(), `yargs-test-${randomUUID()}`);
+    await mkdir(tempDir, { recursive: true });
+    const filePath = path.resolve(path.join(tempDir, 'shared.js'));
+
+    try {
+      await writeFile(filePath, `export const command = { describe: 'Shared', handler: async () => {} };`);
+
+      const first = await importCommandFromFile(filePath, 'first', { logLevel: 'info' });
+      const second = await importCommandFromFile(filePath, 'second', { logLevel: 'info' });
+      const asDefault = await importCommandFromFile(filePath, '$default', { logLevel: 'info' });
+
+      expect(first.command).toBe('first');
+      expect(second.command).toBe('second');
+      expect(asDefault.command).toBe('$0');
+
+      const mod = (await import(pathToFileURL(realpathSync.native(filePath)).href)) as {
+        command: Record<string, unknown>;
+      };
+      expect(mod.command.command).toBeUndefined();
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

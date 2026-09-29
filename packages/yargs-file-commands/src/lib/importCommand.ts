@@ -131,20 +131,14 @@ export const importCommandFromFile = async (
   if (moduleExport) {
     const commandModule = moduleExport as CommandModule;
 
-    // Ensure the command property exists or use the filename
-    if (!commandModule.command && !isDefault) {
-      commandModule.command = name;
-    } else if (isDefault && !commandModule.command) {
-      commandModule.command = '$0';
-    }
-
     if (logLevel === 'debug') {
       console.debug('Importing CommandModule from', realPath, 'as', name, 'with description', commandModule.describe);
     }
 
-    // Return the command module directly without wrapping
+    // Build a new object; the imported module is cached by Node and must not be mutated.
+    // Fall back to the filename (or $0 for the default command) when no command is given.
     return {
-      command: commandModule.command,
+      command: commandModule.command || (isDefault ? '$0' : name),
       describe: commandModule.describe,
       builder: commandModule.builder,
       handler: commandModule.handler,
