@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
-import { fileCommands } from './fileCommands.js';
+import { fileCommands, validateCommands } from './fileCommands.js';
 
 // get __dirname in ESM style
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -241,8 +241,21 @@ export const handler = async () => {};`,
           validation: true,
         }),
       ).rejects.toThrow(/has.*positional argument.*registered in builder/);
+
+      // Validation is off by default at runtime...
+      await expect(fileCommands({ commandDirs: [tempDir], extensions: ['.ts'] })).resolves.toHaveLength(1);
+      // ...and validateCommands() runs it explicitly
+      await expect(validateCommands({ commandDirs: [tempDir], extensions: ['.ts'] })).rejects.toThrow(
+        /has.*positional argument.*registered in builder/,
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it('validateCommands resolves for valid commands', async () => {
+    await expect(
+      validateCommands({ commandDirs: [path.join(__dirname, 'fixtures', 'commands')] }),
+    ).resolves.toBeUndefined();
   });
 });
