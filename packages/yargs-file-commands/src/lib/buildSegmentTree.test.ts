@@ -105,54 +105,31 @@ describe('buildSegmentTree', () => {
     expect(db.children[0].command.fullPath).toBe('/b/db/health.js');
   });
 
-  it('should throw error when directory conflicts with command name (directory first)', () => {
-    const commands: Command[] = [
-      {
-        fullPath: '/commands/db/migration/command.js',
-        segments: ['db', 'migration'],
-        load: async () => ({
-          command: 'migration',
-          describe: 'Migration command',
-          handler: async () => {},
-        }),
-      },
-      {
-        fullPath: '/commands/db.js',
-        segments: ['db'],
-        load: async () => ({
-          command: 'db',
-          describe: 'DB command',
-          handler: async () => {},
-        }),
-      },
-    ];
+  it.each([
+    ['directory first', false],
+    ['command first', true],
+  ])('should make a command at a group path the group definition (%s)', async (_label, commandFirst) => {
+    const migration: Command = {
+      fullPath: '/commands/db/migration/command.js',
+      segments: ['db', 'migration'],
+      load: async () => ({ command: 'migration', describe: 'Migration command', handler: async () => {} }),
+    };
+    const db: Command = {
+      fullPath: '/commands/db.js',
+      segments: ['db'],
+      load: async () => ({ command: 'db', describe: 'DB command', handler: async () => {} }),
+    };
 
-    expect(() => buildSegmentTree(commands)).toThrow(/Conflict: db is both a directory and a command/);
-  });
+    const tree = buildSegmentTree(commandFirst ? [db, migration] : [migration, db]);
+    const dbNode = tree[0];
+    if (tree.length !== 1 || dbNode?.type !== 'internal') {
+      throw new Error('Expected a single db group');
+    }
+    expect(dbNode.definition).toBe(db);
+    expect(dbNode.children.map((child) => child.segmentName)).toEqual(['migration']);
 
-  it('should throw error when directory conflicts with command name (command first)', () => {
-    const commands: Command[] = [
-      {
-        fullPath: '/commands/db.js',
-        segments: ['db'],
-        load: async () => ({
-          command: 'db',
-          describe: 'DB command',
-          handler: async () => {},
-        }),
-      },
-      {
-        fullPath: '/commands/db/migration/command.js',
-        segments: ['db', 'migration'],
-        load: async () => ({
-          command: 'migration',
-          describe: 'Migration command',
-          handler: async () => {},
-        }),
-      },
-    ];
-
-    expect(() => buildSegmentTree(commands)).toThrow(/Conflict: db is both a directory and a command/);
+    // db.js exports a real handler, which a group can never run, so it is still a conflict
+    await expect(createCommand(dbNode)).rejects.toThrow(/Conflict: db is both a directory and a command/);
   });
 
   it('should handle multiple root commands', () => {

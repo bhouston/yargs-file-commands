@@ -44,6 +44,29 @@ const helpFor = async (commandDirs: string[], argv: string[]) => {
   return logs.join('\n');
 };
 
+const makeTree = async (files: Record<string, string>) => {
+  const dir = path.join(tmpdir(), `yargs-group-def-${randomUUID()}`);
+  for (const [file, source] of Object.entries(files)) {
+    await mkdir(path.dirname(path.join(dir, file)), { recursive: true });
+    await writeFile(path.join(dir, file), source);
+  }
+  return dir;
+};
+
+const runCli = async (commandDirs: string[], argv: string[]) => {
+  const logs: string[] = [];
+  const logSpy = vi.spyOn(console, 'log').mockImplementation((msg) => logs.push(String(msg)));
+  try {
+    const argvResult = await yargs(argv)
+      .command(await fileCommands({ commandDirs }))
+      .exitProcess(false)
+      .parseAsync();
+    return { help: logs.join('\n'), argv: argvResult };
+  } finally {
+    logSpy.mockRestore();
+  }
+};
+
 describe('fileCommands', () => {
   it('should load commands from directory structure', async () => {
     const commands = await fileCommands({
@@ -445,6 +468,85 @@ export const handler = async () => {};`,
         await writeCommand(path.join(dir, 'db.health.js'), 'dotted');
         await writeCommand(path.join(dir, 'db', 'health.js'), 'nested');
         await expect(fileCommands({ commandDirs: [dir] })).rejects.toThrow(/Duplicate command "db health"/);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('group definitions', () => {
+    const leaf = `export const describe = 'check health';
+export const handler = (argv) => { globalThis.__yfcArgv = argv; };
+`;
+
+    it('takes describe and aliases from command.js and hides with describe: false', async () => {
+      const dir = await makeTree({
+        'db/command.js': "export const describe = 'Database tools';\nexport const aliases = ['database'];\n",
+        'db/health.js': leaf,
+        'secret/command.js': 'export const describe = false;\n',
+        'secret/x.js': leaf,
+      });
+      try {
+        const { help } = await runCli([dir], ['--help']);
+        expect(help).toContain('Database tools');
+        expect(help).not.toContain('db commands');
+        expect(help).not.toContain('secret');
+
+        // Aliases and hidden groups still run
+        await runCli([dir], ['database', 'health']);
+        await runCli([dir], ['secret', 'x']);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('applies options and middleware from the group builder to its subcommands', async () => {
+      const dir = await makeTree({
+        'db/command.js': `export const builder = (yargs) =>
+  yargs
+    .option('region', { type: 'string', default: 'us', global: true })
+    .middleware((argv) => { argv.fromGroup = true; });
+`,
+        'db/health.js': leaf,
+      });
+      try {
+        await runCli([dir], ['db', 'health', '--region', 'eu']);
+        const argv = (globalThis as unknown as { __yfcArgv: Record<string, unknown> }).__yfcArgv;
+        expect(argv.region).toBe('eu');
+        expect(argv.fromGroup).toBe(true);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('an overlay command.js replaces the description of a group from an earlier dir', async () => {
+      const base = await makeTree({ 'db/command.js': "export const describe = 'generated';\n", 'db/health.js': leaf });
+      const over = await makeTree({ 'db/command.js': "export const describe = 'hand-written';\n" });
+      try {
+        const { help } = await runCli([base, over], ['--help']);
+        expect(help).toContain('hand-written');
+        expect(help).not.toContain('generated');
+      } finally {
+        await rm(base, { recursive: true, force: true });
+        await rm(over, { recursive: true, force: true });
+      }
+    });
+
+    it('a group definition with a handler is a conflict', async () => {
+      const dir = await makeTree({
+        'db.js': 'export const handler = () => {};\n',
+        'db/health.js': leaf,
+        'tools/command.js': "export const describe = 'tools';\n",
+        'tools/cache.js': 'export const handler = () => {};\n',
+        'tools/cache/clear.js': leaf,
+      });
+      try {
+        // Root-level group definitions load up front
+        await expect(fileCommands({ commandDirs: [dir] })).rejects.toThrow(/Conflict: db is both a directory/);
+        // Nested ones are caught by validateCommands
+        await rm(path.join(dir, 'db.js'));
+        await expect(fileCommands({ commandDirs: [dir] })).resolves.toHaveLength(2);
+        await expect(validateCommands({ commandDirs: [dir] })).rejects.toThrow(/Conflict: cache is both a directory/);
       } finally {
         await rm(dir, { recursive: true, force: true });
       }

@@ -209,6 +209,36 @@ export const command = defineCommand({
 });
 ```
 
+## Group Definitions
+
+A directory of commands becomes a group, described as `<name> commands` by default. To configure the group itself, add a file at the group's own path, conventionally `command.ts` inside its directory:
+
+```
+/commands
+└── db
+    ├── command.ts   // defines the "db" group itself
+    ├── health.ts    // "db health"
+    └── backup.ts    // "db backup"
+```
+
+```ts
+// commands/db/command.ts
+import type { Argv } from 'yargs';
+
+export const describe = 'Database tools'; // or `false` to hide the group from --help
+export const aliases = ['database'];
+
+// Options and middleware declared here apply to every command in the group
+export const builder = (yargs: Argv) =>
+  yargs.option('region', { type: 'string', default: 'us' }).middleware(async (argv) => {
+    // e.g. connect to the database for argv.region
+  });
+```
+
+Supported: `command`, `describe`, `aliases`, `deprecated` and `builder`, as individual exports, a `command` object, or a default export. A group definition must **not** export a `handler`: groups require a subcommand, so the handler would never run. A file with a handler at a group's path (for example `db.ts` next to a `db/` directory) is reported as a conflict.
+
+A group definition in a later `commandDirs` entry replaces one from an earlier directory, so an overlay can re-describe or hide a generated group.
+
 ## Command Overlays
 
 `commandDirs` can list several directories. Their trees are merged: groups with the same name combine their commands, and when two directories define the same command, **the later directory wins**. This lets you layer hand-written commands over generated ones without editing the generated files:
