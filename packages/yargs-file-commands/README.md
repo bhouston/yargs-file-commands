@@ -241,6 +241,21 @@ The `fileCommands` method takes the following options:
 - The verbosity level for the plugin, either `debug` or `info`
 - Default: `"info"`
 
+**demandCommandMessage**
+
+- The error message used when a group is run without a subcommand, the same for every group at every depth. A single message lets a `.fail()` handler recognise this case, for example to show the group's help instead of an error:
+
+```ts
+yargs(hideBin(process.argv))
+  .command(await fileCommands({ commandDirs, demandCommandMessage: 'Please specify a subcommand' }))
+  .fail((msg, err, y) => {
+    if (msg === 'Please specify a subcommand') return y.showHelp('log');
+    throw err ?? new Error(msg);
+  });
+```
+
+- Default: `You must specify a <group> subcommand`
+
 **validation**
 
 - Whether to validate that positional arguments registered in the builder function match those declared in the command string
