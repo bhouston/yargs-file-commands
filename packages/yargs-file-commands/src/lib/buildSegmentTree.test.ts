@@ -84,6 +84,27 @@ describe('buildSegmentTree', () => {
     expect(node.type).toBe('leaf');
   });
 
+  it('should let a later command with the same segments replace an earlier one', async () => {
+    const tree = buildSegmentTree([
+      {
+        fullPath: '/a/db/health.js',
+        segments: ['db', 'health'],
+        load: async () => ({ command: 'health', describe: 'first', handler: () => {} }),
+      },
+      {
+        fullPath: '/b/db/health.js',
+        segments: ['db', 'health'],
+        load: async () => ({ command: 'health', describe: 'second', handler: () => {} }),
+      },
+    ]);
+    const db = tree[0];
+    if (db?.type !== 'internal' || db.children[0]?.type !== 'leaf') {
+      throw new Error('Expected db group with one leaf');
+    }
+    expect(db.children).toHaveLength(1);
+    expect(db.children[0].command.fullPath).toBe('/b/db/health.js');
+  });
+
   it('should throw error when directory conflicts with command name (directory first)', () => {
     const commands: Command[] = [
       {
