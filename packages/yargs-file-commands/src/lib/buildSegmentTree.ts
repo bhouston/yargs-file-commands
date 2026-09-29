@@ -123,6 +123,8 @@ function insertIntoTree(treeNodes: CommandTreeNode[], command: Command, depth: n
 export interface CreateCommandOptions {
   /** Message used by every group when run without a subcommand; defaults to `You must specify a <name> subcommand` */
   demandCommandMessage?: string;
+  /** Import each group's commands when yargs enters it (default). `false` imports everything up front and makes group builders synchronous */
+  lazy?: boolean;
 }
 
 export const createCommand = async (
@@ -143,23 +145,35 @@ export const createCommand = async (
     );
   }
 
+  const register = (yargs: Argv, children: CommandModule[]): Argv => {
+    // One at a time: builder walkers like clidoc only record .command(module), not .command([modules])
+    for (const child of children) yargs.command(child);
+    yargs.demandCommand(1, options.demandCommandMessage ?? `You must specify a ${name} subcommand`);
+    return yargs;
+  };
+  const loadChildren = () => Promise.all(treeNode.children.map((child) => createCommand(child, options)));
+  // The group's own builder runs first, so its options and middleware apply to its subcommands
+  const builder = definition?.builder;
+  const applyDefinition = (yargs: Argv) =>
+    typeof builder === 'function' ? builder(yargs) : builder !== undefined ? yargs.options(builder) : undefined;
+
+  // Eager groups load their children now and build synchronously, for tools that walk builders (e.g. clidoc)
+  const eagerChildren = options.lazy === false ? await loadChildren() : undefined;
+
   return {
     command: definition?.command ?? name,
     describe: definition?.describe ?? `${name} commands`,
     aliases: definition?.aliases,
     deprecated: definition?.deprecated,
-    builder: async (yargs: Argv): Promise<Argv> => {
-      // The group's own builder runs first, so its options and middleware apply to its subcommands
-      const builder = definition?.builder;
-      if (typeof builder === 'function') {
-        await builder(yargs);
-      } else if (builder !== undefined) {
-        yargs.options(builder);
-      }
-      yargs.command(await Promise.all(treeNode.children.map((child) => createCommand(child, options))));
-      yargs.demandCommand(1, options.demandCommandMessage ?? `You must specify a ${name} subcommand`);
-      return yargs;
-    },
+    builder: eagerChildren
+      ? (yargs: Argv): Argv => {
+          applyDefinition(yargs);
+          return register(yargs, eagerChildren);
+        }
+      : async (yargs: Argv): Promise<Argv> => {
+          await applyDefinition(yargs);
+          return register(yargs, await loadChildren());
+        },
     handler: async () => {
       // Internal nodes don't need handlers as they'll demand subcommands
     },

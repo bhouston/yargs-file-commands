@@ -1,5 +1,6 @@
 {
   "name": "js-cli",
+  "version": "0.0.0",
   "private": true,
   "description": "A javascript demo CLI building using yargs-file-commands",
   "bin": "./bin/js-cli.js",
@@ -10,6 +11,8 @@
     "tsc": "tsc"
   },
   "dependencies": {
+    "@clidoc/core": "^1.0.0",
+    "@clidoc/yargs": "^0.1.1",
     "type-fest": "^4.31.0",
     "yargs": "^18.0.0",
     "yargs-file-commands": "workspace:*"

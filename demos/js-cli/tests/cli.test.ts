@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import path from 'path';
+import { validate } from '@clidoc/core';
 import { describe, expect, it } from 'vitest';
 
 const runCli = (args: string = '') => {
@@ -17,6 +18,27 @@ const runCli = (args: string = '') => {
 };
 
 describe('js-cli integration tests', () => {
+  it('docgen writes a valid OpenCLI document with every command', () => {
+    const document = JSON.parse(runCli('docgen'));
+    expect(validate(document)).toEqual({ valid: true, errors: [] });
+    // '*' is the default command; clidoc keys it verbatim
+    expect(Object.keys(document.commands).toSorted()).toEqual([
+      'js-cli *',
+      'js-cli docgen',
+      'js-cli hello',
+      'js-cli hello world',
+      'js-cli joke',
+      'js-cli studio',
+      'js-cli studio start',
+      'js-cli tokens',
+      'js-cli tokens create',
+      'js-cli triage',
+      'js-cli users',
+    ]);
+    // group entries come from lazy-loaded directories, so this also covers docgen's eager load
+    expect(document.commands['js-cli hello'].kind).toBe('group');
+  });
+
   it('should show help with --help flag', () => {
     const output = runCli('--help');
     expect(output).toContain('Commands:');

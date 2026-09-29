@@ -294,7 +294,7 @@ describe('createCommand', () => {
       } as unknown as Parameters<typeof commandModule.builder>[0];
 
       await commandModule.builder(mockYargs);
-      expect(mockYargs.command).toHaveBeenCalledTimes(1);
+      expect(mockYargs.command).toHaveBeenCalledTimes(2); // health, migration
       expect(mockYargs.demandCommand).toHaveBeenCalledWith(1, 'You must specify a db subcommand');
     }
   });

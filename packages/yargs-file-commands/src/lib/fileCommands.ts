@@ -20,6 +20,8 @@ export type FileCommandsOptions = ScanDirectoryOptions & {
   validation?: boolean;
   /** Message used by every group when run without a subcommand */
   demandCommandMessage?: string;
+  /** Import each group's commands only when yargs enters it (default `true`). Set `false` to import every command up front with synchronous group builders, e.g. to generate docs with clidoc */
+  lazy?: boolean;
 };
 
 /**
@@ -27,7 +29,7 @@ export type FileCommandsOptions = ScanDirectoryOptions & {
  * @constant
  * @type {Partial<FileCommandsOptions>}
  */
-export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
+export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage' | 'lazy'>> = {
   /** Default directories to scan for command files */
   commandDirs: [],
 
@@ -59,7 +61,7 @@ export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'dem
  * Nothing is imported here.
  */
 const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> => {
-  const fullOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
+  const fullOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage' | 'lazy'>> = {
     ...DefaultFileCommandsOptions,
     ...options,
   };
