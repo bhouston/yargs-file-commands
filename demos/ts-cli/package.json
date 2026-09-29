@@ -11,8 +11,8 @@
     "tsc": "tsc"
   },
   "dependencies": {
-    "@clidoc/core": "^1.0.0",
-    "@clidoc/yargs": "^0.1.1",
+    "@clidoc/core": "^1.1.0",
+    "@clidoc/yargs": "^1.1.0",
     "type-fest": "^4.31.0",
     "yargs": "^18.0.0",
     "yargs-file-commands": "workspace:*"

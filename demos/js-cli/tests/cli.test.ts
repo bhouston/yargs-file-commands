@@ -21,9 +21,9 @@ describe('js-cli integration tests', () => {
   it('docgen writes a valid OpenCLI document with every command', () => {
     const document = JSON.parse(runCli('docgen'));
     expect(validate(document)).toEqual({ valid: true, errors: [] });
-    // '*' is the default command; clidoc keys it verbatim
+    // the '*' default command is keyed as the binary itself
     expect(Object.keys(document.commands).toSorted()).toEqual([
-      'js-cli *',
+      'js-cli',
       'js-cli docgen',
       'js-cli hello',
       'js-cli hello world',
@@ -35,7 +35,6 @@ describe('js-cli integration tests', () => {
       'js-cli triage',
       'js-cli users',
     ]);
-    // group entries come from lazy-loaded directories, so this also covers docgen's eager load
     expect(document.commands['js-cli hello'].kind).toBe('group');
   });
 

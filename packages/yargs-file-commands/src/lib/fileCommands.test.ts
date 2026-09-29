@@ -383,31 +383,6 @@ export const handler = async () => {};`,
         await rm(tempDir, { recursive: true, force: true });
       }
     });
-
-    it('lazy: false imports everything up front and builds groups synchronously', async () => {
-      const tempDir = path.join(tmpdir(), `yargs-eager-${randomUUID()}`);
-      const g = globalThis as unknown as { __yfcLoaded: string[]; __yfcRan: string[] };
-      g.__yfcLoaded = [];
-      g.__yfcRan = [];
-      try {
-        await writeTree(tempDir, ['top.js', 'db/health.js', 'db/migrate/up.js']);
-        const commands = await fileCommands({ commandDirs: [tempDir], lazy: false });
-        expect(g.__yfcLoaded.toSorted()).toEqual(['db/health', 'db/migrate/up', 'top']);
-
-        // clidoc-style walk: a synchronous builder registers its children before returning
-        const dbBuilder = commands.find((c) => c.command === 'db')?.builder as (y: unknown) => unknown;
-        const registered: unknown[] = [];
-        const recorder = { command: (c: unknown) => registered.push(c), demandCommand: () => recorder };
-        const result = dbBuilder(recorder);
-        expect(result).not.toBeInstanceOf(Promise);
-        expect(registered.map((c) => (c as { command: string }).command)).toEqual(['health', 'migrate']);
-
-        await yargs(['db', 'migrate', 'up']).command(commands).exitProcess(false).parseAsync();
-        expect(g.__yfcRan).toEqual(['db/migrate/up']);
-      } finally {
-        await rm(tempDir, { recursive: true, force: true });
-      }
-    });
   });
 
   describe('demandCommandMessage', () => {

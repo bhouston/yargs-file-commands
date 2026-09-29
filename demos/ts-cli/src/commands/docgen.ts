@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { type DocumentFormat, infoFromPackageJson, writeOpenCliDocument } from '@clidoc/core';
-import { fromYargs } from '@clidoc/yargs';
+import { fromYargsAsync } from '@clidoc/yargs';
 import { defineCommand, fileCommands } from 'yargs-file-commands';
 
 const packageInfo = createRequire(import.meta.url)('../../package.json');
@@ -17,9 +17,8 @@ export const command = defineCommand({
       })
       .option('output', { type: 'string', alias: 'o', describe: 'Output file; defaults to stdout' }),
   handler: async (argv) => {
-    // clidoc walks builders synchronously, so load the whole command tree up front instead of lazily
-    const commands = await fileCommands({ commandDirs: [import.meta.dirname], lazy: false });
-    const document = fromYargs(commands, infoFromPackageJson(packageInfo));
+    const commands = await fileCommands({ commandDirs: [import.meta.dirname] });
+    const document = await fromYargsAsync(commands, infoFromPackageJson(packageInfo));
     await writeOpenCliDocument(document, argv.output, argv.format as DocumentFormat);
   },
 });

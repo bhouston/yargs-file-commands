@@ -21,8 +21,8 @@ describe('ts-cli integration tests', () => {
   it('docgen writes a valid OpenCLI document with every command', () => {
     const document = JSON.parse(runCli('docgen'));
     expect(validate(document)).toEqual({ valid: true, errors: [] });
-    // '*' is the default command; clidoc keys it verbatim
-    expect(Object.keys(document.commands).toSorted()).toEqual(['ts-cli *', 'ts-cli docgen', 'ts-cli joke']);
+    // the '*' default command is keyed as the binary itself
+    expect(Object.keys(document.commands).toSorted()).toEqual(['ts-cli', 'ts-cli docgen', 'ts-cli joke']);
   });
 
   it('should show help with --help flag', () => {

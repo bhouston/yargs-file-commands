@@ -309,20 +309,6 @@ yargs(hideBin(process.argv))
 
 - Default: `You must specify a <group> subcommand`
 
-**lazy**
-
-- Whether each group imports its commands only when yargs enters it (see [Lazy Loading](#lazy-loading))
-- Set to `false` to import every command up front and give groups synchronous builders. Tools that read the command tree by running builders synchronously need this, such as [clidoc](https://clidoc.dev)'s `fromYargs`, which generates an OpenCLI document. Load eagerly only inside the command that needs it, so normal startup stays lazy; the demos' `docgen` command shows how:
-
-```ts
-import { fromYargs } from '@clidoc/yargs';
-
-const commands = await fileCommands({ commandDirs, lazy: false });
-const document = fromYargs(commands, { title: 'My CLI', binary: 'my-cli', version: '1.0.0' });
-```
-
-- Default: `true`
-
 **validation**
 
 - Whether to validate that positional arguments registered in the builder function match those declared in the command string
