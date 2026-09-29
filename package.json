@@ -15,6 +15,7 @@
     "build": "pnpm --filter yargs-file-commands build",
     "build:release": "pnpm build",
     "size": "size-limit",
+    "bench": "pnpm build && node packages/yargs-file-commands/bench/fileCommands.bench.mjs",
     "release": "semantic-release",
     "test:release": "node scripts/check-release.mjs"
   },
