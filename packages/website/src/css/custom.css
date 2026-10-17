@@ -40,6 +40,15 @@
   gap: 1rem;
   margin: 2rem 0;
 }
+.hero .button--outline {
+  color: #fff;
+}
+.hero .button--outline:hover {
+  color: #103963;
+}
+.footer--dark {
+  --ifm-footer-link-color: #b8d9ff;
+}
 .install-command {
   display: inline-block;
   padding: 0.7rem 1rem;
