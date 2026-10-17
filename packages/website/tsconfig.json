@@ -1,0 +1,5 @@
+{
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": { "ignoreDeprecations": "6.0", "types": ["node", "react"], "skipLibCheck": true },
+  "include": ["src", "*.ts"]
+}

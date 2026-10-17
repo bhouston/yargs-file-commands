@@ -10,6 +10,8 @@ This Yargs helper function lets you define all your commands as individual files
 
 Supports both JavaScript and TypeScript (on Node 24+.)
 
+[Documentation website](https://bhouston.github.io/yargs-file-commands/) · [API reference](https://bhouston.github.io/yargs-file-commands/docs/api/)
+
 ## Installation
 
 _NOTE: This is an ESM-only package._
@@ -42,7 +44,7 @@ export const main = async () => {
 
 ### 2. File Structure
 
-You can use any combination of file names and directories. We support either [NextJS](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes) or [Remix](https://remix.run/docs/en/main/file-conventions/routes) conventions for interpreting filenames and directories.
+You can combine directories and dotted filenames to define nested commands. A `command` path segment is omitted. Declare positional arguments with Yargs command strings, rather than dynamic URL routing conventions.
 
 ```
 /commands
@@ -134,6 +136,7 @@ import { defineCommand } from 'yargs-file-commands';
 
 export const command = defineCommand({
   describe: 'Default command',
+  builder: (yargs) => yargs,
   handler: async (argv) => {
     console.log('Running default command');
   },
@@ -276,7 +279,7 @@ The `fileCommands` method takes the following options:
 
 **commandDirs**
 
-- An array of directories where the routes are located relative to the build root folder.
+- An array of absolute directory paths containing command files.
 - Required
 
 **extensions**
@@ -287,7 +290,7 @@ The `fileCommands` method takes the following options:
 **ignorePatterns**
 
 - An array of regexs which if matched against a filename or directory, lead it to being ignored/skipped over.
-- Default: `[ /^[.|_].*/, /\.(?:test|spec)\.[jt]s$/, /__(?:test|spec)__/, /\.d\.ts$/ ]`
+- Default: `[ /\.(?:test|spec)\.[jt]s$/, /__(?:test|spec)__/, /\.d\.ts$/ ]`
 
 **logLevel**
 

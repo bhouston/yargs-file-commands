@@ -1,0 +1,115 @@
+:root {
+  --ifm-color-primary: #155ba7;
+  --ifm-color-primary-dark: #0c4c93;
+  --ifm-color-primary-darker: #094584;
+  --ifm-color-primary-darkest: #073464;
+  --ifm-color-primary-light: #2971bd;
+  --ifm-color-primary-lighter: #3982cf;
+  --ifm-color-primary-lightest: #5c9bdb;
+  --ifm-code-font-size: 93%;
+}
+[data-theme='dark'] {
+  --ifm-color-primary: #76b8ff;
+}
+.hero {
+  padding: 5rem 0;
+  background: #103963;
+  color: #fff;
+}
+.hero-content {
+  max-width: 1080px;
+}
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  max-width: 800px;
+  line-height: 1.08;
+}
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.hero-subtitle {
+  max-width: 720px;
+  font-size: 1.25rem;
+  color: #d6e8fa;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.hero .button--outline {
+  color: #fff;
+}
+.hero .button--outline:hover {
+  color: #103963;
+  background: #fff;
+}
+.footer--dark {
+  --ifm-footer-link-color: #b8d9ff;
+}
+.install-command {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  background: #092846;
+  border-color: #476787;
+  color: #e2efff;
+}
+.overview {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  align-items: center;
+  gap: 3rem;
+  padding: 4rem 1rem;
+}
+.overview > * {
+  min-width: 0;
+}
+.home-code {
+  border-radius: 6px;
+  background: #282c3d;
+  color: #e2efff;
+  overflow: hidden;
+}
+.home-code pre {
+  margin: 0;
+  padding: 1rem;
+  background: transparent;
+  color: inherit;
+}
+.home-code-title {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #65718a;
+  font-size: 0.85rem;
+}
+.capabilities {
+  padding: 4rem 0;
+  background: var(--ifm-background-surface-color);
+  border-block: 1px solid var(--ifm-color-emphasis-200);
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.feature-grid h3 {
+  font-size: 1.15rem;
+}
+.feature-grid p {
+  color: var(--ifm-color-emphasis-700);
+}
+@media (max-width: 800px) {
+  .overview,
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding: 3rem 0;
+  }
+  .overview {
+    gap: 1rem;
+  }
+}
