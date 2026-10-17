@@ -1,6 +1,16 @@
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import CodeBlock from '@theme/CodeBlock';
+
+function CodeBlock({ children, title }: { children: string; language?: string; title?: string }) {
+  return (
+    <div className="home-code">
+      {title && <div className="home-code-title">{title}</div>}
+      <pre>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+}
 
 const features = [
   [

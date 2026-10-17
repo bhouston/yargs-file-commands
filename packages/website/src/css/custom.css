@@ -67,6 +67,23 @@
 .overview > * {
   min-width: 0;
 }
+.home-code {
+  border-radius: 6px;
+  background: #282c3d;
+  color: #e2efff;
+  overflow: hidden;
+}
+.home-code pre {
+  margin: 0;
+  padding: 1rem;
+  background: transparent;
+  color: inherit;
+}
+.home-code-title {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #65718a;
+  font-size: 0.85rem;
+}
 .capabilities {
   padding: 4rem 0;
   background: var(--ifm-background-surface-color);
