@@ -45,6 +45,7 @@
 }
 .hero .button--outline:hover {
   color: #103963;
+  background: #fff;
 }
 .footer--dark {
   --ifm-footer-link-color: #b8d9ff;
