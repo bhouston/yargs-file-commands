@@ -9,23 +9,22 @@ import { type ScanDirectoryOptions, scanDirectory } from './scanDirectory.js';
 import { segmentPath } from './segmentPath.js';
 import { validatePositionals } from './validatePositionals.js';
 
+export type { ScanDirectoryOptions } from './scanDirectory.js';
+
 /**
- * Configuration options for file-based command generation
- * @interface FileCommandsOptions
+ * Configuration options for file-based command generation.
  */
 export type FileCommandsOptions = ScanDirectoryOptions & {
-  /** Array of directory paths to scan for command files */
+  /** Absolute directory paths to scan. Later directories override matching commands in earlier ones. */
   commandDirs: string[];
-  /** Whether to validate that positional arguments in builder match command string */
+  /** Validate builder positionals against the command string as modules load. Defaults to false; use validateCommands in tests for a full-tree check. */
   validation?: boolean;
-  /** Message used by every group when run without a subcommand */
+  /** Message used by every group when run without a subcommand. Defaults to `You must specify a <group> subcommand` with the group's name. */
   demandCommandMessage?: string;
 };
 
 /**
  * Default configuration options for file-based commands
- * @constant
- * @type {Partial<FileCommandsOptions>}
  */
 export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
   /** Default directories to scan for command files */
@@ -151,11 +150,9 @@ const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> =>
 
 /**
  * Generates a command tree structure from files in specified directories
- * @async
  * @param {FileCommandsOptions} options - Configuration options for command generation
  * @returns {Promise<CommandModule[]>} Root-level commands with their nested subcommands
  *
- * @description
  * Scans the specified directories and builds a hierarchical command structure from the
  * file system layout. Only root-level command modules are imported up front; each group
  * imports its own commands when yargs enters it, so an invocation only loads the modules

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../yargs-file-commands/src/index.ts"],
+  "tsconfig": "../yargs-file-commands/tsconfig.json",
+  "compilerOptions": { "ignoreDeprecations": "6.0" },
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs/api",
+  "readme": "none",
+  "entryFileName": "index",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "disableSources": true
+}

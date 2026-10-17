@@ -3,14 +3,13 @@ import path, { join } from 'node:path';
 
 /**
  * Options for directory scanning
- * @interface ScanDirectoryOptions
  */
 export interface ScanDirectoryOptions {
-  /** File extensions to consider when scanning for command files */
+  /** File extensions to consider, including the leading dot. Defaults to `.js` and `.ts`. */
   extensions?: string[];
-  /** Regular expressions for patterns to ignore when scanning directories */
+  /** Ignore patterns matched against local paths. Replaces the default test/spec/declaration patterns when provided. */
   ignorePatterns?: RegExp[];
-  /** Logging verbosity level */
+  /** Logging verbosity level. Defaults to `info`. */
   logLevel?: 'info' | 'debug';
   /** Prefix for log messages */
   logPrefix?: string;

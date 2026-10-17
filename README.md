@@ -10,6 +10,8 @@ This Yargs helper function lets you define all your commands as individual files
 names and directory structure imply your nested command structure. Supports both JavaScript and
 TypeScript (on Node 24+).
 
+[Read the documentation website](https://bhouston.github.io/yargs-file-commands/) for guides, examples, and a generated API reference.
+
 See [packages/yargs-file-commands/README.md](packages/yargs-file-commands/README.md) for full
 documentation, including installation, usage examples, and options.
 

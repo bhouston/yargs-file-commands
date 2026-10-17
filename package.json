@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "docs:build": "pnpm --filter @yargs-file-commands/website build",
+    "docs:dev": "pnpm --filter @yargs-file-commands/website dev",
     "prepare": "husky",
     "clean": "rm -rf .nx node_modules packages/*/node_modules packages/*/dist packages/*/build",
     "cloc": "npx cloc * --exclude-dir=node_modules,dist,.nx,.next,build",

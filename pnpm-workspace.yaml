@@ -2,6 +2,7 @@ packages:
   - 'packages/*'
   - 'demos/*'
 allowBuilds:
+  core-js: false
   esbuild: true
 minimumReleaseAgeExclude:
   - '@clidoc/core@1.1.0'
