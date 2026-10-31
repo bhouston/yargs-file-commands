@@ -22,7 +22,7 @@ describe('js-cli integration tests', () => {
     const document = JSON.parse(runCli('docgen'));
     expect(validate(document)).toEqual({ valid: true, errors: [] });
     // the '*' default command is keyed as the binary itself
-    expect(Object.keys(document.commands).toSorted()).toEqual([
+    expect(Object.keys(document.commands).sort()).toEqual([
       'js-cli',
       'js-cli docgen',
       'js-cli hello',

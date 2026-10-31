@@ -22,7 +22,7 @@ describe('ts-cli integration tests', () => {
     const document = JSON.parse(runCli('docgen'));
     expect(validate(document)).toEqual({ valid: true, errors: [] });
     // the '*' default command is keyed as the binary itself
-    expect(Object.keys(document.commands).toSorted()).toEqual(['ts-cli', 'ts-cli docgen', 'ts-cli joke']);
+    expect(Object.keys(document.commands).sort()).toEqual(['ts-cli', 'ts-cli docgen', 'ts-cli joke']);
   });
 
   it('should show help with --help flag', () => {

@@ -105,7 +105,7 @@ export async function validatePositionals(commandModule: CommandModule, filePath
   if (builderPositionals.length > 0 && commandStringPositionals.length === 0) {
     throw new Error(
       `Command in ${filePath} has ${builderPositionals.length} positional argument(s) registered in builder ` +
-        `(${builderPositionals.join(', ')}) but none declared in command string "${commandString}". ` +
+        `(${builderPositionals.join(', ')}) but none declared in command string "${String(commandString)}". ` +
         `Positional arguments must be declared in the command string (e.g., "create <arg1> <arg2>").`,
     );
   }
@@ -116,7 +116,7 @@ export async function validatePositionals(commandModule: CommandModule, filePath
   if (missingInCommandString.length > 0) {
     throw new Error(
       `Command in ${filePath} has positional argument(s) registered in builder ` +
-        `(${missingInCommandString.join(', ')}) that are not declared in command string "${commandString}". ` +
+        `(${missingInCommandString.join(', ')}) that are not declared in command string "${String(commandString)}". ` +
         `All positional arguments must be declared in the command string (e.g., "create <arg1> <arg2>").`,
     );
   }

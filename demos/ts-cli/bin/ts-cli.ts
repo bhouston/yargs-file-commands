@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-import { main } from '../dist/index.ts';
+import { main } from '../src/index.ts';
 
-main();
+await main();
