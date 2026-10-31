@@ -38,7 +38,7 @@ Actions, and enter:
 - Workflow filename: `release.yml`
 - Environment name: leave blank (the workflow does not use an environment)
 
-The workflow uses GitHub-hosted runners, Node 26 with pnpm >=11.1.3 (required for
+The workflow uses GitHub-hosted runners, Node 26 with pnpm >=12 (required for
 OIDC-publish support), and `id-token: write`. No `NPM_TOKEN` or `NODE_AUTH_TOKEN`
 secret is needed. See
 [npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
