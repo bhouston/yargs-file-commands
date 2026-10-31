@@ -40,7 +40,7 @@
     "oxlint-tsgolint": "^7.0.2005",
     "semantic-release": "^25.0.9",
     "size-limit": "^14.3.0",
-    "typescript": "^7.0.2",
+    "typescript": "7.1.0-beta",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
   },
