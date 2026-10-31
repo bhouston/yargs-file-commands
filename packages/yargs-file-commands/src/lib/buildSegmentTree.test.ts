@@ -288,14 +288,13 @@ describe('createCommand', () => {
 
     // Test the builder function
     if (commandModule.builder && typeof commandModule.builder === 'function') {
-      const mockYargs = {
-        command: vi.fn().mockReturnThis(),
-        demandCommand: vi.fn().mockReturnThis(),
-      } as unknown as Parameters<typeof commandModule.builder>[0];
+      const command = vi.fn().mockReturnThis();
+      const demandCommand = vi.fn().mockReturnThis();
+      const mockYargs = { command, demandCommand } as unknown as Parameters<typeof commandModule.builder>[0];
 
       await commandModule.builder(mockYargs);
-      expect(mockYargs.command).toHaveBeenCalledTimes(2); // health, migration
-      expect(mockYargs.demandCommand).toHaveBeenCalledWith(1, 'You must specify a db subcommand');
+      expect(command).toHaveBeenCalledTimes(2); // health, migration
+      expect(demandCommand).toHaveBeenCalledWith(1, 'You must specify a db subcommand');
     }
   });
 });
