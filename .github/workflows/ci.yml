@@ -78,4 +78,5 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - run: pnpm tsc # emits demo dist used by demo integration tests
       - run: pnpm test
