@@ -5,6 +5,7 @@ overrides:
   # Docusaurus build dependencies: use patched serialization and worker releases.
   serialize-javascript: ^7.0.5
   tinypool@^2.1.0: ^2.1.2
+  tinypool@^1.1.1: ^2.1.2
   source-map-js: ^1.2.2
 allowBuilds:
   core-js: false
