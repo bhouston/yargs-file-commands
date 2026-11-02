@@ -171,7 +171,7 @@ export const createCommand = async (
 
 export const logCommandTree = (commands: CommandTreeNode[], level = 0) => {
   commands.forEach((command) => {
-    console.debug(`${'  '.repeat(level) + command.segmentName}`);
+    console.debug('  '.repeat(level) + command.segmentName);
     if (command.type === 'internal') {
       logCommandTree(command.children, level + 1);
     }

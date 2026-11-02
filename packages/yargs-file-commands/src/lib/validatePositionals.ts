@@ -1,4 +1,4 @@
-import type { Argv, CommandBuilder, CommandModule, PositionalOptions } from 'yargs';
+import type { CommandBuilder, CommandModule, PositionalOptions } from 'yargs';
 import yargs from 'yargs';
 
 /**
@@ -72,7 +72,7 @@ export async function extractPositionalsFromBuilder(builder: CommandBuilder | un
 
   // Execute the builder function
   try {
-    const result = builder(mockYargs as Argv<unknown>);
+    const result = builder(mockYargs);
     // Handle both sync and async builders
     await (result instanceof Promise ? result : Promise.resolve(result));
   } catch {
