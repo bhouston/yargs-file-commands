@@ -13,7 +13,7 @@
     "typescript",
     "yargs"
   ],
-  "homepage": "https://github.com/bhouston/yargs-file-commands#readme",
+  "homepage": "https://yargs-file-commands.ben3d.ca",
   "bugs": {
     "url": "https://github.com/bhouston/yargs-file-commands/issues"
   },

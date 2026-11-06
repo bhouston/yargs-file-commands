@@ -1,5 +1,6 @@
 ---
 title: Groups and overlays
+description: Configure command groups, share typed options and overlay hand-written commands on generated ones.
 ---
 
 # Groups and overlays

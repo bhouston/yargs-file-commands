@@ -4,6 +4,6 @@ dist
 .nx
 coverage
 *.tsbuildinfo
-packages/website/.docusaurus/
-packages/website/build/
-packages/website/docs/api/
+packages/docs/.docusaurus/
+packages/docs/build/
+packages/docs/docs/api/

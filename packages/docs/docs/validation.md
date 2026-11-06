@@ -1,5 +1,6 @@
 ---
 title: Validation and troubleshooting
+description: Validate every command in CI with validateCommands and troubleshoot common yargs-file-commands problems.
 ---
 
 # Validation and troubleshooting
@@ -38,4 +39,4 @@ Runtime positional validation defaults to `false`. Set `validation: true` to run
 | Async group is not ready             | Await `.parseAsync()` rather than using synchronous parsing.                                    |
 | Utility file is treated as a command | Move it outside the command tree or add an ignore pattern.                                      |
 
-Set `logLevel: 'debug'` to log scanning and module imports. See [FileCommandsOptions](api/type-aliases/FileCommandsOptions.md) for the complete source-generated option list.
+Set `logLevel: 'debug'` to log scanning and module imports. See [FileCommandsOptions](api/index.md#filecommandsoptions) for the complete source-generated option list.

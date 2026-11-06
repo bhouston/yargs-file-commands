@@ -1,5 +1,6 @@
 ---
 title: Getting started
+description: Install yargs-file-commands, register a command directory with Yargs and write your first typed command.
 ---
 
 # Getting started
