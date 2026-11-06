@@ -49,6 +49,10 @@ Publishing is not atomic. If a run fails part way, compare the registry versions
 - npm: `yargs-file-commands`, from `packages/yargs-file-commands`. The GitHub Release carries generated notes only.
 - The `docs` package and the monorepo root are private and never published.
 
+### Website
+
+The site at `yargs-file-commands.ben3d.ca` deploys only from a release tag. The Release workflow calls `pages.yml` after each published release, building `packages/docs` from the new `v<version>` tag. Dry runs and runs that publish nothing do not deploy, and merging to `main` never does. To redeploy the latest release, run `gh workflow run pages.yml --ref main` (optionally with `-f ref=v<version>`).
+
 ### Required Checks
 
 `main` requires the `ci` and `contribution` checks. The `npm` GitHub environment is used by the release job.
