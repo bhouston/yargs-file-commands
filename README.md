@@ -1,16 +1,33 @@
+<p align="center">
+  <a href="https://bhouston.github.io/yargs-file-commands/" target="_blank" rel="noopener noreferrer">
+    <img alt="yargs-file-commands logo" src="https://raw.githubusercontent.com/bhouston/yargs-file-commands/main/packages/website/static/img/logo.svg" height="96">
+  </a>
+</p>
+<br/>
+<p align="center">
+  <a href="https://npmjs.com/package/yargs-file-commands"><img src="https://img.shields.io/npm/v/yargs-file-commands.svg" alt="npm package"></a>
+  <a href="https://www.npmtrends.com/yargs-file-commands"><img src="https://img.shields.io/npm/dw/yargs-file-commands.svg" alt="npm downloads"></a>
+  <a href="https://codecov.io/gh/bhouston/yargs-file-commands"><img src="https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg" alt="coverage"></a>
+  <a href="https://discord.gg/fwupDN493R"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
+  <a href="https://bhouston.github.io/yargs-file-commands/"><img src="https://img.shields.io/badge/docs-read-blue?style=flat" alt="documentation"></a>
+</p>
+<br/>
+
 # Yargs File Commands
 
-[![NPM Package][npm]][npm-url]
-[![NPM Downloads][npm-downloads]][npmtrends-url]
-[![Tests][tests-badge]][tests-url]
-[![Coverage][coverage-badge]][coverage-url]
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white)][discord-url]
+> Define yargs commands as files; your directory tree becomes the CLI.
+
+- 📁 File-Based Command Tree
+- 🔒 Type-Safe Arguments
+- ⚡ Lazy Group Loading
+- 🧩 Command Overlays
+- ✅ Test-Time Validation
 
 This Yargs helper function lets you define all your commands as individual files, where their file
 names and directory structure imply your nested command structure. Supports both JavaScript and
 TypeScript (on Node 24+).
 
-[Read the documentation website](https://bhouston.github.io/yargs-file-commands/) for guides, examples, and a generated API reference.
+[Read the Docs to Learn More](https://bhouston.github.io/yargs-file-commands/).
 
 See [packages/yargs-file-commands/README.md](packages/yargs-file-commands/README.md) for full
 documentation, including installation, usage examples, and options.
@@ -42,20 +59,17 @@ Commit history through `09abc19` predates commitlint adoption and is excluded
 from CI commit linting; all commits after that boundary are checked (see
 `.github/workflows/ci.yml`'s `policy` job).
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the issue, PR, and release workflow,
-[RELEASING.md](RELEASING.md) for cutting a release, and [SECURITY.md](SECURITY.md)
+See [RELEASING.md](RELEASING.md) for cutting a release and [SECURITY.md](SECURITY.md)
 for private vulnerability reporting.
+
+## Contribution
+
+See [Contributing Guide](CONTRIBUTING.md).
+
+## License
+
+MIT
 
 ## Author
 
-[Ben Houston](https://ben3d.ca), Sponsored by [Land of Assets](https://landofassets.com)
-
-[npm]: https://img.shields.io/npm/v/yargs-file-commands
-[npm-url]: https://www.npmjs.com/package/yargs-file-commands
-[npm-downloads]: https://img.shields.io/npm/dw/yargs-file-commands
-[npmtrends-url]: https://www.npmtrends.com/yargs-file-commands
-[tests-badge]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml/badge.svg?branch=main
-[tests-url]: https://github.com/bhouston/yargs-file-commands/actions/workflows/ci.yml
-[coverage-badge]: https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg
-[coverage-url]: https://codecov.io/gh/bhouston/yargs-file-commands
-[discord-url]: https://discord.gg/fwupDN493R
+[Ben Houston](https://ben3d.ca), Sponsored by [Land of Assets](https://landofassets.com).
