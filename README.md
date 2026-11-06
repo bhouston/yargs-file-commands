@@ -59,8 +59,9 @@ Commit history through `09abc19` predates commitlint adoption and is excluded
 from CI commit linting; all commits after that boundary are checked (see
 `.github/workflows/ci.yml`'s `policy` job).
 
-See [RELEASING.md](RELEASING.md) for cutting a release and [SECURITY.md](SECURITY.md)
-for private vulnerability reporting.
+## Releases
+
+See [RELEASING.md](RELEASING.md) for how releases are published and [GitHub Releases](https://github.com/bhouston/yargs-file-commands/releases) for changes. See [SECURITY.md](SECURITY.md) for private vulnerability reporting.
 
 ## Contribution
 
