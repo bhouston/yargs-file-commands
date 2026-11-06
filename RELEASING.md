@@ -47,7 +47,7 @@ Publishing is not atomic. If a run fails part way, compare the registry versions
 ### Published Artifacts
 
 - npm: `yargs-file-commands`, from `packages/yargs-file-commands`. The GitHub Release carries generated notes only.
-- The `website` package and the monorepo root are private and never published.
+- The `docs` package and the monorepo root are private and never published.
 
 ### Required Checks
 

@@ -43,6 +43,7 @@ jobs:
             exit 1
           }
       - run: pnpm test:release
+      - run: pnpm docs:build
       - name: Package size gate
         run: pnpm size | tee -a "$GITHUB_STEP_SUMMARY"
       # --- end repository-specific steps ---

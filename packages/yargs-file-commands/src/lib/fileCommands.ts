@@ -24,7 +24,8 @@ export type FileCommandsOptions = ScanDirectoryOptions & {
 };
 
 /**
- * Default configuration options for file-based commands
+ * The defaults {@link fileCommands} and {@link validateCommands} apply to options you leave out.
+ * Spread it to build on the defaults, for example to keep the default `ignorePatterns` when adding one.
  */
 export const DefaultFileCommandsOptions: Required<Omit<FileCommandsOptions, 'demandCommandMessage'>> = {
   /** Default directories to scan for command files */
@@ -149,14 +150,25 @@ const scanCommands = async (options: FileCommandsOptions): Promise<Command[]> =>
 };
 
 /**
- * Generates a command tree structure from files in specified directories
- * @param {FileCommandsOptions} options - Configuration options for command generation
- * @returns {Promise<CommandModule[]>} Root-level commands with their nested subcommands
+ * Builds a Yargs command tree from the files under `commandDirs`.
  *
- * Scans the specified directories and builds a hierarchical command structure from the
- * file system layout. Only root-level command modules are imported up front; each group
- * imports its own commands when yargs enters it, so an invocation only loads the modules
- * along the command path it uses.
+ * Directories and dotted file names define nested commands, and a `command` file names its
+ * directory's group. Only root-level command modules are imported up front; each group
+ * imports its own commands when Yargs enters it, so an invocation only loads the modules
+ * along the command path it uses. Later directories override matching commands in earlier ones.
+ *
+ * @param options - Directories to scan and how to scan them.
+ * @returns The root-level commands, each with its nested subcommands, ready to pass to `yargs.command()`.
+ * @throws If `commandDirs` is empty or contains a relative path, an extension lacks its leading dot,
+ * no commands are found, or two files in one directory map to the same command.
+ * @example
+ * ```typescript
+ * await yargs(hideBin(process.argv))
+ *   .command(await fileCommands({ commandDirs: [path.join(import.meta.dirname, 'commands')] }))
+ *   .demandCommand(1)
+ *   .help()
+ *   .parseAsync();
+ * ```
  */
 export const fileCommands = async (options: FileCommandsOptions): Promise<CommandModule[]> => {
   const commands = await scanCommands(options);
@@ -171,9 +183,19 @@ export const fileCommands = async (options: FileCommandsOptions): Promise<Comman
 };
 
 /**
- * Imports every command module under `commandDirs` and validates its positional arguments,
- * throwing on the first problem, including a module that fails to import. Intended for a
- * CLI's unit tests, so the check doesn't cost anything at runtime.
+ * Imports every command module under `commandDirs` and validates its positional arguments and
+ * group definitions without running any handler. Intended for a CLI's unit tests, so the check
+ * costs nothing at runtime. Module-level code and builder functions do run.
+ *
+ * @param options - The same options you pass to {@link fileCommands}; `validation` is always enabled.
+ * @returns A promise that resolves when every command is valid.
+ * @throws On the first problem found, including a module that fails to import.
+ * @example
+ * ```typescript
+ * it('validates the command tree', async () => {
+ *   await validateCommands({ commandDirs: [path.join(import.meta.dirname, 'commands')] });
+ * });
+ * ```
  */
 export const validateCommands = async (options: FileCommandsOptions): Promise<void> => {
   const commands = await scanCommands({ ...options, validation: true });

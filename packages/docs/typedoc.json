@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../yargs-file-commands/src/index.ts"],
+  "tsconfig": "../yargs-file-commands/tsconfig.json",
+  "compilerOptions": { "ignoreDeprecations": "6.0" },
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "entryFileName": "index",
+  "outputFileStrategy": "modules",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "sort": ["source-order"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "disableSources": true,
+  "groupOrder": ["Functions", "Classes", "*"],
+  "interfacePropertiesFormat": "table",
+  "parametersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "useCodeBlocks": true,
+  "excludeExternals": true
+}

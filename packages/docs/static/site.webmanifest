@@ -1,0 +1,13 @@
+{
+  "name": "Yargs File Commands",
+  "short_name": "yargs-file-commands",
+  "description": "Turn a directory of files into a typed, lazy-loading Yargs command tree.",
+  "start_url": ".",
+  "display": "browser",
+  "background_color": "#11151d",
+  "theme_color": "#11151d",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,10 +1,10 @@
 {
-  "name": "@yargs-file-commands/website",
+  "name": "@yargs-file-commands/docs",
   "private": true,
   "scripts": {
-    "generate:api": "typedoc --options typedoc.json",
-    "build": "pnpm generate:api && docusaurus build",
-    "dev": "pnpm generate:api && docusaurus start",
+    "generate": "typedoc --options typedoc.json",
+    "build": "pnpm generate && docusaurus build",
+    "dev": "pnpm generate && docusaurus start",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {

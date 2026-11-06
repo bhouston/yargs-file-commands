@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://bhouston.github.io/yargs-file-commands/" target="_blank" rel="noopener noreferrer">
-    <img alt="yargs-file-commands logo" src="https://raw.githubusercontent.com/bhouston/yargs-file-commands/main/packages/website/static/img/logo.svg" height="96">
+  <a href="https://yargs-file-commands.ben3d.ca/" target="_blank" rel="noopener noreferrer">
+    <img alt="yargs-file-commands logo" src="https://raw.githubusercontent.com/bhouston/yargs-file-commands/main/packages/docs/static/img/logo.svg" height="96">
   </a>
 </p>
 <br/>
@@ -9,7 +9,7 @@
   <a href="https://www.npmtrends.com/yargs-file-commands"><img src="https://img.shields.io/npm/dw/yargs-file-commands.svg" alt="npm downloads"></a>
   <a href="https://codecov.io/gh/bhouston/yargs-file-commands"><img src="https://codecov.io/gh/bhouston/yargs-file-commands/branch/main/graph/badge.svg" alt="coverage"></a>
   <a href="https://discord.gg/fwupDN493R"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
-  <a href="https://bhouston.github.io/yargs-file-commands/"><img src="https://img.shields.io/badge/docs-read-blue?style=flat" alt="documentation"></a>
+  <a href="https://yargs-file-commands.ben3d.ca/"><img src="https://img.shields.io/badge/docs-read-blue?style=flat" alt="documentation"></a>
 </p>
 <br/>
 
@@ -27,7 +27,7 @@ This Yargs helper function lets you define all your commands as individual files
 names and directory structure imply your nested command structure. Supports both JavaScript and
 TypeScript (on Node 24+).
 
-[Read the Docs to Learn More](https://bhouston.github.io/yargs-file-commands/).
+[Read the Docs to Learn More](https://yargs-file-commands.ben3d.ca/).
 
 See [packages/yargs-file-commands/README.md](packages/yargs-file-commands/README.md) for full
 documentation, including installation, usage examples, and options.

@@ -1,5 +1,6 @@
 ---
 title: File conventions
+description: How directory and dotted file names map to Yargs commands, plus default commands, scanning rules and lazy loading.
 ---
 
 # File conventions
