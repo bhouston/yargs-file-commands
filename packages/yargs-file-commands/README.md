@@ -17,16 +17,16 @@
 
 > Define yargs commands as files; your directory tree becomes the CLI.
 
-- 📁 File-Based Command Tree
-- 🔒 Type-Safe Arguments
-- ⚡ Lazy Group Loading
-- 🧩 Command Overlays
-- ✅ Test-Time Validation
+- 📁 [File-Based Command Tree](https://yargs-file-commands.ben3d.ca/docs/file-conventions/): directories and dotted names become nested commands
+- 🔒 [Type-Safe Arguments](https://yargs-file-commands.ben3d.ca/docs/getting-started/): `defineCommand` infers handler arguments from your Yargs builder
+- ⚡ [Lazy Group Loading](https://yargs-file-commands.ben3d.ca/docs/file-conventions/): a group imports its commands only when Yargs enters it
+- 🧩 [Command Overlays](https://yargs-file-commands.ben3d.ca/docs/groups-and-overlays/): layer hand-written commands over generated ones
+- ✅ [Test-Time Validation](https://yargs-file-commands.ben3d.ca/docs/validation/): `validateCommands` checks every command in a test
 
 This Yargs helper function lets you define all your commands as individual files, where their file names and directory structure imply your nested command structure. Supports both JavaScript and
 TypeScript (on Node 24+).
 
-[Read the Docs to Learn More](https://yargs-file-commands.ben3d.ca/). See also the [API reference](https://yargs-file-commands.ben3d.ca/docs/api/).
+**Documentation: [yargs-file-commands.ben3d.ca](https://yargs-file-commands.ben3d.ca/)** · [Getting started](https://yargs-file-commands.ben3d.ca/docs/getting-started/) · [API reference](https://yargs-file-commands.ben3d.ca/docs/api/)
 
 ## Installation
 
@@ -38,67 +38,40 @@ npm install yargs-file-commands
 
 ## Example
 
-### 1. Setup
-
-First, configure your entry point to scan your commands directory:
+Register the commands directory:
 
 ```ts
-import path from 'path';
+import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { fileCommands } from 'yargs-file-commands';
 
-export const main = async () => {
-  const commandsDir = path.join(process.cwd(), 'dist/commands');
-
-  return yargs(hideBin(process.argv))
-    .scriptName('my-cli')
-    .command(await fileCommands({ commandDirs: [commandsDir] }))
-    .help().argv;
-};
+await yargs(hideBin(process.argv))
+  .scriptName('my-cli')
+  .command(await fileCommands({ commandDirs: [path.join(import.meta.dirname, 'commands')] }))
+  .help()
+  .parseAsync();
 ```
 
-### 2. File Structure
-
-You can combine directories and dotted filenames to define nested commands. A `command` path segment is omitted. Declare positional arguments with Yargs command strings, rather than dynamic URL routing conventions.
+Each file defines a command, and its path decides where it lives:
 
 ```
-/commands
-├── db
-│   ├── migration
-│   │   └── command.ts // the "db migration" command
-│   └── health.ts      // the "db health" command
-├── $default.ts        // the default command
-└── studio.start.ts    // the "studio start" command
+commands/
+├── db/
+│   ├── health.ts      // db health
+│   └── migration/
+│       └── command.ts // db migration
+├── studio.start.ts    // studio start
+└── $default.ts        // default command
 ```
-
-The above will result in these commands being registered:
-
-```
-db migration
-db health
-studio start
-```
-
-### 3. Define Commands
-
-Use the `defineCommand` helper to define your commands. This ensures full type safety for your arguments based on the options you define in the `builder`.
-
-**Basic Command (`commands/studio.start.ts`)**
 
 ```ts
+// commands/studio.start.ts
 import { defineCommand } from 'yargs-file-commands';
 
 export const command = defineCommand({
-  command: 'start', // Optional: defaults to filename if omitted
   describe: 'Studio web interface',
-  builder: (yargs) =>
-    yargs.option('port', {
-      alias: 'p',
-      type: 'number',
-      describe: 'Port to listen on',
-      default: 3000,
-    }),
+  builder: (yargs) => yargs.option('port', { type: 'number', default: 3000 }),
   handler: async (argv) => {
     // argv.port is correctly typed as number
     console.log(`Starting studio on port ${argv.port}`);
@@ -106,272 +79,11 @@ export const command = defineCommand({
 });
 ```
 
-**Positional Arguments (`commands/create.ts`)**
+See the [guides](https://yargs-file-commands.ben3d.ca/docs/getting-started/) for positional arguments, groups, overlays and every option.
 
-```ts
-import { defineCommand } from 'yargs-file-commands';
+## Releases
 
-export const command = defineCommand({
-  command: 'create <name>', // Define positional args in the command string
-  describe: 'Create a new resource',
-  builder: (yargs) =>
-    yargs.positional('name', {
-      describe: 'Name of the resource',
-      type: 'string',
-      demandOption: true,
-    }),
-  handler: async (argv) => {
-    // argv.name is correctly typed as string
-    console.log(`Creating resource: ${argv.name}`);
-  },
-});
-```
-
-**Default Export**
-
-The command module can also be the file's default export. It is treated exactly like `export const command`, including the filename fallback for the command name:
-
-```ts
-import { defineCommand } from 'yargs-file-commands';
-
-export default defineCommand({
-  command: 'get <id>',
-  describe: 'Get a thing',
-  handler: async (argv) => {
-    console.log(`Getting ${argv.id}`);
-  },
-});
-```
-
-**Default Command (`commands/$default.ts`)**
-
-This command runs when no other command is specified.
-
-```ts
-import { defineCommand } from 'yargs-file-commands';
-
-export const command = defineCommand({
-  describe: 'Default command',
-  builder: (yargs) => yargs,
-  handler: async (argv) => {
-    console.log('Running default command');
-  },
-});
-```
-
-### 4. Shared Options
-
-To share options between commands while maintaining type safety, you can use either helper functions (recommended for correct type inference) or shared option objects.
-
-**Approach 1: Helper Functions (Recommended)**
-
-This approach uses function composition to chain option definitions, allowing TypeScript to correctly infer the resulting types.
-
-```ts
-// shared.ts
-import type { Argv } from 'yargs';
-
-export const withPagination = <T>(yargs: Argv<T>) => {
-  return yargs
-    .option('page', {
-      type: 'number',
-      default: 1,
-      describe: 'Page number',
-    })
-    .option('limit', {
-      type: 'number',
-      default: 10,
-      describe: 'Items per page',
-    });
-};
-
-// commands/users.ts
-import { defineCommand } from 'yargs-file-commands';
-import { withPagination } from '../shared.js';
-
-export const command = defineCommand({
-  command: 'list',
-  builder: (yargs) => withPagination(yargs),
-  handler: async (argv) => {
-    // argv.page and argv.limit are correctly typed as number
-    console.log(`Page: ${argv.page}, Limit: ${argv.limit}`);
-  },
-});
-```
-
-**Approach 2: Shared Objects**
-
-You can also define a common options object and spread it into your command definitions.
-
-```ts
-// shared.ts
-export const commonOptions = {
-  verbose: {
-    alias: 'v',
-    type: 'boolean',
-    describe: 'Run with verbose logging',
-    default: false,
-  } as const,
-};
-
-// commands/users.ts
-import { defineCommand } from 'yargs-file-commands';
-import { commonOptions } from '../shared.js';
-
-export const command = defineCommand({
-  command: 'list',
-  builder: (yargs) => yargs.options(commonOptions),
-  handler: async (argv) => {
-    // argv.verbose is correctly typed
-    if (argv.verbose) console.log('Verbose mode');
-  },
-});
-```
-
-## Group Definitions
-
-A directory of commands becomes a group, described as `<name> commands` by default. To configure the group itself, add a file at the group's own path, conventionally `command.ts` inside its directory:
-
-```
-/commands
-└── db
-    ├── command.ts   // defines the "db" group itself
-    ├── health.ts    // "db health"
-    └── backup.ts    // "db backup"
-```
-
-```ts
-// commands/db/command.ts
-import type { Argv } from 'yargs';
-
-export const describe = 'Database tools'; // or `false` to hide the group from --help
-export const aliases = ['database'];
-
-// Options and middleware declared here apply to every command in the group
-export const builder = (yargs: Argv) =>
-  yargs.option('region', { type: 'string', default: 'us' }).middleware(async (argv) => {
-    // e.g. connect to the database for argv.region
-  });
-```
-
-Supported: `command`, `describe`, `aliases`, `deprecated` and `builder`, as individual exports, a `command` object, or a default export. A group definition must **not** export a `handler`: groups require a subcommand, so the handler would never run. A file with a handler at a group's path (for example `db.ts` next to a `db/` directory) is reported as a conflict.
-
-A group definition in a later `commandDirs` entry replaces one from an earlier directory, so an overlay can re-describe or hide a generated group.
-
-## Command Overlays
-
-`commandDirs` can list several directories. Their trees are merged: groups with the same name combine their commands, and when two directories define the same command, **the later directory wins**. This lets you layer hand-written commands over generated ones without editing the generated files:
-
-```ts
-await fileCommands({
-  commandDirs: [
-    path.join(distDir, 'commands-generated'), // e.g. generated from an OpenAPI spec
-    path.join(distDir, 'commands'), // hand-written: replaces or adds to the generated tree
-  ],
-});
-```
-
-```
-commands-generated/            commands/
-├── db/                        ├── db/
-│   ├── health.ts              │   ├── health.ts   // replaces the generated "db health"
-│   └── backup.ts              │   └── restore.ts  // adds "db restore" next to "db backup"
-└── status.ts                  └── login.ts        // adds a new top-level command
-```
-
-A command in one directory and a group of the same name in another is a conflict error, and so are two files in the **same** directory that map to the same command (for example `db.health.ts` and `db/health.ts`).
-
-## Lazy Loading
-
-Command modules are loaded lazily, one group at a time. `fileCommands` scans the whole directory tree up front, which is cheap, but imports only the root-level command files. A group imports its own command files when yargs enters it, so `my-cli --help` loads only root-level commands, and `my-cli db migration` loads only the files in `commands/` and `commands/db/` (sibling commands are needed for help output). Large CLIs with thousands of commands stay fast to start.
-
-Because group builders are async, parse with `await yargs(...).parseAsync()` (or `await ....argv`) rather than relying on a synchronous `.parse()` result.
-
-A command file with a mistake in it is only imported when a user goes into its group, so call `validateCommands` from a test to import and check every command (see [Validating commands in tests](#validating-commands-in-tests)).
-
-## Options
-
-The `fileCommands` method takes the following options:
-
-**commandDirs**
-
-- An array of absolute directory paths containing command files.
-- Required
-
-**extensions**
-
-- An array of file extensions for the route files. Files without matching extensions are ignored
-- Default: `[".js", ".ts"]`
-
-**ignorePatterns**
-
-- An array of regexs which if matched against a filename or directory, lead it to being ignored/skipped over.
-- Default: `[ /\.(?:test|spec)\.[jt]s$/, /__(?:test|spec)__/, /\.d\.ts$/ ]`
-
-**logLevel**
-
-- The verbosity level for the plugin, either `debug` or `info`
-- Default: `"info"`
-
-**demandCommandMessage**
-
-- The error message used when a group is run without a subcommand, the same for every group at every depth. A single message lets a `.fail()` handler recognise this case, for example to show the group's help instead of an error:
-
-```ts
-yargs(hideBin(process.argv))
-  .command(await fileCommands({ commandDirs, demandCommandMessage: 'Please specify a subcommand' }))
-  .fail((msg, err, y) => {
-    if (msg === 'Please specify a subcommand') return y.showHelp('log');
-    throw err ?? new Error(msg);
-  });
-```
-
-- Default: `You must specify a <group> subcommand`
-
-**validation**
-
-- Whether to validate that positional arguments registered in the builder function match those declared in the command string
-- When enabled, throws an error if positional arguments are registered via `.positional()` but not declared in the command string (e.g., `command: 'create'` should be `command: 'create <arg1> <arg2>'` if positionals are used)
-- This helps catch a common mistake where positional arguments are defined in the builder but missing from the command string, which causes them to be `undefined` at runtime
-- Default: `false`. The check runs each command's builder, which adds noticeable startup time to large CLIs, so run it in your tests with `validateCommands` instead (see below)
-
-**Example:**
-
-```ts
-// ❌ This will fail validation if validation: true
-export const command = defineCommand({
-  command: 'create', // Missing positional arguments!
-  builder: (yargs) => yargs.positional('name', { ... }),
-});
-
-// ✅ This passes validation
-export const command = defineCommand({
-  command: 'create <name>', // Positional arguments declared
-  builder: (yargs) => yargs.positional('name', { ... }),
-});
-```
-
-### Validating commands in tests
-
-`validateCommands` takes the same options as `fileCommands`. It imports every command module and runs positional validation, and throws on the first problem, including a command file that fails to import. Call it from a unit test so mistakes are caught in CI without slowing down every CLI launch:
-
-```ts
-import path from 'node:path';
-import { validateCommands } from 'yargs-file-commands';
-import { expect, it } from 'vitest';
-
-it('all commands are valid', async () => {
-  await expect(
-    validateCommands({ commandDirs: [path.join(import.meta.dirname, 'commands')] }),
-  ).resolves.toBeUndefined();
-});
-```
-
-## Development
-
-See the [repository README](https://github.com/bhouston/yargs-file-commands#readme) and
-[SECURITY.md](https://github.com/bhouston/yargs-file-commands/blob/main/SECURITY.md) for private vulnerability
-reporting.
+Releases are published by the maintainer from `main`; see [RELEASING.md](https://github.com/bhouston/yargs-file-commands/blob/main/RELEASING.md). [GitHub Releases](https://github.com/bhouston/yargs-file-commands/releases) is the changelog. See [SECURITY.md](https://github.com/bhouston/yargs-file-commands/blob/main/SECURITY.md) for private vulnerability reporting.
 
 ## Contribution
 

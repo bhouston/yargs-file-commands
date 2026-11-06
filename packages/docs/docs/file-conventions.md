@@ -38,6 +38,18 @@ export const command = defineCommand({
 
 Command files may export a `command` object, a default object, or individual Yargs command fields. An explicit command string can include positional arguments; when omitted, the name comes from the file.
 
+The module can also be the file's default export, which is treated exactly like `export const command`, including the filename fallback for the command name:
+
+```ts
+export default defineCommand({
+  command: 'get <id>',
+  describe: 'Get a thing',
+  handler: async (argv) => {
+    console.log(`Getting ${argv.id}`);
+  },
+});
+```
+
 The default extensions are `.js` and `.ts`. When running compiled code, set `extensions: ['.js']` and point at the output directory. Other extensions, such as `.mjs`, must be enabled explicitly.
 
 The default ignore patterns skip `.test.js`, `.test.ts`, `.spec.js`, `.spec.ts`, test/spec directories and `.d.ts` files. Supplying `ignorePatterns` replaces the defaults; include any defaults you still need. Keep shared utility modules outside the scanned commands directory, or ignore them explicitly.

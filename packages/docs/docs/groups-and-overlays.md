@@ -30,7 +30,18 @@ Supported fields are `command`, `describe`, `aliases`, `deprecated` and `builder
 
 A group definition must not have a handler: groups require a subcommand. A leaf command with a handler at the same path as a group is a conflict. Without an explicit definition, the description is `<name> commands`.
 
-Group builders can register shared options and middleware. To customize the missing-subcommand message for every group, pass `demandCommandMessage` to `fileCommands`.
+Group builders can register shared options and middleware, which apply to every command in the group. A group definition in a later `commandDirs` entry replaces one from an earlier directory, so an overlay can re-describe or hide a generated group.
+
+To customize the missing-subcommand message for every group, pass `demandCommandMessage` to `fileCommands`. One message for every group and depth lets a `.fail()` handler recognise the case, for example to show the group's help instead of an error:
+
+```ts
+yargs(hideBin(process.argv))
+  .command(await fileCommands({ commandDirs, demandCommandMessage: 'Please specify a subcommand' }))
+  .fail((msg, err, y) => {
+    if (msg === 'Please specify a subcommand') return y.showHelp('log');
+    throw err ?? new Error(msg);
+  });
+```
 
 ## Share typed options
 
@@ -53,6 +64,26 @@ export const command = defineCommand({
   },
 });
 ```
+
+Alternatively, define a shared options object and spread it into `builder`. Mark each option `as const` so its type is inferred:
+
+```ts
+// shared.ts (outside the scanned directory)
+export const commonOptions = {
+  verbose: { alias: 'v', type: 'boolean', describe: 'Run with verbose logging', default: false } as const,
+};
+
+// commands/users.list.ts
+export const command = defineCommand({
+  describe: 'List users',
+  builder: (yargs) => yargs.options(commonOptions),
+  handler: async (argv) => {
+    if (argv.verbose) console.log('Verbose mode');
+  },
+});
+```
+
+Prefer the helper-function approach above when you chain several options; it keeps inference simplest.
 
 ## Overlay generated commands
 

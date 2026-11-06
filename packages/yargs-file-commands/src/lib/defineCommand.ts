@@ -1,5 +1,47 @@
 import type { ArgumentsCamelCase, Argv, CommandModule, InferredOptionTypes, Options } from 'yargs';
 
+/** Fields shared by every command definition passed to {@link defineCommand}. */
+export interface DefineCommandBase {
+  /** Command string, optionally with positionals such as `create <name>`. Defaults to the name derived from the file path. */
+  command?: string | ReadonlyArray<string>;
+  /** Alternative names for the command. */
+  aliases?: string | ReadonlyArray<string>;
+  /** Help text for the command. Use `false` to hide it from help output. */
+  describe?: string | false;
+  /** Marks the command as deprecated. A string is shown as the deprecation message. */
+  deprecated?: boolean | string;
+}
+
+// biome-ignore lint/complexity/noBannedTypes: matches yargs' own default generics
+/** A command definition whose `builder` is a function that adds options to the Yargs instance. */
+export interface DefineCommandWithBuilder<T = {}, U = {}> extends DefineCommandBase {
+  /**
+   * Adds options and positionals to the Yargs instance; their types flow into `handler`.
+   *
+   * @param yargs - The Yargs instance for this command.
+   * @returns The instance with options added, or a promise of it.
+   */
+  builder: (yargs: Argv<T>) => Argv<U> | PromiseLike<Argv<U>>;
+  /**
+   * Runs the command.
+   *
+   * @param args - The parsed arguments, typed from the options declared by `builder`.
+   */
+  handler: (args: ArgumentsCamelCase<U>) => void | Promise<void>;
+}
+
+/** A command definition whose `builder` is a Yargs options object keyed by option name. */
+export interface DefineCommandWithOptions<O extends { [key: string]: Options }> extends DefineCommandBase {
+  /** Yargs options keyed by option name; their types are inferred for `handler`. */
+  builder: O;
+  /**
+   * Runs the command.
+   *
+   * @param args - The parsed arguments, typed from the options declared in `builder`.
+   */
+  handler: (args: ArgumentsCamelCase<InferredOptionTypes<O>>) => void | Promise<void>;
+}
+
 /** The Yargs `CommandModule` returned by {@link defineCommand}, with the builder's argument types preserved. */
 export type DefineCommandResult<T = {}, U = {}> = CommandModule<T, U>;
 
@@ -24,14 +66,7 @@ export type DefineCommandResult<T = {}, U = {}> = CommandModule<T, U>;
  * ```
  */
 // biome-ignore lint/complexity/noBannedTypes: required to return a CommandModule
-export function defineCommand<T = {}, U = {}>(module: {
-  command?: string | ReadonlyArray<string>;
-  aliases?: string | ReadonlyArray<string>;
-  describe?: string | false;
-  deprecated?: boolean | string;
-  builder: (yargs: Argv<T>) => Argv<U> | PromiseLike<Argv<U>>;
-  handler: (args: ArgumentsCamelCase<U>) => void | Promise<void>;
-}): DefineCommandResult<T, U>;
+export function defineCommand<T = {}, U = {}>(module: DefineCommandWithBuilder<T, U>): DefineCommandResult<T, U>;
 
 /**
  * Defines a command whose handler arguments are inferred from an options object.
@@ -51,14 +86,9 @@ export function defineCommand<T = {}, U = {}>(module: {
  * ```
  */
 // biome-ignore lint/complexity/noBannedTypes: required to return a CommandModule
-export function defineCommand<O extends { [key: string]: Options }, T = {}>(module: {
-  command?: string | ReadonlyArray<string>;
-  aliases?: string | ReadonlyArray<string>;
-  describe?: string | false;
-  deprecated?: boolean | string;
-  builder: O;
-  handler: (args: ArgumentsCamelCase<InferredOptionTypes<O>>) => void | Promise<void>;
-}): DefineCommandResult<T, InferredOptionTypes<O>>;
+export function defineCommand<O extends { [key: string]: Options }, T = {}>(
+  module: DefineCommandWithOptions<O>,
+): DefineCommandResult<T, InferredOptionTypes<O>>;
 
 export function defineCommand(module: unknown): DefineCommandResult {
   return module as DefineCommandResult;

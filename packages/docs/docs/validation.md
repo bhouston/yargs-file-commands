@@ -25,7 +25,27 @@ it('validates the complete command tree', async () => {
 
 Use a test runtime that can import your command files, or validate compiled JavaScript. Module-level initialization and builder functions run during validation, so keep side effects in handlers or explicit services.
 
-Runtime positional validation defaults to `false`. Set `validation: true` to run checks as commands load, or use `validateCommands` in tests to avoid paying that cost on each CLI launch.
+A positional registered with `.positional()` but missing from the command string is a common mistake: the argument is `undefined` at runtime. Validation reports it:
+
+```ts
+// Fails validation: `name` is registered but not declared in the command string
+export const command = defineCommand({
+  command: 'create',
+  builder: (yargs) => yargs.positional('name', { type: 'string' }),
+  handler: () => {},
+});
+
+// Passes
+export const command = defineCommand({
+  command: 'create <name>',
+  builder: (yargs) => yargs.positional('name', { type: 'string' }),
+  handler: () => {},
+});
+```
+
+`validateCommands` takes the same options as `fileCommands`.
+
+Runtime positional validation defaults to `false`. It runs each command's builder, which adds noticeable startup time to large CLIs. Set `validation: true` to run checks as commands load, or use `validateCommands` in tests to avoid paying that cost on each CLI launch.
 
 ## Common problems
 
