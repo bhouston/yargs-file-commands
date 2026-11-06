@@ -11,4 +11,4 @@ The build regenerates `docs/api/` from the library's public TypeScript entry poi
 
 Hand-written guides live in `docs/`. Markdown is parsed as standard Markdown so generated TypeScript signatures do not need MDX escaping. Broken links fail production builds.
 
-The Pages workflow publishes the site to https://yargs-file-commands.ben3d.ca using an uploaded GitHub Pages artifact. The repository must have Pages enabled with **GitHub Actions** as its build source. `static/CNAME` and the Pages custom domain must both name the host.
+The Release workflow deploys the site, from the release tag, to https://yargs-file-commands.ben3d.ca using an uploaded GitHub Pages artifact. The repository must have Pages enabled with **GitHub Actions** as its build source. `static/CNAME` and the Pages custom domain must both name the host.
