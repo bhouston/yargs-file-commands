@@ -29,8 +29,8 @@ TypeScript (on Node 24+).
 
 [Read the Docs to Learn More](https://yargs-file-commands.ben3d.ca/).
 
-See [packages/yargs-file-commands/README.md](packages/yargs-file-commands/README.md) for full
-documentation, including installation, usage examples, and options.
+See the [package README](packages/yargs-file-commands/README.md) for installation and a quick example,
+and the [documentation](https://yargs-file-commands.ben3d.ca/docs/getting-started/) for guides and options.
 
 ## Development
 

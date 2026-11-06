@@ -2,7 +2,9 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["../yargs-file-commands/src/index.ts"],
   "tsconfig": "../yargs-file-commands/tsconfig.json",
-  "compilerOptions": { "ignoreDeprecations": "6.0" },
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0"
+  },
   "out": "docs/api",
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
@@ -19,5 +21,22 @@
   "parametersFormat": "table",
   "typeDeclarationFormat": "table",
   "useCodeBlocks": true,
-  "excludeExternals": true
+  "excludeExternals": true,
+  "validation": {
+    "notDocumented": true
+  },
+  "requiredToBeDocumented": [
+    "Enum",
+    "EnumMember",
+    "Variable",
+    "Function",
+    "Class",
+    "Interface",
+    "Property",
+    "Method",
+    "Accessor",
+    "Constructor",
+    "TypeAlias",
+    "Parameter"
+  ]
 }
