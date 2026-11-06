@@ -66,6 +66,13 @@ const config: Config = {
         { to: '/docs/file-conventions', label: 'File conventions', position: 'left' },
         { to: '/docs/api', label: 'API reference', position: 'left' },
         {
+          href: 'https://www.npmjs.com/package/yargs-file-commands',
+          html: '<span class="navbar-npm-icon" aria-hidden="true"></span>',
+          'aria-label': 'npm package',
+          title: 'npm package',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/bhouston/yargs-file-commands',
           html: '<span class="navbar-github-icon" aria-hidden="true"></span>',
           'aria-label': 'GitHub repository',
