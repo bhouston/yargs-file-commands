@@ -7,3 +7,8 @@ coverage
 packages/docs/.docusaurus/
 packages/docs/build/
 packages/docs/docs/api/
+
+# Agent tooling
+.claude/
+.codex/
+.cursor/
